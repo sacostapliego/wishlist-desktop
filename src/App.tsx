@@ -1,16 +1,7 @@
-import { useState } from 'react'
-import './App.css'
-import { Box } from '@chakra-ui/react'
+import AppRouter from './router'
 
 function App() {
-
-  return (
-    <>
-      <Box>
-        hi
-      </Box>
-    </>
-  )
+  return <AppRouter />
 }
 
 export default App
