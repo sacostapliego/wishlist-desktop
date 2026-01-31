@@ -2,8 +2,9 @@ import type { ReactNode } from 'react'
 import { Box, Flex, IconButton } from '@chakra-ui/react'
 import { Outlet } from 'react-router-dom'
 import { LuPanelLeft } from 'react-icons/lu'
-import Sidebar from './Sidebar'
+import Sidebar from './SideBar'
 import { useSidebarResize } from '../../hooks/useSidebarResize'
+import { ProfileHeader } from './ProfileHeader'
 
 interface ResponsiveLayoutProps {
   children?: ReactNode
@@ -77,6 +78,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
         bg="#141414"
         overflow="hidden"
       >
+        <ProfileHeader />
         {children || <Outlet />}
       </Box>
 

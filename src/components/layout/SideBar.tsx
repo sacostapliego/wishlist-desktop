@@ -1,14 +1,22 @@
-import { Box, VStack, HStack, Text, Button, Separator, IconButton, Avatar } from '@chakra-ui/react'
+import { Box, VStack, Text, Button, Separator, IconButton, HStack } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom'
-import { LuHouse, LuPlus, LuUserRound } from 'react-icons/lu'
+import { LuHouse, LuPlus, LuUsers, LuHeart } from 'react-icons/lu'
 import { useEffect, useState } from 'react'
 import { wishlistAPI } from '../../services/wishlist'
 import { friendsAPI, type FriendWishlistResponse } from '../../services/friends'
+import { useAuth } from '../../context/AuthContext'
+import { API_URL } from '../../services/api'
+import { toaster } from '../ui/toaster'
+import { COLORS } from '../../styles/common'
+import { ProfileSection } from './sidebar/ProfileSection'
+import { WishlistItem } from './sidebar/WishlistItem'
+import { FriendWishlistItem } from './sidebar/FriendWishlistItem'
 
 interface Wishlist {
   id: string
   title: string
   color?: string
+  image?: string
 }
 
 interface SidebarProps {
@@ -20,6 +28,7 @@ interface SidebarProps {
 
 export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarProps) {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [myWishlists, setMyWishlists] = useState<Wishlist[]>([])
   const [friendsWishlists, setFriendsWishlists] = useState<FriendWishlistResponse[]>([])
 
@@ -37,50 +46,36 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
       setFriendsWishlists(friends)
     } catch (error) {
       console.error('Error loading wishlists:', error)
+      toaster.create({
+        title: 'Error',
+        description: 'Failed to load wishlists',
+        type: 'error',
+      })
     }
   }
 
   if (isHidden) return null
+
+  const profileImage = user?.id ? `${API_URL}users/${user.id}/profile-image` : null
+  const displayName = user?.name || user?.username || 'Guest'
 
   return (
     <Box
       bg="#141414"
       h="100%"
       overflowY="auto"
-      p={isCollapsed ? 2 : 4}
+      p={isCollapsed ? 3 : 4}
       transition="all 0.2s"
       display="flex"
       flexDirection="column"
     >
-      {/* User Profile Section */}
       <Box mb={4}>
-        {isExpanded ? (
-          <Button
-            variant="ghost"
-            justifyContent="flex-start"
-            onClick={() => navigate('/profile')}
-            w="100%"
-            h="auto"
-          >
-            <HStack gap={3}>
-              <LuUserRound  />
-              <VStack align="stretch">
-                <Text fontSize="sm" fontWeight="semibold">
-                  Steven Acosta
-                </Text>
-              </VStack>
-            </HStack>
-          </Button>
-        ) : (
-          <IconButton
-            aria-label="Profile"
-            variant="ghost"
-            onClick={() => navigate('/profile')}
-            w="100%"
-          >
-            <LuUserRound  />
-          </IconButton>
-        )}
+        <ProfileSection 
+          displayName={displayName}
+          profileImage={profileImage}
+          isExpanded={isExpanded}
+          onNavigate={() => navigate('/profile')}
+        />
       </Box>
 
       <Separator mb={4} />
@@ -90,115 +85,82 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
         <VStack align="stretch" gap={2}>
           {isExpanded ? (
             <>
-              <Button
-                variant="ghost"
-                justifyContent="flex-start"
-                onClick={() => navigate('/')}
-              >
-                <HStack>
-                  <LuHouse />
-                  <Text>Home</Text>
-                </HStack>
+              <Button variant="ghost" justifyContent="flex-start" onClick={() => navigate('/')}>
+                <HStack><LuHouse /><Text>Home</Text></HStack>
               </Button>
-              <Button
-                variant="ghost"
-                justifyContent="flex-start"
-                onClick={() => navigate('/create')}
-              >
-                <HStack>
-                  <LuPlus />
-                  <Text>Create</Text>
-                </HStack>
+              <Button variant="ghost" justifyContent="flex-start" onClick={() => navigate('/create')}>
+                <HStack><LuPlus /><Text>Create</Text></HStack>
               </Button>
             </>
           ) : (
             <>
-              <IconButton
-                aria-label="Home"
-                variant="ghost"
-                onClick={() => navigate('/')}
-              >
-                <LuHouse />
-              </IconButton>
-              <IconButton
-                aria-label="Create"
-                variant="ghost"
-                onClick={() => navigate('/create')}
-              >
-                <LuPlus />
-              </IconButton>
+              <IconButton aria-label="Home" variant="ghost" onClick={() => navigate('/')}><LuHouse /></IconButton>
+              <IconButton aria-label="Create" variant="ghost" onClick={() => navigate('/create')}><LuPlus /></IconButton>
             </>
           )}
         </VStack>
 
-        {isExpanded && (
-          <>
-            <Separator />
+        <Separator />
 
-            {/* My Wishlists */}
-            <Box>
-              <Text fontSize="sm" fontWeight="semibold" mb={2} px={2} color="fg.muted">
-                My Wishlists
-              </Text>
-              <VStack align="stretch" gap={1}>
-                {myWishlists.map((wishlist) => (
-                  <Button
-                    key={wishlist.id}
-                    variant="ghost"
-                    justifyContent="flex-start"
-                    onClick={() => navigate(`/wishlist/${wishlist.id}`)}
-                    size="sm"
-                    px={2}
-                  >
-                    <HStack>
-                      {wishlist.color && (
-                        <Box
-                          w="12px"
-                          h="12px"
-                          borderRadius="sm"
-                          bg={wishlist.color}
-                        />
-                      )}
-                      <Text fontSize="sm" truncate>
-                        {wishlist.title}
-                      </Text>
-                    </HStack>
-                  </Button>
-                ))}
-              </VStack>
-            </Box>
+        {/* My Wishlists */}
+        <Box>
+          {isExpanded && (
+            <Text fontSize="sm" fontWeight="semibold" mb={2} px={2} color={COLORS.text.muted}>
+              My Wishlists
+            </Text>
+          )}
+          <VStack align="stretch" gap={1}>
+            {myWishlists.length === 0 ? (
+              isExpanded ? (
+                <Text fontSize="xs" color={COLORS.text.muted} px={2}>No wishlists yet</Text>
+              ) : (
+                <IconButton aria-label="My Wishlists" variant="ghost" w="100%"><LuHeart /></IconButton>
+              )
+            ) : (
+              myWishlists.map((wishlist) => (
+                <WishlistItem
+                  key={wishlist.id}
+                  {...wishlist}
+                  isCollapsed={!isExpanded}
+                  onClick={() => navigate(`/wishlist/${wishlist.id}`)}
+                />
+              ))
+            )}
+          </VStack>
+        </Box>
+  
+        <Separator />
 
-            <Separator />
-
-            {/* Friends' Wishlists */}
-            <Box>
-              <Text fontSize="sm" fontWeight="semibold" mb={2} px={2} color="fg.muted">
-                Friends' Wishlists
-              </Text>
-              <VStack align="stretch" gap={1}>
-                {friendsWishlists.map((wishlist) => (
-                  <Button
-                    key={wishlist.id}
-                    variant="ghost"
-                    justifyContent="flex-start"
-                    onClick={() => navigate(`/wishlist/friend/${wishlist.id}`)}
-                    size="sm"
-                    px={2}
-                  >
-                    <VStack align="start" gap={0}>
-                      <Text fontSize="sm" truncate>
-                        {wishlist.title}
-                      </Text>
-                      <Text fontSize="xs" color="fg.muted" truncate>
-                        {wishlist.owner_name || wishlist.owner_username}
-                      </Text>
-                    </VStack>
-                  </Button>
-                ))}
-              </VStack>
-            </Box>
-          </>
-        )}
+        {/* Friends' Wishlists */}
+        <Box>
+          {isExpanded && (
+            <Text fontSize="sm" fontWeight="semibold" mb={2} px={2} color={COLORS.text.muted}>
+              Friends' Wishlists
+            </Text>
+          )}
+          <VStack align="stretch" gap={1}>
+            {friendsWishlists.length === 0 ? (
+              isExpanded ? (
+                <Text fontSize="xs" color={COLORS.text.muted} px={2}>No friends' wishlists</Text>
+              ) : (
+                <IconButton aria-label="Friends' Wishlists" variant="ghost" w="100%"><LuUsers /></IconButton>
+              )
+            ) : (
+              friendsWishlists.map((wishlist) => (
+                <FriendWishlistItem
+                  key={wishlist.id}
+                  id={wishlist.id}
+                  title={wishlist.title}
+                  ownerName={wishlist.owner_name || wishlist.owner_username}
+                  color={wishlist.color}
+                  image={wishlist.image}
+                  isCollapsed={!isExpanded}
+                  onClick={() => navigate(`/wishlist/friend/${wishlist.id}`)}
+                />
+              ))
+            )}
+          </VStack>
+        </Box>
       </VStack>
     </Box>
   )

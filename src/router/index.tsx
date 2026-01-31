@@ -1,12 +1,23 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import ResponsiveLayout from '../components/layout/ResponsiveLayout'
 import HomePage from '../pages/HomePage'
+import LoginPage from '../pages/LoginPage'
+import { ProtectedRoute } from '../components/auth/ProtectedRoute'
+import { useAuth } from '../context/AuthContext'
 
+function AuthRedirect() {
+  const { isLoggedIn } = useAuth()
+  return isLoggedIn ? <Navigate to="/" replace /> : <Navigate to="/auth/login" replace />
+}
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <ResponsiveLayout />,
+    element: (
+      <ProtectedRoute>
+        <ResponsiveLayout />
+      </ProtectedRoute>
+    ),
     children: [
       { index: true, element: <HomePage /> },
     ],
@@ -14,10 +25,9 @@ const router = createBrowserRouter([
   {
     path: '/auth',
     children: [
+      { index: true, element: <AuthRedirect /> },
+      { path: 'login', element: <LoginPage /> },
     ],
-  },
-  {
-    path: '/shared/:id',
   },
 ])
 
