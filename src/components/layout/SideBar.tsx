@@ -1,6 +1,6 @@
 import { Box, VStack, Text, Button, Separator, IconButton, HStack } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom'
-import { LuHouse, LuPlus, LuUsers, LuHeart } from 'react-icons/lu'
+import { LuHouse, LuPlus, LuUsers, LuHeart, LuGift } from 'react-icons/lu'
 import { useEffect, useState } from 'react'
 import { wishlistAPI } from '../../services/wishlist'
 import { friendsAPI, type FriendWishlistResponse } from '../../services/friends'
@@ -91,11 +91,15 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
               <Button variant="ghost" justifyContent="flex-start" onClick={() => navigate('/create')}>
                 <HStack><LuPlus /><Text>Create</Text></HStack>
               </Button>
+              <Button variant="ghost" justifyContent="flex-start" onClick={() => navigate('/friends')}>
+                <HStack><LuUsers /><Text>Friends</Text></HStack>
+              </Button>
             </>
           ) : (
             <>
               <IconButton aria-label="Home" variant="ghost" onClick={() => navigate('/')}><LuHouse /></IconButton>
               <IconButton aria-label="Create" variant="ghost" onClick={() => navigate('/create')}><LuPlus /></IconButton>
+              <IconButton aria-label="Friends" variant="ghost" onClick={() => navigate('/friends')}><LuUsers /></IconButton>
             </>
           )}
         </VStack>
@@ -114,7 +118,7 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
               isExpanded ? (
                 <Text fontSize="xs" color={COLORS.text.muted} px={2}>No wishlists yet</Text>
               ) : (
-                <IconButton aria-label="My Wishlists" variant="ghost" w="100%"><LuHeart /></IconButton>
+                <IconButton aria-label="My Wishlists" variant="ghost" w="100%"><LuGift /></IconButton>
               )
             ) : (
               myWishlists.map((wishlist) => (
@@ -143,7 +147,7 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
               isExpanded ? (
                 <Text fontSize="xs" color={COLORS.text.muted} px={2}>No friends' wishlists</Text>
               ) : (
-                <IconButton aria-label="Friends' Wishlists" variant="ghost" w="100%"><LuUsers /></IconButton>
+                <IconButton aria-label="Friends' Wishlists" variant="ghost" w="100%"><LuHeart /></IconButton>
               )
             ) : (
               friendsWishlists.map((wishlist) => (
