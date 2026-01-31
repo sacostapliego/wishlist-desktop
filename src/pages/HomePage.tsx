@@ -1,60 +1,116 @@
 import { Box, VStack } from '@chakra-ui/react'
 import { ClaimedItemsSection } from '../components/home/ClaimedItemSection'
 import { WishlistCarousel } from '../components/home/WishlistCarousel'
+import { useEffect, useState } from 'react'
+import { wishlistAPI } from '../services/wishlist'
+import { friendsAPI, type FriendWishlistResponse } from '../services/friends'
+import { toaster } from '../components/ui/toaster'
 
-// Mock data - replace with actual data later
-const myWishlists = [
-  { id: 1, name: 'Birthday Wishlist', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
-  { id: 2, name: 'Christmas 2026', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
-  { id: 3, name: 'Gaming Setup', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
-  { id: 4, name: 'Books to Read', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
-  { id: 5, name: 'Travel Essentials', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
-  { id: 6, name: 'Fitness Gear', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
-  { id: 7, name: 'Home Decor Ideas', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
-  { id: 8, name: 'Tech Gadgets', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
-]
+interface Wishlist {
+  id: string
+  name: string
+  image?: string
+  color?: string
+}
 
-const friendsWishlists = [
-  { id: 1, name: "John's Birthday", image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
-  { id: 2, name: "Sarah's Wedding", image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
-  { id: 3, name: "Mike's Wishlist", image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
-  { id: 4, name: "Emma's Travel Plans", image: 'https://media.cnn.com/api/v1/images/stellar/prod/220323041553-01-trae-young-03222022.jpg?c=original' },
-]
-
-const claimedItems = [
-  { id: 1, name: 'Wireless Headphones', friendName: "John Doe", image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
-  { id: 2, name: 'Coffee Maker', friendName: "Sarah Smith", image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
-  { id: 3, name: 'Gaming Mouse', friendName: "Mike Johnson", image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
-  { id: 4, name: 'Book Collection', friendName: "Emma Wilson", image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
-  { id: 5, name: 'Smartwatch', friendName: "David Brown", image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
-]
+interface ClaimedItem {
+  id: number
+  name: string
+  friendName: string
+  image: string
+}
 
 function HomePage() {
+  const [myWishlists, setMyWishlists] = useState<Wishlist[]>([])
+  const [friendsWishlists, setFriendsWishlists] = useState<Wishlist[]>([])
+  const [claimedItems, setClaimedItems] = useState<ClaimedItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    loadData()
+  }, [])
+
+  const loadData = async () => {
+    setIsLoading(true)
+    try {
+      const [myWishlistsData, friendsWishlistsData] = await Promise.all([
+        wishlistAPI.getWishlists(),
+        friendsAPI.getFriendsWishlists()
+      ])
+
+      // Transform my wishlists data
+      const transformedMyWishlists = myWishlistsData.map((wishlist: any) => ({
+        id: wishlist.id,
+        name: wishlist.title,
+        image: wishlist.image,
+        color: wishlist.color
+      }))
+
+      // Transform friends wishlists data
+      const transformedFriendsWishlists = friendsWishlistsData.map((wishlist: FriendWishlistResponse) => ({
+        id: wishlist.id,
+        name: wishlist.title,
+        ownerName: wishlist.owner_name || wishlist.owner_username,
+        image: wishlist.image,
+        color: wishlist.color
+      }))
+
+      setMyWishlists(transformedMyWishlists)
+      setFriendsWishlists(transformedFriendsWishlists)
+
+      // TODO: Load claimed items from API when endpoint is available
+      setClaimedItems([])
+
+    } catch (error) {
+      console.error('Error loading data:', error)
+      toaster.create({
+        title: 'Error',
+        description: 'Failed to load wishlists',
+        type: 'error',
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <Box h="calc(100vh - 32px)" w="100%" display="flex" alignItems="center" justifyContent="center">
+        {/* Add loading spinner here if desired */}
+      </Box>
+    )
+  }
+
   return (
     <Box h="calc(100vh - 32px)" w="100%" overflowX="visible" py={8}>
       <VStack align="stretch">
         {/* Claimed Items Section */}
-        <ClaimedItemsSection 
-          items={claimedItems}
-          onShowAll={() => console.log('Show all claimed items')}
-        />
+        {claimedItems.length > 0 && (
+          <ClaimedItemsSection 
+            items={claimedItems}
+            onShowAll={() => console.log('Show all claimed items')}
+          />
+        )}
 
         {/* My Wishlists Carousel */}
-        <WishlistCarousel 
-          title="My Lists" 
-          wishlists={myWishlists}
-          onShowAll={() => console.log('Show all my wishlists')}
-          onWishlistClick={(id) => console.log('Clicked wishlist:', id)}
-        />
+        {myWishlists.length > 0 && (
+          <WishlistCarousel 
+            title="My Lists" 
+            wishlists={myWishlists}
+            onShowAll={() => console.log('Show all my wishlists')}
+            onWishlistClick={(id) => console.log('Clicked wishlist:', id)}
+          />
+        )}
 
         {/* Friends Wishlists Carousel */}
-        <WishlistCarousel 
-          title="Friends Lists" 
-          wishlists={friendsWishlists}
-          onShowAll={() => console.log('Show all friends wishlists')}
-          onWishlistClick={(id) => console.log('Clicked friend wishlist:', id)}
-        />
-
+        {friendsWishlists.length > 0 && (
+          <WishlistCarousel 
+            title="Friends Lists" 
+            wishlists={friendsWishlists}
+            onShowAll={() => console.log('Show all friends wishlists')}
+            onWishlistClick={(id) => console.log('Clicked friend wishlist:', id)}
+          />
+        )}
       </VStack>
     </Box>
   )

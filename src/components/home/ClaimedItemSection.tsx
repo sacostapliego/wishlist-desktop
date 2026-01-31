@@ -1,4 +1,5 @@
 import { Box, Heading, HStack, Button, SimpleGrid, Image, Text, VStack } from '@chakra-ui/react'
+import { COLORS } from '../../styles/common'
 
 interface ClaimedItem {
   id: number
@@ -17,7 +18,7 @@ export function ClaimedItemsSection({ items, onShowAll }: ClaimedItemsSectionPro
     <Box px={8} mb={2}>
       <HStack justifyContent="space-between" mb={4}>
         <Heading size="lg" color="white">Items I've Claimed</Heading>
-        <Button color="gray.400" fontSize="sm" onClick={onShowAll}>
+        <Button color={COLORS.text.muted} bg={COLORS.background} fontWeight={"bolder"} fontSize="sm" onClick={onShowAll}>
           Show all
         </Button>
       </HStack>
