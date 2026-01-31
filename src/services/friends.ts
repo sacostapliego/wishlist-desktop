@@ -96,7 +96,6 @@ export const friendsAPI = {
   async getFriendsList(): Promise<FriendInfo[]> {
     try {
       const response = await api.get('/friends/list');
-      const wl: FriendWishlistResponse[] = await friendsAPI.getFriendsWishlists();
       return response.data;
     } catch (error) {
       console.error('Friends list error:', error);

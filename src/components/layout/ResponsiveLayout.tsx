@@ -1,31 +1,83 @@
 import type { ReactNode } from 'react'
-import { Box, Flex } from '@chakra-ui/react'
+import { Box, Flex, IconButton } from '@chakra-ui/react'
+import { Outlet } from 'react-router-dom'
+import { LuPanelLeft } from 'react-icons/lu'
+import Sidebar from './Sidebar'
+import { useSidebarResize } from '../../hooks/useSidebarResize'
 
 interface ResponsiveLayoutProps {
-  children?: ReactNode // Make children optional since Outlet will be used
+  children?: ReactNode
 }
 
 export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
+  const { sidebarState, sidebarWidth, isResizing, handleMouseDown, toggleSidebar } = useSidebarResize()
+
   return (
-    <Flex minH="100vh">
+    <Flex minH="100vh" bg="#070707" p={{ base: 0, lg: 4 }} gap={{ base: 0, lg: 4 }}>
+      {/* Show Sidebar Toggle when Hidden */}
+      {sidebarState === 'hidden' && (
+        <IconButton
+          aria-label="Show sidebar"
+          position="fixed"
+          left="1"
+          height={"100%"}
+          display={{ base: "none", lg: "flex" }}
+          onClick={toggleSidebar}
+          zIndex={10}
+          variant={"ghost"}
+        >
+          <LuPanelLeft />
+        </IconButton>
+      )}
+
       {/* Desktop Sidebar */}
       <Box
-        display={{ base: "none", lg: "flex" }}
-        w="280px"
+        display={{ base: "none", lg: "block" }}
+        w={`${sidebarWidth}px`}
         position="fixed"
-        h="100vh"
-        className="custom-sidebar" // Use custom CSS class
+        left="16px"
+        h="calc(100vh - 32px)"
+        transition={isResizing ? 'none' : 'width 0.2s'}
+        borderRadius="lg"
+        overflow="hidden"
       >
-        {/* Sidebar content */}
+        <Sidebar
+          isExpanded={sidebarState === 'expanded'}
+          isCollapsed={sidebarState === 'collapsed'}
+          isHidden={sidebarState === 'hidden'}
+          onToggle={toggleSidebar}
+        />
       </Box>
+
+      {/* Resize Handle */}
+      {sidebarState !== 'hidden' && (
+        <Box
+          display={{ base: "none", lg: "block" }}
+          position="fixed"
+          left={`calc(${sidebarWidth}px + 30px)`}
+          top="16px"
+          h="calc(100vh - 32px)"
+          w="8px"
+          ml="-4px"
+          cursor="col-resize"
+          onMouseDown={handleMouseDown}
+          _hover={{ bg: 'whiteAlpha.300' }}
+          transition={isResizing ? 'none' : 'left 0.2s'}
+          zIndex={5}
+        />
+      )}
 
       {/* Main Content */}
       <Box
         flex="1"
-        ml={{ base: 0, lg: "280px" }}
-        pb={{ base: "80px", lg: 0 }} // Padding for mobile nav
+        ml={{ base: 0, lg: `calc(${sidebarWidth}px + 30px)` }}
+        pb={{ base: "80px", lg: 0 }}
+        transition={isResizing ? 'none' : 'margin-left 0.2s'}
+        borderRadius={{ base: 0, lg: "lg" }}
+        bg="#141414"
+        overflow="hidden"
       >
-        {children}
+        {children || <Outlet />}
       </Box>
 
       {/* Mobile Bottom Nav */}
@@ -35,9 +87,9 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
         bottom="0"
         w="100%"
         h="80px"
-        className="custom-mobile-nav"
+        bg="#141414"
       >
-        {/* Mobile nav content */}
+        {/* Mobile nav content - to be implemented */}
       </Box>
     </Flex>
   )
