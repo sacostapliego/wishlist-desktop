@@ -18,6 +18,7 @@ const friendsWishlists = [
   { id: 1, name: "John's Birthday", image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
   { id: 2, name: "Sarah's Wedding", image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
   { id: 3, name: "Mike's Wishlist", image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/4277905.png&w=350&h=254' },
+  { id: 4, name: "Emma's Travel Plans", image: 'https://media.cnn.com/api/v1/images/stellar/prod/220323041553-01-trae-young-03222022.jpg?c=original' },
 ]
 
 const claimedItems = [
@@ -30,8 +31,8 @@ const claimedItems = [
 
 function HomePage() {
   return (
-    <Box h="100%" w="100%" bg="#141414" overflowY="auto" p={8}>
-      <VStack gap={8} align="stretch" >
+    <Box h="100%" w="100%" bg="#141414" overflowX="hidden" py={8}>
+      <VStack align="stretch">
         {/* Claimed Items Section */}
         <ClaimedItemsSection 
           items={claimedItems}

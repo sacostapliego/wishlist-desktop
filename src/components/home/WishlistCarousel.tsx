@@ -32,9 +32,9 @@ export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick 
 
   return (
     <Box mb={8}>
-      <HStack justifyContent="space-between">
-        <Heading size="lg" color="white">{title}</Heading>
-        <Button color={COLORS.text.muted} bg={COLORS.background} fontWeight={"bolder"} fontSize="sm" onClick={onShowAll}>
+      <HStack justifyContent="space-between" mb={4}>
+        <Heading size="lg" color="white" p={8} >{title}</Heading>
+        <Button p={8} color={COLORS.text.muted} bg={COLORS.background} fontWeight={"bolder"} fontSize="sm" onClick={onShowAll}>
           Show all
         </Button>
       </HStack>
@@ -71,12 +71,14 @@ export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick 
             '&::-webkit-scrollbar': { display: 'none' },
             scrollbarWidth: 'none'
           }}
+          pl={8}  
+          pr={8}
         >
           {wishlists.map((wishlist) => (
             <Box
               key={wishlist.id}
-              w={{base:"15rem", md:"12rem", lg:"15rem"}}
-              h={{base:"15rem", md:"12rem", lg:"15rem"}}
+              w={{base:"9rem", md:"11rem", lg:"15rem"}}
+              h={{base:"10rem", md:"12rem", lg:"16rem"}}
               flexShrink={0}
               borderRadius="md"
               p={4}
@@ -84,19 +86,17 @@ export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick 
               transition="all 0.2s"
               _hover={{ bg: '#2a2a2a' }}
               onClick={() => onWishlistClick?.(wishlist.id)}
-              overflow="visible"
             >
-              <Box h="80%" mb={3}>
+              <Box h="80%" mb={3} overflow="hidden" borderRadius="md" display="flex" alignItems="center" justifyContent="center">
                 <Image
                   src={wishlist.image}
                   alt={wishlist.name}
                   w="100%"
                   h="100%"
-                  objectFit="contain"
-                  borderRadius="md"
+                  objectFit="cover"
                 />
               </Box>
-              <Box h="20%">
+              <Box h="20%" display="flex" alignItems="center">
                 <Text color="white" fontWeight="semibold" fontSize="sm" lineClamp={2}>
                   {wishlist.name}
                 </Text>
@@ -110,7 +110,6 @@ export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick 
           right={0}
           top="50%"
           transform="translateY(-50%)"
-          zIndex={2}
           onClick={() => scroll('right')}
           bg="rgba(0,0,0,0.7)"
           _hover={{ bg: 'rgba(0,0,0,0.9)' }}

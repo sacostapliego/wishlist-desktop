@@ -14,7 +14,7 @@ interface ClaimedItemsSectionProps {
 
 export function ClaimedItemsSection({ items, onShowAll }: ClaimedItemsSectionProps) {
   return (
-    <Box>
+    <Box p={8}>
       <HStack justifyContent="space-between" mb={4}>
         <Heading size="lg" color="white">Items I've Claimed</Heading>
         <Button color="gray.400" fontSize="sm" onClick={onShowAll}>
