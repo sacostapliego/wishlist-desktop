@@ -31,7 +31,7 @@ const claimedItems = [
 
 function HomePage() {
   return (
-    <Box h="100%" w="100%" bg="#141414" overflowX="hidden" py={8}>
+    <Box h="calc(100vh - 32px)" w="100%" overflowX="visible" py={8}>
       <VStack align="stretch">
         {/* Claimed Items Section */}
         <ClaimedItemsSection 

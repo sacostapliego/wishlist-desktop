@@ -31,10 +31,10 @@ export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick 
   }
 
   return (
-    <Box mb={8}>
-      <HStack justifyContent="space-between" mb={4}>
-        <Heading size="lg" color="white" p={8} >{title}</Heading>
-        <Button p={8} color={COLORS.text.muted} bg={COLORS.background} fontWeight={"bolder"} fontSize="sm" onClick={onShowAll}>
+    <Box mb={2}>
+      <HStack justifyContent="space-between" px={8} mb={0}>
+        <Heading size="lg" color="white" >{title}</Heading>
+        <Button color={COLORS.text.muted} bg={COLORS.background} fontWeight={"bolder"} fontSize="sm" onClick={onShowAll}>
           Show all
         </Button>
       </HStack>

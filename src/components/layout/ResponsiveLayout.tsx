@@ -5,6 +5,7 @@ import { LuPanelLeft } from 'react-icons/lu'
 import Sidebar from './SideBar'
 import { useSidebarResize } from '../../hooks/useSidebarResize'
 import { ProfileHeader } from './ProfileHeader'
+import '../../App.css'
 
 interface ResponsiveLayoutProps {
   children?: ReactNode
@@ -76,7 +77,8 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
         transition={isResizing ? 'none' : 'margin-left 0.2s'}
         borderRadius={{ base: 0, lg: "lg" }}
         bg="#141414"
-        overflow="hidden"
+        overflowY="auto"
+        overflowX="hidden"
       >
         <ProfileHeader />
         {children || <Outlet />}
