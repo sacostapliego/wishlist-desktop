@@ -20,7 +20,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
           aria-label="Show sidebar"
           position="fixed"
           left="1"
-          height={"100%"}
+          height="calc(100vh - 32px)"
           display={{ base: "none", lg: "flex" }}
           onClick={toggleSidebar}
           zIndex={10}
@@ -54,7 +54,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
         <Box
           display={{ base: "none", lg: "block" }}
           position="fixed"
-          left={`calc(${sidebarWidth}px + 30px)`}
+          left={`calc(${sidebarWidth}px + 35px)`}
           top="16px"
           h="calc(100vh - 32px)"
           w="8px"
@@ -70,7 +70,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
       {/* Main Content */}
       <Box
         flex="1"
-        ml={{ base: 0, lg: `calc(${sidebarWidth}px + 30px)` }}
+        ml={{ base: 0, lg: `calc(${sidebarWidth}px + 35px)` }}
         pb={{ base: "80px", lg: 0 }}
         transition={isResizing ? 'none' : 'margin-left 0.2s'}
         borderRadius={{ base: 0, lg: "lg" }}

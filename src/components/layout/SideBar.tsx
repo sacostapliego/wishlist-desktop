@@ -1,6 +1,6 @@
-import { Box, VStack, HStack, Text, Button, Separator, IconButton } from '@chakra-ui/react'
+import { Box, VStack, HStack, Text, Button, Separator, IconButton, Avatar } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom'
-import { LuHouse, LuPlus, LuPanelLeftClose } from 'react-icons/lu'
+import { LuHouse, LuPlus, LuUserRound } from 'react-icons/lu'
 import { useEffect, useState } from 'react'
 import { wishlistAPI } from '../../services/wishlist'
 import { friendsAPI, type FriendWishlistResponse } from '../../services/friends'
@@ -18,7 +18,7 @@ interface SidebarProps {
   onToggle: () => void
 }
 
-export default function Sidebar({ isExpanded, isCollapsed, isHidden, onToggle }: SidebarProps) {
+export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarProps) {
   const navigate = useNavigate()
   const [myWishlists, setMyWishlists] = useState<Wishlist[]>([])
   const [friendsWishlists, setFriendsWishlists] = useState<FriendWishlistResponse[]>([])
@@ -49,20 +49,43 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden, onToggle }:
       overflowY="auto"
       p={isCollapsed ? 2 : 4}
       transition="all 0.2s"
+      display="flex"
+      flexDirection="column"
     >
-      <VStack align="stretch" gap={4}>
-        {/* Toggle Button */}
-        <Box display="flex" justifyContent={isCollapsed ? "center" : "flex-end"}>
-          <IconButton
-            aria-label="Toggle sidebar"
+      {/* User Profile Section */}
+      <Box mb={4}>
+        {isExpanded ? (
+          <Button
             variant="ghost"
-            size="sm"
-            onClick={onToggle}
+            justifyContent="flex-start"
+            onClick={() => navigate('/profile')}
+            w="100%"
+            h="auto"
           >
-            <LuPanelLeftClose />
+            <HStack gap={3}>
+              <LuUserRound  />
+              <VStack align="stretch">
+                <Text fontSize="sm" fontWeight="semibold">
+                  Steven Acosta
+                </Text>
+              </VStack>
+            </HStack>
+          </Button>
+        ) : (
+          <IconButton
+            aria-label="Profile"
+            variant="ghost"
+            onClick={() => navigate('/profile')}
+            w="100%"
+          >
+            <LuUserRound  />
           </IconButton>
-        </Box>
+        )}
+      </Box>
 
+      <Separator mb={4} />
+
+      <VStack align="stretch" gap={4} flex="1">
         {/* Top Buttons */}
         <VStack align="stretch" gap={2}>
           {isExpanded ? (
