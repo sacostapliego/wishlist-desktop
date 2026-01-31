@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
 import { Box, Flex } from '@chakra-ui/react'
-import './ResponsiveLayout.css' // Custom CSS for complex styling
 
 interface ResponsiveLayoutProps {
   children?: ReactNode // Make children optional since Outlet will be used
