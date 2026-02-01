@@ -16,15 +16,15 @@ export function WishlistItem({ title, color, image, isCollapsed, onClick }: Wish
 
   const iconBox = (
     <Box
-      w="28px"
-      h="28px"
+      w="35px"
+      h="35px"
       borderRadius="sm"
       bg={color || COLORS.cardGray}
       display="flex"
       alignItems="center"
       justifyContent="center"
     >
-      <Box as={IconComponent} boxSize="18px" />
+      <Box as={IconComponent} boxSize="25px" />
     </Box>
   )
 
@@ -51,7 +51,7 @@ export function WishlistItem({ title, color, image, isCollapsed, onClick }: Wish
     >
       <HStack>
         {iconBox}
-        <Text fontSize="sm" truncate>
+        <Text fontSize="sm">
           {title}
         </Text>
       </HStack>

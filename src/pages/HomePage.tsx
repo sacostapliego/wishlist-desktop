@@ -92,7 +92,7 @@ function HomePage() {
   }
 
   return (
-    <Box h="calc(100vh - 32px)" w="100%" overflowX="visible" py={8}>
+    <Box h="calc(100vh - 32px)" w="100%"  overflowX="visible" py={2}>
       <VStack align="stretch">
         {/* Claimed Items Section */}
         {claimedItems.length > 0 && (

@@ -24,8 +24,8 @@ export function FriendWishlistItem({
 
   const iconBox = (
     <Box
-      w="28px"
-      h="28px"
+      w="35px"
+      h="35px"
       borderRadius="sm"
       bg={color || COLORS.cardGray}
       display="flex"
@@ -33,7 +33,7 @@ export function FriendWishlistItem({
       justifyContent="center"
       flexShrink={0}
     >
-      <Box as={IconComponent} boxSize="18px" />
+      <Box as={IconComponent} boxSize="25px" />
     </Box>
   )
 

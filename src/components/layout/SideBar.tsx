@@ -113,7 +113,7 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
               My Wishlists
             </Text>
           )}
-          <VStack align="stretch" gap={1}>
+          <VStack align="stretch" gap={4}>
             {myWishlists.length === 0 ? (
               isExpanded ? (
                 <Text fontSize="xs" color={COLORS.text.muted} px={2}>No wishlists yet</Text>
@@ -142,7 +142,7 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
               Friends' Wishlists
             </Text>
           )}
-          <VStack align="stretch" gap={1}>
+          <VStack align="stretch" gap={4}>
             {friendsWishlists.length === 0 ? (
               isExpanded ? (
                 <Text fontSize="xs" color={COLORS.text.muted} px={2}>No friends' wishlists</Text>
