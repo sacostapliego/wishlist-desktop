@@ -1,11 +1,14 @@
-import { Box, Heading, HStack, Button, SimpleGrid, Image, Text, VStack } from '@chakra-ui/react'
+import { Box, Heading, HStack, Button, SimpleGrid, Image, Text, VStack, useBreakpointValue } from '@chakra-ui/react'
 import { COLORS } from '../../styles/common'
+import { API_URL } from '../../services/api'
 
 interface ClaimedItem {
-  id: number
+  id: string
   name: string
-  friendName: string
-  image: string
+  price?: number
+  image?: string
+  owner_name: string
+  color?: string
 }
 
 interface ClaimedItemsSectionProps {
@@ -14,42 +17,69 @@ interface ClaimedItemsSectionProps {
 }
 
 export function ClaimedItemsSection({ items, onShowAll }: ClaimedItemsSectionProps) {
+  const getImageUrl = (item: ClaimedItem) => {
+    if (item.image && item.id) {
+      return `${API_URL}wishlist/${item.id}/image`;
+    }
+    return '';
+  };
+
+  // Determine max items based on screen size
+  const maxItems = useBreakpointValue({ base: 6, md: 8 }) || 8;
+  const displayedItems = items.slice(0, maxItems);
+
   return (
-    <Box px={8} mb={2}>
+    <Box px={{ base: 4, md: 8 }} mb={2}>
       <HStack justifyContent="space-between" mb={4}>
-        <Heading size="lg" color="white">Items I've Claimed</Heading>
+        <Heading size="lg" color="white">Items Claimed</Heading>
         <Button color={COLORS.text.muted} bg={COLORS.background} fontWeight={"bolder"} fontSize="sm" onClick={onShowAll}>
           Show all
         </Button>
       </HStack>
       
-      <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} gap={4}>
-        {items.map((item) => (
+      <SimpleGrid columns={{ base: 2, md: 3, lg: 3, xl: 4 }} gap={4}>
+        {displayedItems.map((item) => (
           <HStack
             key={item.id}
             bg="#1a1a1a"
-            borderRadius="md"
+            borderRadius="lg"
             cursor="pointer"
             transition="all 0.2s"
             _hover={{ bg: '#2a2a2a' }}
             gap={0}
             overflow="hidden"
+            w={{ base: "100%" }}
+            h={{ base: "5rem", md: "6rem" }}
           >
-            <Image
-              src={item.image}
-              alt={item.name}
-              w="80px"
-              h="80px"
-              objectFit="cover"
+            <Box
+              w={{ base: "4rem", md: "6rem" }}
+              h={{ base: "5rem", md: "6rem" }}
               flexShrink={0}
-            />
-            <VStack align="start" gap={0} flex={1} p={3}>
-              <Text color="white" fontWeight="bold" fontSize="md">
+              bg={item.color || 'gray.700'}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Image
+                src={getImageUrl(item)}
+                alt={item.name}
+                maxW="100%"
+                maxH="100%"
+                objectFit="contain"
+              />
+            </Box>
+            <VStack align="start" gap={0} flex={1} p={3} overflow="hidden">
+              <Text color="white" fontWeight="bold" fontSize={{base: '0.7rem', md: 'md'}} lineClamp={1}>
                 {item.name}
               </Text>
-              <Text color="gray.400" fontSize="sm">
-                {item.friendName}
+              <Text color="gray.400" fontSize={{base: '0.60rem', md: 'sm'}} lineClamp={1}>
+                For: {item.owner_name}
               </Text>
+              {item.price && (
+                <Text color={COLORS.text.primary} fontSize={{base: '0.60rem', md: 'sm'}} fontWeight="semibold">
+                  ${item.price.toFixed(2)}
+                </Text>
+              )}
             </VStack>
           </HStack>
         ))}

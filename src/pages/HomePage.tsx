@@ -2,7 +2,7 @@ import { Box, VStack } from '@chakra-ui/react'
 import { ClaimedItemsSection } from '../components/home/ClaimedItemSection'
 import { WishlistCarousel } from '../components/home/WishlistCarousel'
 import { useEffect, useState } from 'react'
-import { wishlistAPI } from '../services/wishlist'
+import { wishlistAPI, type ClaimedItemResponse } from '../services/wishlist'
 import { friendsAPI, type FriendWishlistResponse } from '../services/friends'
 import { toaster } from '../components/ui/toaster'
 
@@ -14,10 +14,11 @@ interface Wishlist {
 }
 
 interface ClaimedItem {
-  id: number
+  id: string
   name: string
-  friendName: string
-  image: string
+  price?: number
+  image?: string
+  owner_name: string
 }
 
 function HomePage() {
@@ -33,9 +34,10 @@ function HomePage() {
   const loadData = async () => {
     setIsLoading(true)
     try {
-      const [myWishlistsData, friendsWishlistsData] = await Promise.all([
+      const [myWishlistsData, friendsWishlistsData, claimedItemsData] = await Promise.all([
         wishlistAPI.getWishlists(),
-        friendsAPI.getFriendsWishlists()
+        friendsAPI.getFriendsWishlists(),
+        wishlistAPI.getClaimedItems()
       ])
 
       // Transform my wishlists data
@@ -55,11 +57,19 @@ function HomePage() {
         color: wishlist.color
       }))
 
+      // Transform claimed items data
+      const transformedClaimedItems = claimedItemsData.map((item: ClaimedItemResponse) => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        owner_name: item.owner_name,
+        color: item.wishlist_color
+      }))
+
       setMyWishlists(transformedMyWishlists)
       setFriendsWishlists(transformedFriendsWishlists)
-
-      // TODO: Load claimed items from API when endpoint is available
-      setClaimedItems([])
+      setClaimedItems(transformedClaimedItems)
 
     } catch (error) {
       console.error('Error loading data:', error)
@@ -76,7 +86,7 @@ function HomePage() {
   if (isLoading) {
     return (
       <Box h="calc(100vh - 32px)" w="100%" display="flex" alignItems="center" justifyContent="center">
-        {/* Add loading spinner here if desired */}
+        {/* Add loading spinner here */}
       </Box>
     )
   }

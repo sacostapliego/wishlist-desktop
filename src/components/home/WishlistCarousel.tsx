@@ -82,7 +82,7 @@ export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick 
             return (
               <Box
                 key={wishlist.id}
-                w={{base:"9rem", md:"11rem", lg:"15rem"}}
+                w={{base:"8rem", md:"10rem", lg:"14rem"}}
                 h={{base:"10rem", md:"12rem", lg:"16rem"}}
                 flexShrink={0}
                 borderRadius="md"
