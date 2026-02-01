@@ -1,5 +1,17 @@
 import api from "./api";
 
+export interface ClaimedItemResponse {
+  id: string;
+  name: string;
+  price?: number;
+  image?: string;
+  owner_id: string;
+  owner_name: string;
+  wishlist_id?: string;
+  wishlist_color?: string;
+  claimed_at?: string;
+}
+
 export const wishlistAPI = {
     getWishlistItems: async (wishlistId: string) => {
       try {
@@ -219,6 +231,16 @@ export const wishlistAPI = {
         const response = await api.delete(`/wishlist/${itemId}/claim`, { data: unclaimData });
         return response.data;
     },
+
+    getClaimedItems: async (): Promise<ClaimedItemResponse[]> => {
+    try {
+      const response = await api.get('/wishlist/claimed/my-items');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching claimed items:', error);
+      throw error;
+    }
+  },
 };
 
 export default wishlistAPI;
