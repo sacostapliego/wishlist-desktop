@@ -159,7 +159,7 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
                   color={wishlist.color}
                   image={wishlist.image}
                   isCollapsed={!isExpanded}
-                  onClick={() => navigate(`/wishlist/friend/${wishlist.id}`)}
+                  onClick={() => navigate(`/wishlist/${wishlist.id}`)}
                 />
               ))
             )}

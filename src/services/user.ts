@@ -4,8 +4,8 @@ import api from './api';
 export interface PublicUserDetailsResponse {
   id: string;
   name?: string;
-  username: string; // Matches backend Pydantic model
-  pfp?: string; // This will be the direct S3 URL
+  username: string;
+  pfp?: string;
   hat_size?: string | null;
   shirt_size?: string | null;
   pants_size?: string | null;

@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { wishlistAPI, type ClaimedItemResponse } from '../services/wishlist'
 import { friendsAPI, type FriendWishlistResponse } from '../services/friends'
 import { toaster } from '../components/ui/toaster'
+import { useNavigate } from 'react-router-dom'
 
 interface Wishlist {
   id: string
@@ -22,6 +23,7 @@ interface ClaimedItem {
 }
 
 function HomePage() {
+  const navigate = useNavigate()
   const [myWishlists, setMyWishlists] = useState<Wishlist[]>([])
   const [friendsWishlists, setFriendsWishlists] = useState<Wishlist[]>([])
   const [claimedItems, setClaimedItems] = useState<ClaimedItem[]>([])
@@ -102,23 +104,23 @@ function HomePage() {
           />
         )}
 
-        {/* My Wishlists Carousel */}
-        {myWishlists.length > 0 && (
-          <WishlistCarousel 
-            title="My Lists" 
-            wishlists={myWishlists}
-            onShowAll={() => console.log('Show all my wishlists')}
-            onWishlistClick={(id) => console.log('Clicked wishlist:', id)}
-          />
-        )}
-
         {/* Friends Wishlists Carousel */}
         {friendsWishlists.length > 0 && (
           <WishlistCarousel 
             title="Friends Lists" 
             wishlists={friendsWishlists}
             onShowAll={() => console.log('Show all friends wishlists')}
-            onWishlistClick={(id) => console.log('Clicked friend wishlist:', id)}
+            onWishlistClick={(id) => navigate(`/wishlist/${id}`)}
+          />
+        )}
+
+        {/* My Wishlists Carousel */}
+        {myWishlists.length > 0 && (
+          <WishlistCarousel 
+            title="My Lists" 
+            wishlists={myWishlists}
+            onShowAll={() => console.log('Show all my wishlists')}
+            onWishlistClick={(id) => navigate(`/wishlist/${id}`)}
           />
         )}
       </VStack>
