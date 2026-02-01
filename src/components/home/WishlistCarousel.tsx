@@ -1,4 +1,4 @@
-import { Box, Heading, HStack, Button, Text } from '@chakra-ui/react'
+import { Box, Heading, HStack, Button, Text, IconButton } from '@chakra-ui/react'
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import { useRef, useState } from 'react'
 import { COLORS } from '../../styles/common'
@@ -18,6 +18,37 @@ interface WishlistCarouselProps {
   onWishlistClick?: (wishlistId: string) => void
 }
 
+// Extracted scroll button component - no performance issues
+interface ScrollButtonProps {
+  direction: 'left' | 'right'
+  onClick: () => void
+  isVisible: boolean
+}
+
+function ScrollButton({ direction, onClick, isVisible }: ScrollButtonProps) {
+  return (
+    <IconButton
+      position="absolute"
+      {...(direction === 'left' ? { left: 2 } : { right: 2 })}
+      top="50%"
+      transform="translateY(-50%)"
+      zIndex={2}
+      onClick={onClick}
+      bg="rgba(0,0,0,0.7)"
+      _hover={{ bg: 'rgba(0,0,0,0.9)' }}
+      color="white"
+      borderRadius="full"
+      size="md"
+      opacity={isVisible ? 1 : 0}
+      transition="opacity 0.2s"
+      pointerEvents={isVisible ? 'auto' : 'none'}
+      aria-label={`Scroll ${direction}`}
+    >
+      {direction === 'left' ? <FaChevronLeft /> : <FaChevronRight />}
+    </IconButton>
+  )
+}
+
 export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick }: WishlistCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [isHovered, setIsHovered] = useState(false)
@@ -33,7 +64,7 @@ export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick 
   }
 
   return (
-    <Box mb={{base: 8, md:2}}>
+    <Box mb={{base: 8, md:1}}>
       <HStack justifyContent="space-between" px={8} >
         <Heading size="lg" color="white">{title}</Heading>
         <Button color={COLORS.text.muted} bg={COLORS.background} fontWeight={"bolder"} fontSize="sm" onClick={onShowAll}>
@@ -46,24 +77,11 @@ export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick 
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <Button
-          position="absolute"
-          left={0}
-          top="50%"
-          transform="translateY(-50%)"
-          zIndex={2}
-          onClick={() => scroll('left')}
-          bg="rgba(0,0,0,0.7)"
-          _hover={{ bg: 'rgba(0,0,0,0.9)' }}
-          color="white"
-          borderRadius="full"
-          size="sm"
-          opacity={isHovered ? 1 : 0}
-          transition="opacity 0.2s"
-          pointerEvents={isHovered ? 'auto' : 'none'}
-        >
-          <FaChevronLeft />
-        </Button>
+        <ScrollButton 
+          direction="left" 
+          onClick={() => scroll('left')} 
+          isVisible={isHovered} 
+        />
 
         <HStack
           ref={scrollRef}
@@ -94,7 +112,6 @@ export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick 
               >
                 <Box 
                   h="80%" 
-                  mb={3} 
                   overflow="hidden" 
                   borderRadius="md" 
                   display="flex" 
@@ -104,8 +121,8 @@ export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick 
                 >
                   <Box as={IconComponent} boxSize="80px" color="white" />
                 </Box>
-                <Box h="20%" display="flex" alignItems="center">
-                  <Text color="white" fontWeight="semibold" fontSize="sm" lineClamp={2}>
+                <Box h="20%" mt={{base: 2, md: 0}} display="flex" alignItems="center">
+                  <Text color="white" fontWeight="semibold" fontSize={{base:"sm", md:"md", lg:"lg"}} lineClamp={2}>
                     {wishlist.name}
                   </Text>
                 </Box>
@@ -114,24 +131,11 @@ export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick 
           })}
         </HStack>
 
-        <Button
-          position="absolute"
-          right={0}
-          top="50%"
-          transform="translateY(-50%)"
-          zIndex={2}
-          onClick={() => scroll('right')}
-          bg="rgba(0,0,0,0.7)"
-          _hover={{ bg: 'rgba(0,0,0,0.9)' }}
-          color="white"
-          borderRadius="full"
-          size="sm"
-          opacity={isHovered ? 1 : 0}
-          transition="opacity 0.2s"
-          pointerEvents={isHovered ? 'auto' : 'none'}
-        >
-          <FaChevronRight />
-        </Button>
+        <ScrollButton 
+          direction="right" 
+          onClick={() => scroll('right')} 
+          isVisible={isHovered} 
+        />
       </Box>
     </Box>
   )
