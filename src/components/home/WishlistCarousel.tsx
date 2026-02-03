@@ -100,8 +100,7 @@ export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick 
             return (
               <Box
                 key={wishlist.id}
-                w={{base:"8rem", md:"10rem", lg:"14rem"}}
-                h={{base:"10rem", md:"12rem", lg:"16rem"}}
+                w={{base:"10rem", md:"12rem", lg:"13rem"}}
                 flexShrink={0}
                 borderRadius="md"
                 p={4}
@@ -109,9 +108,13 @@ export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick 
                 transition="all 0.2s"
                 _hover={{ bg: '#2a2a2a' }}
                 onClick={() => onWishlistClick?.(wishlist.id)}
+                display="flex"
+                flexDirection="column"
+                gap={2}
               >
                 <Box 
-                  h="80%" 
+                  w="100%"
+                  aspectRatio={1}
                   overflow="hidden" 
                   borderRadius="md" 
                   display="flex" 
@@ -119,9 +122,9 @@ export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick 
                   justifyContent="center"
                   bg={wishlist.color || COLORS.cardGray}
                 >
-                  <Box as={IconComponent} boxSize="80px" color="white" />
+                  <Box as={IconComponent} boxSize="5rem" color="white" />
                 </Box>
-                <Box h="20%" mt={{base: 2, md: 0}} display="flex" alignItems="center">
+                <Box>
                   <Text color="white" fontWeight="semibold" fontSize={{base:"sm", md:"md", lg:"lg"}} lineClamp={2}>
                     {wishlist.name}
                   </Text>
