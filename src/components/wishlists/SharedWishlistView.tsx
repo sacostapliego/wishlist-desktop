@@ -56,10 +56,6 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
 
         {/* Wishlist Info */}
         <VStack align="start" gap={2} pb={4}>
-          <Text fontSize="sm" fontWeight="semibold" color={COLORS.text.secondary}>
-            Shared Wishlist
-          </Text>
-          
           <Heading 
             size={{ base: "2xl", md: "3xl", lg: "4xl" }} 
             color="white"
