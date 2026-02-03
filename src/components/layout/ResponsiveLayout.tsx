@@ -4,7 +4,6 @@ import { Outlet } from 'react-router-dom'
 import { LuPanelLeft } from 'react-icons/lu'
 import Sidebar from './SideBar'
 import { useSidebarResize } from '../../hooks/useSidebarResize'
-import { ProfileHeader } from './ProfileHeader'
 import '../../App.css'
 
 interface ResponsiveLayoutProps {
@@ -80,7 +79,6 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
         overflowY="auto"
         overflowX="hidden"
       >
-        <ProfileHeader />
         {children || <Outlet />}
       </Box>
 

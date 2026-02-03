@@ -6,6 +6,7 @@ import { wishlistAPI, type ClaimedItemResponse } from '../services/wishlist'
 import { friendsAPI, type FriendWishlistResponse } from '../services/friends'
 import { toaster } from '../components/ui/toaster'
 import { useNavigate } from 'react-router-dom'
+import { ProfileHeader } from '../components/layout/ProfileHeader'
 
 interface Wishlist {
   id: string
@@ -95,6 +96,7 @@ function HomePage() {
 
   return (
     <Box h="calc(100vh - 32px)" w="100%"  overflowX="visible" py={2}>
+      <ProfileHeader />
       <VStack align="stretch">
         {/* Claimed Items Section */}
         {claimedItems.length > 0 && (
