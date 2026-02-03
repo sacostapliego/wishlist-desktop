@@ -2,6 +2,7 @@ import { Box, VStack, Heading, Text } from '@chakra-ui/react'
 import { useParams, Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { wishlistAPI } from '../services/wishlist'
+import { friendsAPI } from '../services/friends'
 import { useAuth } from '../context/AuthContext'
 import { toaster } from '../components/ui/toaster'
 
@@ -10,47 +11,115 @@ interface Wishlist {
   title: string
   owner_id: string
   is_public: boolean
+  color?: string
+  image?: string
 }
+
+interface MyWishlistResponse {
+  id: string
+  title: string
+  user_id?: string
+  owner_id?: string
+  is_public: boolean
+  color?: string
+  image?: string
+}
+
+interface FriendWishlistResponse {
+  id: string;
+  title: string;
+  description?: string;
+  color?: string;
+  item_count: number;
+  owner_id: string;
+  owner_name: string;
+  owner_username: string;
+  image?: string;
+}
+
 
 function WishlistPage() {
   const { id } = useParams<{ id: string }>()
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [wishlist, setWishlist] = useState<Wishlist | null>(null)
   const [loading, setLoading] = useState(true)
   const [accessDenied, setAccessDenied] = useState(false)
+  const [isOwner, setIsOwner] = useState(false)
 
   useEffect(() => {
-    if (id) {
+    if (id && !authLoading) {
       loadWishlist(id)
     }
-  }, [id])
+  }, [id, authLoading, user])
 
   const loadWishlist = async (wishlistId: string) => {
     try {
       setLoading(true)
-      const data = await wishlistAPI.getWishlist(wishlistId)
+      setAccessDenied(false)
       
-      // Check access permissions
-      const isOwner = data.owner_id === user?.id
-      const isFriend = data.is_friend
-      const isPublic = data.is_public
+      // Load all wishlists in parallel to determine ownership quickly
+      const [myWishlists, friendsWishlists] = await Promise.all([
+        wishlistAPI.getWishlists() as Promise<MyWishlistResponse[]>,
+        friendsAPI.getFriendsWishlists()
+      ])
 
-      if (!isOwner && !isFriend && !isPublic) {
-        setAccessDenied(true)
-      } else {
-        setWishlist(data)
+      // Check if it's the user's own wishlist
+      const myWishlist = myWishlists.find((w: MyWishlistResponse) => w.id === wishlistId)
+      
+      if (myWishlist) {
+        // It's the user's wishlist
+        const ownerId = myWishlist.user_id || myWishlist.owner_id
+        setWishlist({
+          ...myWishlist,
+          owner_id: ownerId || ''
+        })
+        setIsOwner(true)
+        return
+      }
+
+      // Check if it's a friend's wishlist
+      const friendWishlist = friendsWishlists.find((w: FriendWishlistResponse) => w.id === wishlistId)
+      
+      if (friendWishlist) {
+        setWishlist({
+          id: friendWishlist.id,
+          title: friendWishlist.title,
+          owner_id: friendWishlist.owner_id,
+          is_public: false,
+          color: friendWishlist.color,
+          image: friendWishlist.image
+        })
+        setIsOwner(false)
+        return
+      }
+
+      // If not found in either, try as public wishlist
+      try {
+        const publicData = await wishlistAPI.getPublicWishlist(wishlistId)
+        const ownerId = publicData.user_id || publicData.owner_id
+        setWishlist({
+          ...publicData,
+          owner_id: ownerId || ''
+        })
+        setIsOwner(false)
+      } catch (error: any) {
+        if (error.response?.status === 403) {
+          setAccessDenied(true)
+        } else {
+          toaster.create({
+            title: 'Not Found',
+            description: 'This wishlist does not exist or you do not have access',
+            type: 'error',
+          })
+        }
       }
     } catch (error: any) {
       console.error('Error loading wishlist:', error)
-      if (error.response?.status === 403 || error.response?.status === 404) {
-        setAccessDenied(true)
-      } else {
-        toaster.create({
-          title: 'Error',
-          description: 'Failed to load wishlist',
-          type: 'error',
-        })
-      }
+      toaster.create({
+        title: 'Error',
+        description: 'Failed to load wishlist',
+        type: 'error',
+      })
     } finally {
       setLoading(false)
     }
@@ -60,7 +129,7 @@ function WishlistPage() {
     return <Navigate to="/" replace />
   }
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <Box h="calc(100vh - 32px)" w="100%" display="flex" alignItems="center" justifyContent="center">
         <Text color="white">Loading...</Text>
@@ -74,18 +143,24 @@ function WishlistPage() {
         <VStack gap={4}>
           <Heading size="lg" color="white">Private Wishlist</Heading>
           <Text color="gray.400" textAlign="center">
-            This wishlist is private and only available to the owner.
+            This wishlist is private and only available to the owner and their friends.
           </Text>
         </VStack>
       </Box>
     )
   }
 
+  if (!wishlist) {
+    return <Navigate to="/" replace />
+  }
+
   return (
     <Box h="calc(100vh - 32px)" w="100%" overflowX="visible" py={2}>
       <VStack align="stretch">
-        <Heading color="white" px={8}>{wishlist?.title}</Heading>
-        {/* Add your wishlist content here */}
+        <Heading color="white" px={8}>{wishlist.title}</Heading>
+        <Text color="gray.400" px={8} fontSize="sm">
+          {isOwner ? 'Your Wishlist' : 'Shared Wishlist'}
+        </Text>
       </VStack>
     </Box>
   )
