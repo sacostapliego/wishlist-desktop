@@ -10,6 +10,8 @@ export interface FriendWishlistResponse {
   owner_name: string;
   owner_username: string;
   image?: string;
+  updated_at?: string;
+  created_at?: string;
 }
 
 export interface UserSearchResponse {
