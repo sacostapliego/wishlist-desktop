@@ -5,24 +5,34 @@ import { wishlistAPI } from '../services/wishlist'
 import { friendsAPI } from '../services/friends'
 import { useAuth } from '../context/AuthContext'
 import { toaster } from '../components/ui/toaster'
+import { OwnerWishlistView } from '../components/wishlists/OwnerWishlistView'
+import { SharedWishlistView } from '../components/wishlists/SharedWishlistView'
 
 interface Wishlist {
   id: string
   title: string
+  description?: string
   owner_id: string
   is_public: boolean
   color?: string
   image?: string
+  item_count?: number
+  updated_at?: string
+  created_at?: string
 }
 
 interface MyWishlistResponse {
   id: string
   title: string
+  description?: string
   user_id?: string
   owner_id?: string
   is_public: boolean
   color?: string
   image?: string
+  item_count?: number
+  updated_at?: string
+  created_at?: string
 }
 
 interface FriendWishlistResponse {
@@ -42,6 +52,7 @@ function WishlistPage() {
   const { id } = useParams<{ id: string }>()
   const { user, loading: authLoading } = useAuth()
   const [wishlist, setWishlist] = useState<Wishlist | null>(null)
+  const [ownerName, setOwnerName] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [accessDenied, setAccessDenied] = useState(false)
   const [isOwner, setIsOwner] = useState(false)
@@ -53,47 +64,48 @@ function WishlistPage() {
   }, [id, authLoading, user])
 
   const loadWishlist = async (wishlistId: string) => {
-    try {
-      setLoading(true)
-      setAccessDenied(false)
-      
-      // Load all wishlists in parallel to determine ownership quickly
-      const [myWishlists, friendsWishlists] = await Promise.all([
-        wishlistAPI.getWishlists() as Promise<MyWishlistResponse[]>,
-        friendsAPI.getFriendsWishlists()
-      ])
+  try {
+    setLoading(true)
+    setAccessDenied(false)
+    
+    const [myWishlists, friendsWishlists] = await Promise.all([
+      wishlistAPI.getWishlists() as Promise<MyWishlistResponse[]>,
+      friendsAPI.getFriendsWishlists()
+    ])
 
-      // Check if it's the user's own wishlist
-      const myWishlist = myWishlists.find((w: MyWishlistResponse) => w.id === wishlistId)
-      
-      if (myWishlist) {
-        // It's the user's wishlist
-        const ownerId = myWishlist.user_id || myWishlist.owner_id
-        setWishlist({
-          ...myWishlist,
-          owner_id: ownerId || ''
-        })
-        setIsOwner(true)
-        return
+    const myWishlist = myWishlists.find((w: MyWishlistResponse) => w.id === wishlistId)
+    
+    if (myWishlist) {
+      const fullWishlist = await wishlistAPI.getWishlist(wishlistId)
+      const ownerId = fullWishlist.user_id || fullWishlist.owner_id
+      setWishlist({
+        ...fullWishlist,
+        owner_id: ownerId || ''
+      })
+      setIsOwner(true)
+      return
+    }
+
+    const friendWishlist = friendsWishlists.find((w: FriendWishlistResponse) => w.id === wishlistId)
+    
+    if (friendWishlist) {
+      setWishlist({
+        id: friendWishlist.id,
+        title: friendWishlist.title,
+        description: friendWishlist.description,
+        owner_id: friendWishlist.owner_id,
+        is_public: false,
+        color: friendWishlist.color,
+        image: friendWishlist.image,
+        item_count: friendWishlist.item_count,
+        updated_at: friendWishlist.updated_at,
+        created_at: friendWishlist.created_at
+      })
+      setOwnerName(friendWishlist.owner_name || friendWishlist.owner_username)
+      setIsOwner(false)
+      return
       }
 
-      // Check if it's a friend's wishlist
-      const friendWishlist = friendsWishlists.find((w: FriendWishlistResponse) => w.id === wishlistId)
-      
-      if (friendWishlist) {
-        setWishlist({
-          id: friendWishlist.id,
-          title: friendWishlist.title,
-          owner_id: friendWishlist.owner_id,
-          is_public: false,
-          color: friendWishlist.color,
-          image: friendWishlist.image
-        })
-        setIsOwner(false)
-        return
-      }
-
-      // If not found in either, try as public wishlist
       try {
         const publicData = await wishlistAPI.getPublicWishlist(wishlistId)
         const ownerId = publicData.user_id || publicData.owner_id
@@ -101,6 +113,7 @@ function WishlistPage() {
           ...publicData,
           owner_id: ownerId || ''
         })
+        setOwnerName(publicData.owner_name || 'Unknown')
         setIsOwner(false)
       } catch (error: any) {
         if (error.response?.status === 403) {
@@ -155,12 +168,30 @@ function WishlistPage() {
   }
 
   return (
-    <Box h="calc(100vh - 32px)" w="100%" overflowX="visible" py={2}>
-      <VStack align="stretch">
-        <Heading color="white" px={8}>{wishlist.title}</Heading>
-        <Text color="gray.400" px={8} fontSize="sm">
-          {isOwner ? 'Your Wishlist' : 'Shared Wishlist'}
-        </Text>
+    <Box h="calc(100vh - 32px)" w="100%" overflowY="auto" overflowX="hidden">
+      <VStack align="stretch" gap={0}>
+        {isOwner ? (
+          <OwnerWishlistView 
+            wishlist={{ 
+              ...wishlist, 
+              owner: user?.name || 'Unknown', 
+              owner_id: user?.id 
+            }} 
+          />
+        ) : (
+          <SharedWishlistView 
+            wishlist={{
+              ...wishlist,
+              owner_name: ownerName || 'Unknown',
+              owner_id: wishlist.owner_id
+            }}
+          />
+        )}
+        
+        {/* Items will go here */}
+        <Box px={8} py={4}>
+          <Text color="gray.400">Items coming soon...</Text>
+        </Box>
       </VStack>
     </Box>
   )
