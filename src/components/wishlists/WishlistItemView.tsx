@@ -1,0 +1,177 @@
+import { Box, Image, Text, HStack, VStack } from '@chakra-ui/react'
+import { useMemo } from 'react'
+import { COLORS } from '../../styles/common'
+import { API_URL } from '../../services/api'
+import getLightColor from '../common/getLightColor'
+
+export type SortOption = 'none' | 'price-low' | 'price-high' | 'priority-high'
+
+export interface WishlistItem {
+  id: string
+  name: string
+  image?: string
+  price?: number
+  priority: number
+  created_at?: string
+  updated_at?: string
+}
+
+interface WishlistItemViewProps {
+  items: WishlistItem[]
+  onItemClick?: (item: WishlistItem) => void
+  wishlistColor?: string
+  sortBy?: SortOption
+}
+
+const getPriorityValue = (priority?: string | number): number => {
+  if (priority === undefined || priority === null) return 2
+  const parsed = parseInt(priority.toString(), 10)
+  return !isNaN(parsed) && parsed >= 0 && parsed <= 4 ? parsed : 2
+}
+
+const getPriorityColor = (baseColor: string, priority?: number): string => {
+  const priorityValue = getPriorityValue(priority)
+  
+  const opacityMap: { [key: number]: number } = {
+    0: 0.3,
+    1: 0.5,
+    2: 0.7,
+    3: 0.85,
+    4: 1.0
+  }
+  
+  const opacity = opacityMap[priorityValue] || 0.7
+  
+  const hex = baseColor.replace('#', '')
+  const r = parseInt(hex.substring(0, 2), 16)
+  const g = parseInt(hex.substring(2, 4), 16)
+  const b = parseInt(hex.substring(4, 6), 16)
+  
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`
+}
+
+const formatDate = (dateString?: string) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
+
+  if (diffInDays === 0) return 'Today'
+  if (diffInDays === 1) return 'Yesterday'
+  if (diffInDays < 7) return `${diffInDays} days ago`
+  if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`
+  if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`
+  return date.toLocaleDateString()
+}
+
+export function WishlistItemView({ 
+  items, 
+  onItemClick, 
+  wishlistColor,
+  sortBy = 'none'
+}: WishlistItemViewProps) {
+  const sortedItems = useMemo(() => {
+    const itemsCopy = [...items]
+    
+    switch (sortBy) {
+      case 'price-high':
+        return itemsCopy.sort((a, b) => (b.price || 0) - (a.price || 0))
+      case 'price-low':
+        return itemsCopy.sort((a, b) => (a.price || 0) - (b.price || 0))
+      case 'priority-high':
+        return itemsCopy.sort((a, b) => getPriorityValue(b.priority) - getPriorityValue(a.priority))
+      default:
+        return itemsCopy
+    }
+  }, [items, sortBy])
+
+  const backgroundLightColor = getLightColor(wishlistColor || COLORS.cardGray)
+
+  return (
+    <VStack align="stretch" gap={{ base: '0.25rem', md: '1rem' }} px={{ base: '0', md: '2rem' }} py={{ base: '0', md: '1rem' }}>
+      {sortedItems.map((item) => {
+        const hasImage = item.id && item.image
+        const baseWishlistColor = wishlistColor || COLORS.cardGray
+        
+        const itemBackgroundColor = sortBy === 'priority-high' 
+          ? getPriorityColor(baseWishlistColor, item.priority)
+          : baseWishlistColor
+
+        // Use updated_at if available, otherwise fall back to created_at
+        const displayDate = item.updated_at || item.created_at
+
+        return (
+          <HStack
+            key={item.id}
+            p="1rem"
+            gap="2rem"
+            cursor="pointer"
+            transition="all 0.2s"
+            borderRadius="0.375rem"
+            _hover={{ bg: COLORS.cardDarkLight }}
+            onClick={() => onItemClick?.(item)}
+          >
+            {/* Image */}
+            <Box
+              w={{ base: '5rem', md: '9rem' }}
+              h={{ base: '5rem', md: '9rem' }}
+              borderRadius="0.375rem"
+              bg={hasImage ? backgroundLightColor : itemBackgroundColor}
+              flexShrink={0}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              overflow="hidden"
+            >
+              {hasImage ? (
+                <Image
+                  src={`${API_URL}wishlist/${item.id}/image`}
+                  alt={item.name}
+                  maxW="100%"
+                  maxH="100%"
+                  objectFit="contain"
+                />
+              ) : (
+                <Text color={COLORS.text.muted} fontSize="1.5rem" fontWeight="bold">
+                  {item.name.charAt(0).toUpperCase()}
+                </Text>
+              )}
+            </Box>
+
+            {/* Item Name */}
+            <Box flex={1} minW={0}>
+              <Text 
+                color="white" 
+                fontWeight="medium" 
+                fontSize="1rem"
+                lineClamp={2}
+              >
+                {item.name}
+              </Text>
+            </Box>
+
+            {/* Price */}
+            <Box w={{ base: '4rem', md: '6.25rem' }} textAlign="right">
+              {item.price !== undefined && item.price !== null ? (
+                <Text color={COLORS.text.secondary} fontSize="0.875rem" fontWeight="semibold">
+                  ${item.price.toFixed(2)}
+                </Text>
+              ) : (
+                <Text>
+
+                </Text>
+              )}
+            </Box>
+
+            {/* Date - Hidden on mobile */}
+            <Box w="7.5rem" textAlign="right" display={{ base: 'none', md: 'block' }}>
+              <Text color={COLORS.text.muted} fontSize="0.75rem">
+                {formatDate(displayDate)}
+              </Text>
+            </Box>
+          </HStack>
+        )
+      })}
+    </VStack>
+  )
+}
