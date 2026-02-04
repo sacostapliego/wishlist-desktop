@@ -7,6 +7,10 @@ import { useAuth } from '../context/AuthContext'
 import { toaster } from '../components/ui/toaster'
 import { OwnerWishlistView } from '../components/wishlists/OwnerWishlistView'
 import { SharedWishlistView } from '../components/wishlists/SharedWishlistView'
+import { WishlistItemView, type SortOption } from '../components/wishlists/WishlistItemView'
+import { useWishlistDetail } from '../hooks/useWislistDetail'
+import { WishlistFilters } from '../components/wishlists/WishlistFilters'
+import { SimpleGridView } from '../components/wishlists/SimpleGridView'
 
 interface Wishlist {
   id: string
@@ -51,11 +55,17 @@ interface FriendWishlistResponse {
 function WishlistPage() {
   const { id } = useParams<{ id: string }>()
   const { user, loading: authLoading } = useAuth()
+  
+  // Local state for ownership/access logic
   const [wishlist, setWishlist] = useState<Wishlist | null>(null)
   const [ownerName, setOwnerName] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [accessDenied, setAccessDenied] = useState(false)
   const [isOwner, setIsOwner] = useState(false)
+  const [sortBy, setSortBy] = useState<SortOption>('none')
+
+  // Use hook only for items
+  const { items, isLoading: itemsLoading } = useWishlistDetail(id)
 
   useEffect(() => {
     if (id && !authLoading) {
@@ -64,46 +74,46 @@ function WishlistPage() {
   }, [id, authLoading, user])
 
   const loadWishlist = async (wishlistId: string) => {
-  try {
-    setLoading(true)
-    setAccessDenied(false)
-    
-    const [myWishlists, friendsWishlists] = await Promise.all([
-      wishlistAPI.getWishlists() as Promise<MyWishlistResponse[]>,
-      friendsAPI.getFriendsWishlists()
-    ])
+    try {
+      setLoading(true)
+      setAccessDenied(false)
+      
+      const [myWishlists, friendsWishlists] = await Promise.all([
+        wishlistAPI.getWishlists() as Promise<MyWishlistResponse[]>,
+        friendsAPI.getFriendsWishlists()
+      ])
 
-    const myWishlist = myWishlists.find((w: MyWishlistResponse) => w.id === wishlistId)
-    
-    if (myWishlist) {
-      const fullWishlist = await wishlistAPI.getWishlist(wishlistId)
-      const ownerId = fullWishlist.user_id || fullWishlist.owner_id
-      setWishlist({
-        ...fullWishlist,
-        owner_id: ownerId || ''
-      })
-      setIsOwner(true)
-      return
-    }
+      const myWishlist = myWishlists.find((w: MyWishlistResponse) => w.id === wishlistId)
+      
+      if (myWishlist) {
+        const fullWishlist = await wishlistAPI.getWishlist(wishlistId)
+        const ownerId = fullWishlist.user_id || fullWishlist.owner_id
+        setWishlist({
+          ...fullWishlist,
+          owner_id: ownerId || ''
+        })
+        setIsOwner(true)
+        return
+      }
 
-    const friendWishlist = friendsWishlists.find((w: FriendWishlistResponse) => w.id === wishlistId)
-    
-    if (friendWishlist) {
-      setWishlist({
-        id: friendWishlist.id,
-        title: friendWishlist.title,
-        description: friendWishlist.description,
-        owner_id: friendWishlist.owner_id,
-        is_public: false,
-        color: friendWishlist.color,
-        image: friendWishlist.image,
-        item_count: friendWishlist.item_count,
-        updated_at: friendWishlist.updated_at,
-        created_at: friendWishlist.created_at
-      })
-      setOwnerName(friendWishlist.owner_name || friendWishlist.owner_username)
-      setIsOwner(false)
-      return
+      const friendWishlist = friendsWishlists.find((w: FriendWishlistResponse) => w.id === wishlistId)
+      
+      if (friendWishlist) {
+        setWishlist({
+          id: friendWishlist.id,
+          title: friendWishlist.title,
+          description: friendWishlist.description,
+          owner_id: friendWishlist.owner_id,
+          is_public: false,
+          color: friendWishlist.color,
+          image: friendWishlist.image,
+          item_count: friendWishlist.item_count,
+          updated_at: friendWishlist.updated_at,
+          created_at: friendWishlist.created_at
+        })
+        setOwnerName(friendWishlist.owner_name || friendWishlist.owner_username)
+        setIsOwner(false)
+        return
       }
 
       try {
@@ -138,11 +148,12 @@ function WishlistPage() {
     }
   }
 
+
   if (!id) {
     return <Navigate to="/" replace />
   }
 
-  if (authLoading || loading) {
+  if (authLoading || loading || itemsLoading) {
     return (
       <Box h="calc(100vh - 32px)" w="100%" display="flex" alignItems="center" justifyContent="center">
         <Text color="white">Loading...</Text>
@@ -188,10 +199,32 @@ function WishlistPage() {
           />
         )}
         
-        {/* Items will go here */}
-        <Box px={8} py={4}>
-          <Text color="gray.400">Items coming soon...</Text>
-        </Box>
+        {/* Filter Buttons */}
+        {items.length > 0 && (
+          <WishlistFilters 
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            wishlistColor={wishlist.color}
+          />
+        )}
+
+        {/* Items */}
+        {items.length > 0 ? (
+          // Decide between list or grid view ?????
+          // <SimpleGridView
+          // <WishlistItemView
+          
+          <WishlistItemView 
+            items={items}
+            wishlistColor={wishlist.color}
+            sortBy={sortBy}
+            onItemClick={(item) => console.log('Item clicked:', item)}
+          />
+        ) : (
+          <Box px={8} py={4}>
+            <Text color="gray.400">No items yet...</Text>
+          </Box>
+        )}
       </VStack>
     </Box>
   )
