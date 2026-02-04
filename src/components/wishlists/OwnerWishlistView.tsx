@@ -79,12 +79,12 @@ export function OwnerWishlistView({ wishlist }: OwnerWishlistViewProps) {
             <Text fontWeight="semibold" color="white">
               {wishlist.owner}
             </Text>
-            <Text>•</Text>
-            <Text>
+            <Text display={{ base: 'none', md: 'block' }}>•</Text>
+            <Text display={{ base: 'none', md: 'block' }}>
               {wishlist.item_count || 0} {wishlist.item_count === 1 ? 'item' : 'items'}
             </Text>
-            <Text>•</Text>
-            <Text>Last updated {formatDate(wishlist.updated_at || wishlist.created_at)}</Text>
+            <Text display={{ base: 'none', md: 'block' }}>•</Text>
+            <Text display={{ base: 'none', md: 'block' }}>Last updated {formatDate(wishlist.updated_at || wishlist.created_at)}</Text>
           </HStack>
         </VStack>
       </HStack>
