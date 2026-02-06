@@ -27,11 +27,11 @@ export function WishlistFilters({ sortBy, onSortChange, wishlistColor }: Wishlis
   }
 
   return (
-    <HStack justifyContent={'flex-end'} gap={2} px={{base: 1, md: 8}} py={{base: 2, md: 4}}>
+    <HStack justifyContent={{base: 'flex-end', md: 'flex-start'}} gap={2} px={{base: 1, md: 8}} py={{base: 2, md: 4}}>
       {filterButtons.map((filter) => (
         <Button
           key={filter.value}
-          size="sm"
+          size={{ base: "sm", md: "md", lg: "lg" }}
           bg={sortBy === filter.value ? activeColor : 'transparent'}
           color={sortBy === filter.value ? 'white' : COLORS.text.secondary}
           _hover={{
