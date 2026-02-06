@@ -125,6 +125,7 @@ export function SimpleGridView({
                   overflow="hidden"
                 >
                   <Image
+                    p={4}
                     src={`${API_URL}wishlist/${item.id}/image`}
                     alt={item.name}
                     maxW="100%"

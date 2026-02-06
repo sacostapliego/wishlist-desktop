@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { COLORS } from '../../styles/common'
 import { API_URL } from '../../services/api'
 import getLightColor from '../common/getLightColor'
+import { getPriorityColor } from '../common/getPriorityColor'
 
 export type SortOption = 'none' | 'price-low' | 'price-high' | 'priority-high'
 
@@ -27,27 +28,6 @@ const getPriorityValue = (priority?: string | number): number => {
   if (priority === undefined || priority === null) return 2
   const parsed = parseInt(priority.toString(), 10)
   return !isNaN(parsed) && parsed >= 0 && parsed <= 4 ? parsed : 2
-}
-
-const getPriorityColor = (baseColor: string, priority?: number): string => {
-  const priorityValue = getPriorityValue(priority)
-  
-  const opacityMap: { [key: number]: number } = {
-    0: 0.3,
-    1: 0.5,
-    2: 0.7,
-    3: 0.85,
-    4: 1.0
-  }
-  
-  const opacity = opacityMap[priorityValue] || 0.7
-  
-  const hex = baseColor.replace('#', '')
-  const r = parseInt(hex.substring(0, 2), 16)
-  const g = parseInt(hex.substring(2, 4), 16)
-  const b = parseInt(hex.substring(4, 6), 16)
-  
-  return `rgba(${r}, ${g}, ${b}, ${opacity})`
 }
 
 const formatDate = (dateString?: string) => {
@@ -88,7 +68,7 @@ export function WishlistItemView({
   const backgroundLightColor = getLightColor(wishlistColor || COLORS.cardGray)
 
   return (
-    <VStack align="stretch" gap={{ base: '0.25rem', md: '1rem' }} px={{ base: '0', md: '2rem' }} py={{ base: '0', md: '1rem' }}>
+    <VStack align="stretch" gap={{ base: '1rem', md: '1rem' }} px={{ base: '1rem', md: '2rem' }} py={{ base: '0', md: '1rem' }}>
       {sortedItems.map((item) => {
         const hasImage = item.id && item.image
         const baseWishlistColor = wishlistColor || COLORS.cardGray
@@ -110,6 +90,7 @@ export function WishlistItemView({
             borderRadius="0.375rem"
             _hover={{ bg: COLORS.cardDarkLight }}
             onClick={() => onItemClick?.(item)}
+            bg={itemBackgroundColor}
           >
             {/* Image */}
             <Box
@@ -125,6 +106,7 @@ export function WishlistItemView({
             >
               {hasImage ? (
                 <Image
+                  p={{base: 1, md: 2}}
                   src={`${API_URL}wishlist/${item.id}/image`}
                   alt={item.name}
                   maxW="100%"
@@ -165,7 +147,7 @@ export function WishlistItemView({
 
             {/* Date - Hidden on mobile */}
             <Box w="7.5rem" textAlign="right" display={{ base: 'none', md: 'block' }}>
-              <Text color={COLORS.text.muted} fontSize="0.75rem">
+              <Text color={COLORS.text.secondary} fontSize="0.75rem">
                 {formatDate(displayDate)}
               </Text>
             </Box>
