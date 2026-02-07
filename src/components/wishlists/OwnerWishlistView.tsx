@@ -38,6 +38,7 @@ export function OwnerWishlistView({ wishlist }: OwnerWishlistViewProps) {
 
   return (
     <Box bg={wishlist.color || COLORS.cardGray} px={8} py={6}>
+      {/* TODO: add back button and three dots menu */}
       <HStack align="flex-end" gap={6}>
         {/* Wishlist Icon */}
         <Box

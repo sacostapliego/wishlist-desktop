@@ -1,4 +1,4 @@
-import { Box, Image, Text, HStack, VStack } from '@chakra-ui/react'
+import { Box, Image, Text, HStack, VStack, Stack } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { COLORS } from '../../styles/common'
 import { API_URL } from '../../services/api'
@@ -84,7 +84,7 @@ export function WishlistItemView({
           <HStack
             key={item.id}
             p="1rem"
-            gap="2rem"
+            gap={{ base: "1rem", md:"2rem"}}
             cursor="pointer"
             transition="all 0.2s"
             borderRadius="0.375rem"
@@ -119,31 +119,36 @@ export function WishlistItemView({
                 </Text>
               )}
             </Box>
-
-            {/* Item Name */}
-            <Box flex={1} minW={0}>
-              <Text 
-                color="white" 
-                fontWeight="medium" 
-                fontSize="1rem"
-                lineClamp={2}
-              >
-                {item.name}
-              </Text>
-            </Box>
-
-            {/* Price */}
-            <Box w={{ base: '4rem', md: '6.25rem' }} textAlign="right">
-              {item.price !== undefined && item.price !== null ? (
-                <Text color={COLORS.text.secondary} fontSize="0.875rem" fontWeight="semibold">
-                  ${item.price.toFixed(2)}
+            <Stack
+              flex={1}
+              direction={{base: "column", md: "row"}}
+            >
+              {/* Item Name */}
+              <Box flex={1} minW={0}>
+                <Text 
+                  color="white" 
+                  fontWeight="medium" 
+                  fontSize="1rem"
+                  lineClamp={2}
+                >
+                  {item.name}
                 </Text>
-              ) : (
-                <Text>
+              </Box>
 
-                </Text>
-              )}
-            </Box>
+              {/* Price */}
+              <Box w={{ base: '4rem', md: '6.25rem' }} textAlign={{base:"left", md:"right"}}>
+                {item.price !== undefined && item.price !== null ? (
+                  <Text color={COLORS.text.secondary} fontSize="0.875rem" fontWeight="semibold">
+                    ${item.price.toFixed(2)}
+                  </Text>
+                ) : (
+                  <Text>
+
+                  </Text>
+                )}
+              </Box>
+            </Stack>
+
 
             {/* Date - Hidden on mobile */}
             <Box w="7.5rem" textAlign="right" display={{ base: 'none', md: 'block' }}>
