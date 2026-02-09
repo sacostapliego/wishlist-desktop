@@ -1,7 +1,11 @@
-import { Box, HStack, VStack, Heading, Text, Avatar } from '@chakra-ui/react'
+import { Box, HStack, VStack, Heading, Text, Avatar, IconButton } from '@chakra-ui/react'
+import { LuArrowLeft, LuEllipsisVertical } from 'react-icons/lu'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { getWishlistIcon } from '../../utils/wishlistIcons'
 import { COLORS } from '../../styles/common'
 import { API_URL } from '../../services/api'
+import { WishlistMenu, getOwnerMenuOptions } from './WishlistMenu'
 
 interface OwnerWishlistViewProps {
   wishlist: {
@@ -19,6 +23,8 @@ interface OwnerWishlistViewProps {
 }
 
 export function OwnerWishlistView({ wishlist }: OwnerWishlistViewProps) {
+  const navigate = useNavigate()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const IconComponent = getWishlistIcon(wishlist.image)
   const profileImage = wishlist.owner_id ? `${API_URL}users/${wishlist.owner_id}/profile-image` : null
 
@@ -36,9 +42,38 @@ export function OwnerWishlistView({ wishlist }: OwnerWishlistViewProps) {
     return date.toLocaleDateString()
   }
 
+  const menuOptions = getOwnerMenuOptions({
+    onEdit: () => console.log('Edit wishlist'),
+    onSelectItems: () => console.log('Select items'),
+    onShare: () => console.log('Share wishlist'),
+    onDelete: () => console.log('Delete wishlist'),
+  })
+
   return (
     <Box bg={wishlist.color || COLORS.cardGray} px={8} py={6}>
-      {/* TODO: add back button and three dots menu */}
+      {/* Header with back button and menu */}
+      <HStack justify="space-between" mb={4}>
+        <IconButton
+          aria-label="Go back"
+          variant="ghost"
+          onClick={() => navigate(-1)}
+          color="white"
+          size="lg"
+        >
+          <LuArrowLeft />
+        </IconButton>
+
+        <IconButton
+          aria-label="Menu"
+          variant="ghost"
+          onClick={() => setIsMenuOpen(true)}
+          color="white"
+          size="lg"
+        >
+          <LuEllipsisVertical />
+        </IconButton>
+      </HStack>
+
       <HStack align="flex-end" gap={6}>
         {/* Wishlist Icon */}
         <Box
@@ -89,6 +124,12 @@ export function OwnerWishlistView({ wishlist }: OwnerWishlistViewProps) {
           </HStack>
         </VStack>
       </HStack>
+
+      <WishlistMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        options={menuOptions}
+      />
     </Box>
   )
 }

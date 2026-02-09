@@ -1,7 +1,13 @@
-import { Box, HStack, VStack, Heading, Text, Avatar } from '@chakra-ui/react'
+import { Box, HStack, VStack, Heading, Text, Avatar, IconButton } from '@chakra-ui/react'
+import { LuArrowLeft, LuEllipsisVertical } from 'react-icons/lu'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { getWishlistIcon } from '../../utils/wishlistIcons'
 import { COLORS } from '../../styles/common'
 import { API_URL } from '../../services/api'
+import { WishlistMenu, getSharedMenuOptions } from './WishlistMenu'
+import { friendsAPI } from '../../services/friends'
+import { useAuth } from '../../context/AuthContext'
 
 interface SharedWishlistViewProps {
   wishlist: {
@@ -19,8 +25,56 @@ interface SharedWishlistViewProps {
 }
 
 export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isFriend, setIsFriend] = useState(false)
+  const [isSaved, setIsSaved] = useState(false)
+  const [loading, setLoading] = useState(true)
+  
   const IconComponent = getWishlistIcon(wishlist.image)
   const profileImage = wishlist.owner_id ? `${API_URL}users/${wishlist.owner_id}/profile-image` : null
+
+  useEffect(() => {
+    checkRelationship()
+  }, [wishlist.id, wishlist.owner_id, user?.id])
+
+  const checkRelationship = async () => {
+    if (!wishlist?.owner_id || !user?.id) {
+      setLoading(false)
+      return
+    }
+
+    // Don't show add friend for own wishlist
+    if (wishlist.owner_id === user.id) {
+      setIsFriend(true)
+      setLoading(false)
+      return
+    }
+
+    try {
+      setLoading(true)
+      
+      // Check friendship status
+      const friendsWishlists = await friendsAPI.getFriendsWishlists()
+      const isAlreadyFriend = friendsWishlists.some(w => w.owner_id === wishlist.owner_id)
+      setIsFriend(isAlreadyFriend)
+
+      // Check if wishlist is saved
+      try {
+        const savedStatus = await friendsAPI.checkWishlistSaved(wishlist.id)
+        setIsSaved(savedStatus.is_saved)
+      } catch (error) {
+        console.error('Error checking saved status:', error)
+        setIsSaved(false)
+      }
+    } catch (error) {
+      console.error('Error checking friendship status:', error)
+      setIsFriend(false)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'Never'
@@ -36,8 +90,38 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
     return date.toLocaleDateString()
   }
 
+  const menuOptions = getSharedMenuOptions({
+    onAddFriend: !isFriend ? () => console.log('Add friend') : undefined,
+    onSaveWishlist: !isSaved ? () => console.log('Save wishlist') : undefined,
+    onRemoveSaved: isSaved ? () => console.log('Remove saved wishlist') : undefined,
+  })
+
   return (
     <Box bg={wishlist.color || COLORS.cardGray} px={8} py={6}>
+      {/* Header with back button and menu */}
+      <HStack justify="space-between" mb={4}>
+        <IconButton
+          aria-label="Go back"
+          variant="ghost"
+          onClick={() => navigate(-1)}
+          color="white"
+          size="lg"
+        >
+          <LuArrowLeft />
+        </IconButton>
+
+        <IconButton
+          aria-label="Menu"
+          variant="ghost"
+          onClick={() => setIsMenuOpen(true)}
+          color="white"
+          size="lg"
+          disabled={loading}
+        >
+          <LuEllipsisVertical />
+        </IconButton>
+      </HStack>
+
       <HStack align="flex-end" gap={6}>
         {/* Wishlist Icon */}
         <Box
@@ -66,7 +150,7 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
           </Heading>
           
           {wishlist.description && (
-            <Text color={COLORS.text.secondary} fontSize="sm" mt={2}>
+            <Text color={COLORS.text.secondary} fontSize="sm" mt={2} lineClamp={1}>
               {wishlist.description}
             </Text>
           )}
@@ -79,14 +163,21 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
             <Text fontWeight="semibold" color="white">
               {wishlist.owner_name}
             </Text>
-            <Text>•</Text>
-            <Text>
-              {wishlist.item_count || 0} {wishlist.item_count === 1 ? 'item' : 'items'}</Text>
-            <Text>•</Text>
-            <Text>Last updated {formatDate(wishlist.updated_at || wishlist.created_at)}</Text>
+            <Text display={{ base: 'none', md: 'block' }}>•</Text>
+            <Text display={{ base: 'none', md: 'block' }}>
+              {wishlist.item_count || 0} {wishlist.item_count === 1 ? 'item' : 'items'}
+            </Text>
+            <Text display={{ base: 'none', md: 'block' }}>•</Text>
+            <Text display={{ base: 'none', md: 'block' }}>Last updated {formatDate(wishlist.updated_at || wishlist.created_at)}</Text>
           </HStack>
         </VStack>
       </HStack>
+
+      <WishlistMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        options={menuOptions}
+      />
     </Box>
   )
 }
