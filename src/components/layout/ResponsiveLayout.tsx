@@ -72,7 +72,6 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
       <Box
         flex="1"
         ml={{ base: 0, lg: `calc(${sidebarWidth}px + 35px)` }}
-        pb={{ base: "80px", lg: 0 }}
         transition={isResizing ? 'none' : 'margin-left 0.2s'}
         borderRadius={{ base: 0, lg: "lg" }}
         bg="#141414"

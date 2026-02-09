@@ -88,7 +88,7 @@ export function WishlistItemView({
             cursor="pointer"
             transition="all 0.2s"
             borderRadius="0.375rem"
-            _hover={{ bg: COLORS.cardDarkLight }}
+            _hover={{ bg: backgroundLightColor || itemBackgroundColor }}
             onClick={() => onItemClick?.(item)}
             bg={itemBackgroundColor}
           >
