@@ -1,11 +1,12 @@
 import { Box, HStack, VStack, Heading, Text, Avatar, IconButton } from '@chakra-ui/react'
-import { LuArrowLeft, LuEllipsisVertical } from 'react-icons/lu'
+import { LuArrowLeft, LuEllipsisVertical, LuPlus } from 'react-icons/lu'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getWishlistIcon } from '../../utils/wishlistIcons'
 import { COLORS } from '../../styles/common'
 import { API_URL } from '../../services/api'
 import { WishlistMenu, getOwnerMenuOptions } from './WishlistMenu'
+import { EditWishlistModal } from './EditWishlistModal'
 
 interface OwnerWishlistViewProps {
   wishlist: {
@@ -25,6 +26,7 @@ interface OwnerWishlistViewProps {
 export function OwnerWishlistView({ wishlist }: OwnerWishlistViewProps) {
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const IconComponent = getWishlistIcon(wishlist.image)
   const profileImage = wishlist.owner_id ? `${API_URL}users/${wishlist.owner_id}/profile-image` : null
 
@@ -43,7 +45,7 @@ export function OwnerWishlistView({ wishlist }: OwnerWishlistViewProps) {
   }
 
   const menuOptions = getOwnerMenuOptions({
-    onEdit: () => console.log('Edit wishlist'),
+    onEdit: () => setIsEditModalOpen(true),
     onSelectItems: () => console.log('Select items'),
     onShare: () => console.log('Share wishlist'),
     onDelete: () => console.log('Delete wishlist'),
@@ -63,15 +65,27 @@ export function OwnerWishlistView({ wishlist }: OwnerWishlistViewProps) {
           <LuArrowLeft />
         </IconButton>
 
-        <IconButton
-          aria-label="Menu"
-          variant="ghost"
-          onClick={() => setIsMenuOpen(true)}
-          color="white"
-          size="lg"
-        >
-          <LuEllipsisVertical />
-        </IconButton>
+        <HStack gap={2}>
+          <IconButton
+            aria-label="Add item"
+            variant="ghost"
+            onClick={() => console.log('Add item')}
+            color="white"
+            size="lg"
+          >
+            <LuPlus />
+          </IconButton>
+
+          <IconButton
+            aria-label="Menu"
+            variant="ghost"
+            onClick={() => setIsMenuOpen(true)}
+            color="white"
+            size="lg"
+          >
+            <LuEllipsisVertical />
+          </IconButton>
+        </HStack>
       </HStack>
 
       <HStack align="flex-end" gap={6}>
@@ -129,6 +143,16 @@ export function OwnerWishlistView({ wishlist }: OwnerWishlistViewProps) {
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
         options={menuOptions}
+      />
+
+      <EditWishlistModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        wishlistId={wishlist.id}
+        onSuccess={() => {
+          // Refresh the wishlist data or trigger a refetch
+          window.location.reload() // Replace with proper state management
+        }}
       />
     </Box>
   )
