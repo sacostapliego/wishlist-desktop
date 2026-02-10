@@ -111,7 +111,7 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
                 <HStack>
                   <Box
                     transition="transform 300ms ease"
-                    transform={isCreateMenuOpen ? 'rotate(45deg)' : 'rotate(0deg)'}
+                    transform={isCreateMenuOpen ? 'rotate(90deg)' : 'rotate(0deg)'}
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
@@ -136,7 +136,7 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
               >
                 <Box
                   transition="transform 300ms ease"
-                  transform={isCreateMenuOpen ? 'rotate(45deg)' : 'rotate(0deg)'}
+                  transform={isCreateMenuOpen ? 'rotate(90deg)' : 'rotate(0deg)'}
                   display="flex"
                   alignItems="center"
                   justifyContent="center"

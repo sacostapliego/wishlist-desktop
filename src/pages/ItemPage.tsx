@@ -6,12 +6,14 @@ import { API_URL } from '../services/api'
 import { toaster } from '../components/ui/toaster'
 import getLightColor from '../components/common/getLightColor'
 import { useItemDetail } from '../hooks/useItemDetail'
+import { useState } from 'react'
 
 function ItemPage() {
   const { id: wishlistId, itemId } = useParams<{ id: string; itemId: string }>()
   const navigate = useNavigate()
+  const [isNameExpanded, setIsNameExpanded] = useState(false)
   
-  const { item, wishlistColor, isLoading, error, isOwner } = useItemDetail(
+  const { item, wishlistColor, wishlistInfo, isLoading, error, isOwner } = useItemDetail(
     itemId,
     wishlistId,
     false
@@ -58,7 +60,7 @@ function ItemPage() {
   if (error || !item) {
     return (
       <Box h="calc(100vh - 32px)" w="100%" display="flex" flexDirection="column">
-        <Box bg={getLightColor(wishlistColor || COLORS.cardGray)} px={8} py={4}>
+        <Box bg={COLORS.background} px={8} py={4}>
           <HStack justify="space-between">
             <IconButton
               aria-label="Go back"
@@ -84,9 +86,9 @@ function ItemPage() {
   const imageUrl = item.image ? `${API_URL}wishlist/${item.id}/image` : null
 
   return (
-    <Box h="calc(100vh - 32px)" w="100%" overflowY="auto" bg={backgroundColor}>
+    <Box h="calc(100vh - 32px)" w="100%" overflowY="auto" bg={COLORS.background}>
       {/* Header */}
-      <Box bg={backgroundColor} px={8} py={4} position="sticky" top={0} zIndex={10}>
+      <Box bg={COLORS.background} px={8} py={4} position="sticky" top={0} zIndex={10}>
         <HStack justify="space-between">
           <IconButton
             aria-label="Go back"
@@ -98,7 +100,22 @@ function ItemPage() {
             <LuArrowLeft />
           </IconButton>
 
+          {!isOwner && wishlistInfo && (
+            <VStack gap={0} flex="1" mx={4}>
+              <Text color={COLORS.text.secondary} fontSize="sm">
+                {wishlistInfo.ownerName}
+              </Text>
+              <Text color="white" fontSize="md" fontWeight="semibold">
+                {wishlistInfo.name}
+              </Text>
+            </VStack>
+          )}
+
           {isOwner && (
+            <Box flex="1" />
+          )}
+
+          {isOwner ? (
             <IconButton
               aria-label="Menu"
               variant="ghost"
@@ -108,6 +125,8 @@ function ItemPage() {
             >
               <LuEllipsisVertical />
             </IconButton>
+          ) : (
+            <Box w="40px" />
           )}
         </HStack>
       </Box>
@@ -118,7 +137,7 @@ function ItemPage() {
         {imageUrl && (
           <Box
             w="100%"
-            maxW="600px"
+            maxW="30rem"
             mx="auto"
             aspectRatio={1}
             bg={backgroundColor}
@@ -140,9 +159,17 @@ function ItemPage() {
         )}
 
         {/* Item Details */}
-        <VStack align="stretch" gap={4} maxW="800px" mx="auto" w="100%">
+        <VStack align="stretch" gap={4} maxW="40rem" mx="auto" w="100%">
           <HStack justify="space-between" align="start" gap={4}>
-            <Heading size="2xl" color="white" flex="1">
+            <Heading 
+              size="2xl" 
+              color="white" 
+              flex="1"
+              lineClamp={isNameExpanded ? undefined : 2}
+              cursor="pointer"
+              onClick={() => setIsNameExpanded(!isNameExpanded)}
+              _hover={{ opacity: 0.8 }}
+            >
               {item.name}
             </Heading>
             {item.price !== undefined && item.price !== null && (

@@ -16,6 +16,11 @@ interface ItemDetail {
   updated_at?: string
 }
 
+interface WishlistInfo {
+  name: string
+  ownerName: string
+}
+
 export const useItemDetail = (
   itemId: string | undefined,
   wishlistId: string | undefined,
@@ -23,6 +28,7 @@ export const useItemDetail = (
 ) => {
   const [item, setItem] = useState<ItemDetail | null>(null)
   const [wishlistColor, setWishlistColor] = useState<string>('')
+  const [wishlistInfo, setWishlistInfo] = useState<WishlistInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isOwner, setIsOwner] = useState(false)
@@ -33,6 +39,7 @@ export const useItemDetail = (
       setIsLoading(false)
       setItem(null)
       setWishlistColor('')
+      setWishlistInfo(null)
       return
     }
 
@@ -40,10 +47,10 @@ export const useItemDetail = (
     setError(null)
     setItem(null)
     setWishlistColor('')
+    setWishlistInfo(null)
 
     try {
       if (isPublicView) {
-        // Public view: Fetch public wishlist and find item in public items
         const publicWishlist = await wishlistAPI.getPublicWishlist(wishlistId)
 
         if (!publicWishlist) {
@@ -53,6 +60,10 @@ export const useItemDetail = (
         }
 
         setWishlistColor(publicWishlist.color || COLORS.cardGray)
+        setWishlistInfo({
+          name: publicWishlist.wishlist_name || 'Wishlist',
+          ownerName: publicWishlist.owner_name || 'Unknown'
+        })
 
         const publicItems = await wishlistAPI.getPublicWishlistItems(wishlistId)
         const foundItem = publicItems.find((i: any) => i.id === itemId)
@@ -64,12 +75,10 @@ export const useItemDetail = (
           setError('Item not found in this public wishlist.')
         }
       } else {
-        // Authenticated view: Check if it's user's wishlist or someone else's
         const myWishlists = await wishlistAPI.getWishlists()
         const isMyWishlist = myWishlists.some((w: any) => w.id === wishlistId)
 
         if (isMyWishlist) {
-          // Owner's wishlist - use getWisihlistItem (direct item fetch) + getWishlist for color
           setIsOwner(true)
 
           const [fetchedItem, fetchedWishlist] = await Promise.all([
@@ -84,32 +93,41 @@ export const useItemDetail = (
           }
 
           setWishlistColor(fetchedWishlist?.color || COLORS.cardGray)
+          // Don't set wishlistInfo for owner
+          setWishlistInfo(null)
         } else {
-          // Not owner: treat as public/shared wishlist
-          // Use the same approach as React Native: getPublicWishlist + getPublicWishlistItems
           setIsOwner(false)
 
-          // First get the color from friends wishlists or public wishlist
           let color = COLORS.cardGray
+          let wishlistName = 'Wishlist'
+          let ownerName = 'Unknown'
 
           const friendsWishlists = await friendsAPI.getFriendsWishlists()
           const friendWishlist = friendsWishlists.find((w: any) => w.id === wishlistId)
 
           if (friendWishlist) {
             color = friendWishlist.color || COLORS.cardGray
+            wishlistName = friendWishlist.title || 'Wishlist'
+            ownerName = friendWishlist.owner_name || 'Unknown'
           }
 
-          // Fetch items using the public endpoint (same as React Native useItemDetail with isPublicView=true)
           try {
             const publicWishlist = await wishlistAPI.getPublicWishlist(wishlistId)
             if (publicWishlist?.color) {
               color = publicWishlist.color
+            }
+            if (publicWishlist?.wishlist_name) {
+              wishlistName = publicWishlist.wishlist_name
+            }
+            if (publicWishlist?.owner_name) {
+              ownerName = publicWishlist.owner_name
             }
 
             const publicItems = await wishlistAPI.getPublicWishlistItems(wishlistId)
             const foundItem = publicItems.find((i: any) => i.id === itemId)
 
             setWishlistColor(color)
+            setWishlistInfo({ name: wishlistName, ownerName })
 
             if (foundItem) {
               setItem(foundItem)
@@ -134,8 +152,6 @@ export const useItemDetail = (
 
       if (err.response?.status === 401 || err.response?.status === 403) {
         specificError = 'Access denied. You may need to be logged in or the content is private.'
-      } else if (err.response?.status === 404) {
-        specificError = 'The requested item or wishlist was not found.'
       } else if (err.response?.data?.detail) {
         specificError = typeof err.response.data.detail === 'string'
           ? err.response.data.detail
@@ -152,5 +168,5 @@ export const useItemDetail = (
     fetchData()
   }, [fetchData])
 
-  return { item, wishlistColor, isLoading, error, isOwner, refetchItemData: fetchData }
+  return { item, wishlistColor, wishlistInfo, isLoading, error, isOwner, refetchItemData: fetchData }
 }
