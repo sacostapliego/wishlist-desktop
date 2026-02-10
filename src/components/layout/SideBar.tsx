@@ -1,7 +1,7 @@
 import { Box, VStack, Text, Button, Separator, IconButton, HStack } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom'
-import { LuHouse, LuPlus, LuUsers, LuHeart, LuGift } from 'react-icons/lu'
-import { useEffect, useState } from 'react'
+import { LuHouse, LuPlus, LuUsers, LuHeart, LuGift, LuX } from 'react-icons/lu'
+import { useEffect, useState, useRef } from 'react'
 import { wishlistAPI } from '../../services/wishlist'
 import { friendsAPI, type FriendWishlistResponse } from '../../services/friends'
 import { useAuth } from '../../context/AuthContext'
@@ -11,6 +11,8 @@ import { COLORS } from '../../styles/common'
 import { ProfileSection } from './sidebar/ProfileSection'
 import { WishlistItem } from './sidebar/WishlistItem'
 import { FriendWishlistItem } from './sidebar/FriendWishlistItem'
+import { CreateMenu } from './sidebar/CreateMenu'
+import { CreateWishlistModal } from '../wishlists/CreateWishlistModal'
 
 interface Wishlist {
   id: string
@@ -31,6 +33,9 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
   const { user } = useAuth()
   const [myWishlists, setMyWishlists] = useState<Wishlist[]>([])
   const [friendsWishlists, setFriendsWishlists] = useState<FriendWishlistResponse[]>([])
+  const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false)
+  const [isCreateWishlistModalOpen, setIsCreateWishlistModalOpen] = useState(false)
+  const createButtonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     loadWishlists()
@@ -52,6 +57,10 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
         type: 'error',
       })
     }
+  }
+
+  const handleCreateWishlistSuccess = () => {
+    loadWishlists()
   }
 
   if (isHidden) return null
@@ -88,8 +97,24 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
               <Button variant="ghost" justifyContent="flex-start" onClick={() => navigate('/')}>
                 <HStack><LuHouse /><Text>Home</Text></HStack>
               </Button>
-              <Button variant="ghost" justifyContent="flex-start" onClick={() => navigate('/create')}>
-                <HStack><LuPlus /><Text>Create</Text></HStack>
+              <Button 
+                ref={createButtonRef}
+                variant="ghost" 
+                justifyContent="flex-start" 
+                onClick={() => setIsCreateMenuOpen(!isCreateMenuOpen)}
+              >
+                <HStack>
+                  <Box
+                    transition="transform 300ms ease"
+                    transform={isCreateMenuOpen ? 'rotate(45deg)' : 'rotate(0deg)'}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    {isCreateMenuOpen ? <LuX /> : <LuPlus />}
+                  </Box>
+                  <Text>Create</Text>
+                </HStack>
               </Button>
               <Button variant="ghost" justifyContent="flex-start" onClick={() => navigate('/friends')}>
                 <HStack><LuUsers /><Text>Friends</Text></HStack>
@@ -98,7 +123,22 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
           ) : (
             <>
               <IconButton aria-label="Home" variant="ghost" onClick={() => navigate('/')}><LuHouse /></IconButton>
-              <IconButton aria-label="Create" variant="ghost" onClick={() => navigate('/create')}><LuPlus /></IconButton>
+              <IconButton 
+                ref={createButtonRef}
+                aria-label="Create" 
+                variant="ghost" 
+                onClick={() => setIsCreateMenuOpen(!isCreateMenuOpen)}
+              >
+                <Box
+                  transition="transform 300ms ease"
+                  transform={isCreateMenuOpen ? 'rotate(45deg)' : 'rotate(0deg)'}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  {isCreateMenuOpen ? <LuX /> : <LuPlus />}
+                </Box>
+              </IconButton>
               <IconButton aria-label="Friends" variant="ghost" onClick={() => navigate('/friends')}><LuUsers /></IconButton>
             </>
           )}
@@ -166,6 +206,20 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
           </VStack>
         </Box>
       </VStack>
+
+      <CreateMenu
+        isOpen={isCreateMenuOpen}
+        onClose={() => setIsCreateMenuOpen(false)}
+        anchorRef={createButtonRef}
+        onCreateWishlist={() => setIsCreateWishlistModalOpen(true)}
+        onAddItem={() => console.log('Add item to wishlist')}
+      />
+
+      <CreateWishlistModal
+        isOpen={isCreateWishlistModalOpen}
+        onClose={() => setIsCreateWishlistModalOpen(false)}
+        onSuccess={handleCreateWishlistSuccess}
+      />
     </Box>
   )
 }
