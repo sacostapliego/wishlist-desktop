@@ -7,7 +7,8 @@ import {
   Text,
   Switch,
   Grid,
-  HStack
+  HStack,
+  SimpleGrid
 } from '@chakra-ui/react'
 import { useState, useImperativeHandle, forwardRef } from 'react'
 import { COLORS } from '../../styles/common'
@@ -109,7 +110,7 @@ export const WishlistForm = forwardRef<WishlistFormRef, WishlistFormProps>(({
         <Text fontSize="sm" fontWeight="medium" mb={3} color={COLORS.text.secondary}>
           Color
         </Text>
-        <HStack gap={3}>
+        <SimpleGrid columns={{ base: 6, md: 10 }} gap={3}>
           {Object.values(WISHLIST_COLORS).map((color) => (
             <Box
               key={color}
@@ -124,14 +125,14 @@ export const WishlistForm = forwardRef<WishlistFormRef, WishlistFormProps>(({
               onClick={() => setSelectedColor(color)}
             />
           ))}
-        </HStack>
+        </SimpleGrid>
       </Box>
       
       <HStack justify="space-between" align="center">
         <Text fontSize="sm" fontWeight="medium" color={COLORS.text.secondary}>
           Make Public
         </Text>
-        <Switch.Root checked={isPublic} onCheckedChange={(e) => setIsPublic(e.checked)} colorPalette="blue">
+        <Switch.Root checked={isPublic} onCheckedChange={(e) => setIsPublic(e.checked)} colorPalette="red">
           <Switch.HiddenInput />
           <Switch.Control>
             <Switch.Thumb />
