@@ -5,6 +5,7 @@ import LoginPage from '../pages/LoginPage'
 import { ProtectedRoute } from '../components/auth/ProtectedRoute'
 import { useAuth } from '../context/AuthContext'
 import WishlsitPage from '../pages/WishlistPage'
+import ItemPage from '../pages/ItemPage'
 
 function AuthRedirect() {
   const { isLoggedIn } = useAuth()
@@ -22,6 +23,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: 'wishlist/:id', element: <WishlsitPage /> },
+      { path: 'wishlist/:id/:itemId', element: <ItemPage /> },
     ],
   },
   {

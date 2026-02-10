@@ -1,5 +1,5 @@
 import { Box, VStack, Heading, Text } from '@chakra-ui/react'
-import { useParams, Navigate } from 'react-router-dom'
+import { useParams, Navigate, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { wishlistAPI } from '../services/wishlist'
 import { friendsAPI } from '../services/friends'
@@ -53,6 +53,7 @@ interface FriendWishlistResponse {
 
 
 function WishlistPage() {
+  const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const { user, loading: authLoading } = useAuth()
   
@@ -218,7 +219,7 @@ function WishlistPage() {
             items={items}
             wishlistColor={wishlist.color}
             sortBy={sortBy}
-            onItemClick={(item) => console.log('Item clicked:', item)}
+            onItemClick={(item) => navigate(`/wishlist/${wishlist.id}/${item.id}`)}
           />
         ) : (
           <Box px={8} py={4}>

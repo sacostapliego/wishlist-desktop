@@ -1,0 +1,210 @@
+import { Box, VStack, Heading, Text, Image, IconButton, HStack, Button } from '@chakra-ui/react'
+import { useParams, useNavigate, Navigate } from 'react-router-dom'
+import { LuArrowLeft, LuEllipsisVertical, LuCopy, LuExternalLink } from 'react-icons/lu'
+import { COLORS } from '../styles/common'
+import { API_URL } from '../services/api'
+import { toaster } from '../components/ui/toaster'
+import getLightColor from '../components/common/getLightColor'
+import { useItemDetail } from '../hooks/useItemDetail'
+
+function ItemPage() {
+  const { id: wishlistId, itemId } = useParams<{ id: string; itemId: string }>()
+  const navigate = useNavigate()
+  
+  const { item, wishlistColor, isLoading, error, isOwner } = useItemDetail(
+    itemId,
+    wishlistId,
+    false
+  )
+
+  const handleCopyUrl = async () => {
+    if (item?.url) {
+      try {
+        await navigator.clipboard.writeText(item.url)
+        toaster.create({
+          title: 'Copied',
+          description: 'URL copied to clipboard!',
+          type: 'success',
+        })
+      } catch (error) {
+        console.error('Failed to copy URL:', error)
+        toaster.create({
+          title: 'Error',
+          description: 'Failed to copy URL',
+          type: 'error',
+        })
+      }
+    }
+  }
+
+  const handleOpenUrl = () => {
+    if (item?.url) {
+      window.open(item.url, '_blank', 'noopener,noreferrer')
+    }
+  }
+
+  if (!wishlistId || !itemId) {
+    return <Navigate to="/" replace />
+  }
+
+  if (isLoading) {
+    return (
+      <Box h="calc(100vh - 32px)" w="100%" display="flex" alignItems="center" justifyContent="center">
+        <Text color="white">Loading...</Text>
+      </Box>
+    )
+  }
+
+  if (error || !item) {
+    return (
+      <Box h="calc(100vh - 32px)" w="100%" display="flex" flexDirection="column">
+        <Box bg={getLightColor(wishlistColor || COLORS.cardGray)} px={8} py={4}>
+          <HStack justify="space-between">
+            <IconButton
+              aria-label="Go back"
+              variant="ghost"
+              onClick={() => navigate(-1)}
+              color="white"
+              size="lg"
+            >
+              <LuArrowLeft />
+            </IconButton>
+          </HStack>
+        </Box>
+        <Box flex="1" display="flex" alignItems="center" justifyContent="center">
+          <Text color={COLORS.text.secondary}>
+            {error || 'The requested item could not be found.'}
+          </Text>
+        </Box>
+      </Box>
+    )
+  }
+
+  const backgroundColor = getLightColor(wishlistColor || COLORS.cardGray)
+  const imageUrl = item.image ? `${API_URL}wishlist/${item.id}/image` : null
+
+  return (
+    <Box h="calc(100vh - 32px)" w="100%" overflowY="auto" bg={backgroundColor}>
+      {/* Header */}
+      <Box bg={backgroundColor} px={8} py={4} position="sticky" top={0} zIndex={10}>
+        <HStack justify="space-between">
+          <IconButton
+            aria-label="Go back"
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            color="white"
+            size="lg"
+          >
+            <LuArrowLeft />
+          </IconButton>
+
+          {isOwner && (
+            <IconButton
+              aria-label="Menu"
+              variant="ghost"
+              onClick={() => console.log('Menu clicked')}
+              color="white"
+              size="lg"
+            >
+              <LuEllipsisVertical />
+            </IconButton>
+          )}
+        </HStack>
+      </Box>
+
+      {/* Content */}
+      <VStack align="stretch" px={8} pb={8} gap={6}>
+        {/* Image */}
+        {imageUrl && (
+          <Box
+            w="100%"
+            maxW="600px"
+            mx="auto"
+            aspectRatio={1}
+            bg={backgroundColor}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            borderRadius="lg"
+            overflow="hidden"
+          >
+            <Image
+              src={imageUrl}
+              alt={item.name}
+              maxW="100%"
+              maxH="100%"
+              objectFit="contain"
+              p={4}
+            />
+          </Box>
+        )}
+
+        {/* Item Details */}
+        <VStack align="stretch" gap={4} maxW="800px" mx="auto" w="100%">
+          <HStack justify="space-between" align="start" gap={4}>
+            <Heading size="2xl" color="white" flex="1">
+              {item.name}
+            </Heading>
+            {item.price !== undefined && item.price !== null && (
+              <Text color="white" fontSize="2xl" fontWeight="bold" flexShrink={0}>
+                ${item.price.toFixed(2)}
+              </Text>
+            )}
+          </HStack>
+
+          {/* Claiming section */}
+          {!isOwner && (
+            <Box>
+            </Box>
+          )}
+
+          {/* Description */}
+          {item.description && (
+            <Text color={COLORS.text.secondary} fontSize="md">
+              {item.description}
+            </Text>
+          )}
+
+          {/* URL */}
+          {item.url && (
+            <Box
+              bg={COLORS.cardGray}
+              borderRadius="lg"
+              p={4}
+            >
+              <HStack gap={3}>
+                <Button
+                  variant="ghost"
+                  onClick={handleOpenUrl}
+                  flex="1"
+                  justifyContent="flex-start"
+                  color={COLORS.text.primary}
+                  _hover={{ bg: COLORS.cardDarkLight }}
+                  px={3}
+                >
+                  <HStack gap={2} w="100%">
+                    <LuExternalLink />
+                    <Text fontSize="sm" lineBreak="anywhere" overflow={'hidden'}>
+                      {item.url}
+                    </Text>
+                  </HStack>
+                </Button>
+                <IconButton
+                  aria-label="Copy URL"
+                  variant="ghost"
+                  onClick={handleCopyUrl}
+                  color={COLORS.text.primary}
+                  _hover={{ bg: COLORS.cardDarkLight }}
+                >
+                  <LuCopy />
+                </IconButton>
+              </HStack>
+            </Box>
+          )}
+        </VStack>
+      </VStack>
+    </Box>
+  )
+}
+
+export default ItemPage

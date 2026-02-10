@@ -21,6 +21,8 @@ interface ClaimedItem {
   price?: number
   image?: string
   owner_name: string
+  color?: string
+  wishlist_id?: string
 }
 
 function HomePage() {
@@ -67,7 +69,8 @@ function HomePage() {
         price: item.price,
         image: item.image,
         owner_name: item.owner_name,
-        color: item.wishlist_color
+        color: item.wishlist_color,
+        wishlist_id: item.wishlist_id
       }))
 
       setMyWishlists(transformedMyWishlists)
@@ -103,6 +106,7 @@ function HomePage() {
           <ClaimedItemsSection 
             items={claimedItems}
             onShowAll={() => console.log('Show all claimed items')}
+            onItemClick={(item) => navigate(`/wishlist/${item.wishlist_id}/${item.id}`)}
           />
         )}
 

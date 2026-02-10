@@ -9,14 +9,16 @@ interface ClaimedItem {
   image?: string
   owner_name: string
   color?: string
+  wishlist_id?: string
 }
 
 interface ClaimedItemsSectionProps {
   items: ClaimedItem[]
   onShowAll?: () => void
+  onItemClick?: (item: ClaimedItem) => void
 }
 
-export function ClaimedItemsSection({ items, onShowAll }: ClaimedItemsSectionProps) {
+export function ClaimedItemsSection({ items, onShowAll, onItemClick }: ClaimedItemsSectionProps) {
   const getImageUrl = (item: ClaimedItem) => {
     if (item.image && item.id) {
       return `${API_URL}wishlist/${item.id}/image`;
@@ -44,6 +46,7 @@ export function ClaimedItemsSection({ items, onShowAll }: ClaimedItemsSectionPro
             bg="#1a1a1a"
             borderRadius="lg"
             cursor="pointer"
+            onClick={() => onItemClick && onItemClick(item)}
             transition="all 0.2s"
             _hover={{ bg: '#2a2a2a' }}
             gap={0}

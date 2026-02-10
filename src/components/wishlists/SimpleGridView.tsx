@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { COLORS } from '../../styles/common'
 import { API_URL } from '../../services/api'
 import getLightColor from '../common/getLightColor'
+import { getPriorityColor } from '../common/getPriorityColor'
 
 export type SortOption = 'none' | 'price-low' | 'price-high' | 'priority-high'
 
@@ -28,29 +29,6 @@ const getPriorityValue = (priority?: string | number): number => {
   return !isNaN(parsed) && parsed >= 0 && parsed <= 4 ? parsed : 2
 }
 
-
-const getPriorityColor = (baseColor: string, priority?: number): string => {
-  const priorityValue = getPriorityValue(priority)
-  
-  // Adjust opacity based on priority (0=lowest, 4=highest)
-  const opacityMap: { [key: number]: number } = {
-    0: 0.3,  // Very low
-    1: 0.5,  // Low
-    2: 0.7,  // Medium
-    3: 0.85, // High
-    4: 1.0   // Very high
-  }
-  
-  const opacity = opacityMap[priorityValue] || 0.7
-  
-  // Convert hex to rgba
-  const hex = baseColor.replace('#', '')
-  const r = parseInt(hex.substring(0, 2), 16)
-  const g = parseInt(hex.substring(2, 4), 16)
-  const b = parseInt(hex.substring(4, 6), 16)
-  
-  return `rgba(${r}, ${g}, ${b}, ${opacity})`
-}
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return ''
@@ -143,7 +121,7 @@ export function SimpleGridView({
                         ${item.price.toFixed(2)}
                       </Text>
                     )}
-                    <Text color={COLORS.text.muted} fontSize="xs">
+                    <Text color={COLORS.text.secondary} fontSize="0.75rem">
                       {formatDate(item.created_at)}
                     </Text>
                   </HStack>
@@ -160,7 +138,7 @@ export function SimpleGridView({
                       ${item.price.toFixed(2)}
                     </Text>
                   )}
-                  <Text color={COLORS.text.muted} fontSize="xs">
+                  <Text color={COLORS.text.secondary} fontSize="0.75rem">
                     {formatDate(item.created_at)}
                   </Text>
                 </VStack>
