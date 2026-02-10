@@ -63,6 +63,11 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
     loadWishlists()
   }
 
+  const handleOpenCreateWishlist = () => {
+    setIsCreateMenuOpen(false)
+    setIsCreateWishlistModalOpen(true)
+  }
+
   if (isHidden) return null
 
   const profileImage = user?.id ? `${API_URL}users/${user.id}/profile-image` : null
@@ -211,7 +216,7 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
         isOpen={isCreateMenuOpen}
         onClose={() => setIsCreateMenuOpen(false)}
         anchorRef={createButtonRef}
-        onCreateWishlist={() => setIsCreateWishlistModalOpen(true)}
+        onCreateWishlist={handleOpenCreateWishlist}
         onAddItem={() => console.log('Add item to wishlist')}
       />
 

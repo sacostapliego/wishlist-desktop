@@ -1,6 +1,7 @@
 import { Box, Heading, IconButton } from '@chakra-ui/react'
 import { LuX } from 'react-icons/lu'
 import { useState, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { WishlistForm } from './WishlistForm'
 import type { WishlistFormRef } from './WishlistForm'
@@ -40,7 +41,6 @@ export function CreateWishlistModal({ isOpen, onClose, onSuccess }: CreateWishli
       
       onClose()
       
-      // Navigate to the new wishlist
       navigate(`/wishlist/${result.id}`)
     } catch (error) {
       console.error('Error creating wishlist:', error)
@@ -56,7 +56,7 @@ export function CreateWishlistModal({ isOpen, onClose, onSuccess }: CreateWishli
 
   if (!isOpen) return null
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       <Box
@@ -78,7 +78,7 @@ export function CreateWishlistModal({ isOpen, onClose, onSuccess }: CreateWishli
         transform="translate(-50%, -50%)"
         bg={COLORS.cardDarkLight}
         borderRadius="lg"
-        zIndex={1000}
+        zIndex={999}
         maxW="600px"
         maxH="90vh"
         w="90vw"
@@ -117,6 +117,7 @@ export function CreateWishlistModal({ isOpen, onClose, onSuccess }: CreateWishli
           submitLabel="Create Wishlist"
         />
       </Box>
-    </>
+    </>,
+    document.body
   )
 }
