@@ -1,4 +1,4 @@
-import { Box, VStack, Heading, Text, Image, IconButton, HStack, Button } from '@chakra-ui/react'
+import { Box, VStack, Heading, Text, Image, IconButton, HStack, Button, Stack } from '@chakra-ui/react'
 import { useParams, useNavigate, Navigate } from 'react-router-dom'
 import { LuArrowLeft, LuEllipsisVertical, LuCopy, LuExternalLink } from 'react-icons/lu'
 import { COLORS } from '../styles/common'
@@ -159,8 +159,8 @@ function ItemPage() {
         )}
 
         {/* Item Details */}
-        <VStack align="stretch" gap={4} maxW="40rem" mx="auto" w="100%">
-          <HStack justify="space-between" align="start" gap={4}>
+        <VStack align="stretch" gap={4} mx="auto" w="100%">
+          <Stack direction={{base:'column', md: 'column'}} justify="space-between" align="start" gap={4}>
             <Heading 
               size="2xl" 
               color="white" 
@@ -177,7 +177,7 @@ function ItemPage() {
                 ${item.price.toFixed(2)}
               </Text>
             )}
-          </HStack>
+          </Stack >
 
           {/* Claiming section */}
           {!isOwner && (
@@ -185,19 +185,14 @@ function ItemPage() {
             </Box>
           )}
 
-          {/* Description */}
-          {item.description && (
-            <Text color={COLORS.text.secondary} fontSize="md">
-              {item.description}
-            </Text>
-          )}
 
           {/* URL */}
           {item.url && (
             <Box
-              bg={COLORS.cardGray}
-              borderRadius="lg"
-              p={4}
+            bg={COLORS.cardGray}
+            borderRadius="lg"
+            p={4}
+            maxW={'30rem'}
             >
               <HStack gap={3}>
                 <Button
@@ -208,7 +203,7 @@ function ItemPage() {
                   color={COLORS.text.primary}
                   _hover={{ bg: COLORS.cardDarkLight }}
                   px={3}
-                >
+                  >
                   <HStack gap={2} w="100%">
                     <LuExternalLink />
                     <Text fontSize="sm" lineBreak="anywhere" overflow={'hidden'}>
@@ -222,11 +217,19 @@ function ItemPage() {
                   onClick={handleCopyUrl}
                   color={COLORS.text.primary}
                   _hover={{ bg: COLORS.cardDarkLight }}
-                >
+                  >
                   <LuCopy />
                 </IconButton>
               </HStack>
             </Box>
+          )}
+
+
+          {/* Description */}
+          {item.description && (
+            <Text color={COLORS.text.secondary} fontSize="md">
+              {item.description}
+            </Text>
           )}
         </VStack>
       </VStack>
