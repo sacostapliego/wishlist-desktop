@@ -6,6 +6,8 @@ import { API_URL } from '../services/api'
 import { toaster } from '../components/ui/toaster'
 import getLightColor from '../components/common/getLightColor'
 import { useItemDetail } from '../hooks/useItemDetail'
+import { useItemClaiming } from '../hooks/useItemClaiming'
+import { ItemClaimingSection } from '../components/items/ItemClaimingSection'
 import { useState } from 'react'
 
 function ItemPage() {
@@ -13,11 +15,24 @@ function ItemPage() {
   const navigate = useNavigate()
   const [isNameExpanded, setIsNameExpanded] = useState(false)
   
-  const { item, wishlistColor, wishlistInfo, isLoading, error, isOwner } = useItemDetail(
+  const { item, wishlistColor, wishlistInfo, isLoading, error, isOwner, refetchData } = useItemDetail(
     itemId,
     wishlistId,
     false
   )
+
+  const {
+    showGuestNameModal,
+    guestName,
+    setGuestName,
+    isClaimLoading,
+    isItemClaimed,
+    canUserUnclaim,
+    handleClaimItem,
+    handleGuestClaim,
+    handleUnclaimItem,
+    cancelGuestModal,
+  } = useItemClaiming(item, refetchData)
 
   const handleCopyUrl = async () => {
     if (item?.url) {
@@ -86,7 +101,7 @@ function ItemPage() {
   const imageUrl = item.image ? `${API_URL}wishlist/${item.id}/image` : null
 
   return (
-    <Box h="calc(100vh - 32px)" w="100%" overflowY="auto" bg={COLORS.background}>
+    <Box h="calc(100vh - 32px)" w="100%" overflowY="auto" bg={COLORS.background} position="relative">
       {/* Header */}
       <Box bg={COLORS.background} px={8} py={4} position="sticky" top={0} zIndex={10}>
         <HStack justify="space-between">
@@ -132,7 +147,7 @@ function ItemPage() {
       </Box>
 
       {/* Content */}
-      <VStack align="stretch" px={8} pb={8} gap={6}>
+      <VStack align="stretch" px={8} pb={{ base: 32, md: 32 }} gap={6}>
         {/* Image */}
         {imageUrl && (
           <Box
@@ -177,22 +192,14 @@ function ItemPage() {
                 ${item.price.toFixed(2)}
               </Text>
             )}
-          </Stack >
-
-          {/* Claiming section */}
-          {!isOwner && (
-            <Box>
-            </Box>
-          )}
-
+          </Stack>
 
           {/* URL */}
           {item.url && (
             <Box
-            bg={COLORS.cardGray}
-            borderRadius="lg"
-            p={4}
-            maxW={'30rem'}
+              bg={COLORS.cardGray}
+              borderRadius="lg"
+              p={4}
             >
               <HStack gap={3}>
                 <Button
@@ -203,7 +210,7 @@ function ItemPage() {
                   color={COLORS.text.primary}
                   _hover={{ bg: COLORS.cardDarkLight }}
                   px={3}
-                  >
+                >
                   <HStack gap={2} w="100%">
                     <LuExternalLink />
                     <Text fontSize="sm" lineBreak="anywhere" overflow={'hidden'}>
@@ -217,13 +224,12 @@ function ItemPage() {
                   onClick={handleCopyUrl}
                   color={COLORS.text.primary}
                   _hover={{ bg: COLORS.cardDarkLight }}
-                  >
+                >
                   <LuCopy />
                 </IconButton>
               </HStack>
             </Box>
           )}
-
 
           {/* Description */}
           {item.description && (
@@ -233,6 +239,35 @@ function ItemPage() {
           )}
         </VStack>
       </VStack>
+
+      {/* Sticky Claim Button - Only for non-owners */}
+      {!isOwner && (
+        <Box
+          position="fixed"
+          bottom={{ base: "calc(64px + 1rem)", md: "1rem" }} // Above bottom nav on mobile, just padding on desktop
+          left={0}
+          right={0}
+          px={4}
+          zIndex={9}
+        >
+          <Box p={3} maxW="30rem" mx="auto">
+            <ItemClaimingSection
+              item={item}
+              wishlistColor={wishlistColor}
+              isItemClaimed={isItemClaimed}
+              canUserUnclaim={canUserUnclaim}
+              isClaimLoading={isClaimLoading}
+              showGuestNameModal={showGuestNameModal}
+              guestName={guestName}
+              setGuestName={setGuestName}
+              onClaimItem={handleClaimItem}
+              onUnclaimItem={handleUnclaimItem}
+              onGuestClaim={handleGuestClaim}
+              onCancelGuestModal={cancelGuestModal}
+            />
+          </Box>
+        </Box>
+      )}
     </Box>
   )
 }

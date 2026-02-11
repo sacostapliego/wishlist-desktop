@@ -168,5 +168,5 @@ export const useItemDetail = (
     fetchData()
   }, [fetchData])
 
-  return { item, wishlistColor, wishlistInfo, isLoading, error, isOwner, refetchItemData: fetchData }
+  return { item, wishlistColor, wishlistInfo, isLoading, error, isOwner, refetchItemData: fetchData, refetchData: fetchData }
 }
