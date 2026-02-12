@@ -7,6 +7,7 @@ import { COLORS } from '../../styles/common'
 import { API_URL } from '../../services/api'
 import { WishlistMenu, getOwnerMenuOptions } from './WishlistMenu'
 import { EditWishlistModal } from './EditWishlistModal'
+import { AddItemModal } from '../items/AddItemModal'
 
 interface OwnerWishlistViewProps {
   wishlist: {
@@ -21,12 +22,14 @@ interface OwnerWishlistViewProps {
     created_at?: string
     owner_id?: string
   }
+  onItemAdded?: () => void
 }
 
-export function OwnerWishlistView({ wishlist }: OwnerWishlistViewProps) {
+export function OwnerWishlistView({ wishlist, onItemAdded }: OwnerWishlistViewProps) {
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false)
   const IconComponent = getWishlistIcon(wishlist.image)
   const profileImage = wishlist.owner_id ? `${API_URL}users/${wishlist.owner_id}/profile-image` : null
 
@@ -69,7 +72,7 @@ export function OwnerWishlistView({ wishlist }: OwnerWishlistViewProps) {
           <IconButton
             aria-label="Add item"
             variant="ghost"
-            onClick={() => console.log('Add item')}
+            onClick={() => setIsAddItemModalOpen(true)}
             color="white"
             size="lg"
           >
@@ -156,6 +159,15 @@ export function OwnerWishlistView({ wishlist }: OwnerWishlistViewProps) {
         onSuccess={() => {
           // Refresh the wishlist data or trigger a refetch
           window.location.reload() // Replace with proper state management
+        }}
+      />
+
+      <AddItemModal
+        isOpen={isAddItemModalOpen}
+        onClose={() => setIsAddItemModalOpen(false)}
+        preSelectedWishlistId={wishlist.id}
+        onSuccess={() => {
+          onItemAdded?.()
         }}
       />
     </Box>

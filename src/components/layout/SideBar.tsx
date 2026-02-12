@@ -13,6 +13,7 @@ import { WishlistItem } from './sidebar/WishlistItem'
 import { FriendWishlistItem } from './sidebar/FriendWishlistItem'
 import { CreateMenu } from './sidebar/CreateMenu'
 import { CreateWishlistModal } from '../wishlists/CreateWishlistModal'
+import { AddItemModal } from '../items/AddItemModal'
 
 interface Wishlist {
   id: string
@@ -35,6 +36,7 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
   const [friendsWishlists, setFriendsWishlists] = useState<FriendWishlistResponse[]>([])
   const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false)
   const [isCreateWishlistModalOpen, setIsCreateWishlistModalOpen] = useState(false)
+  const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false)
   const createButtonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
@@ -61,6 +63,11 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
 
   const handleCreateWishlistSuccess = () => {
     loadWishlists()
+  }
+
+  const handleOpenAddItem = () => {
+    setIsCreateMenuOpen(false)
+    setIsAddItemModalOpen(true)
   }
 
   const handleOpenCreateWishlist = () => {
@@ -217,7 +224,7 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
         onClose={() => setIsCreateMenuOpen(false)}
         anchorRef={createButtonRef}
         onCreateWishlist={handleOpenCreateWishlist}
-        onAddItem={() => console.log('Add item to wishlist')}
+        onAddItem={handleOpenAddItem}
       />
 
       <CreateWishlistModal
@@ -225,6 +232,13 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
         onClose={() => setIsCreateWishlistModalOpen(false)}
         onSuccess={handleCreateWishlistSuccess}
       />
+
+      <AddItemModal
+        isOpen={isAddItemModalOpen}
+        onClose={() => setIsAddItemModalOpen(false)}
+        onSuccess={loadWishlists}
+      />
+
     </Box>
   )
 }

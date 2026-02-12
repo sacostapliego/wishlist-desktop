@@ -1,0 +1,202 @@
+import { useState, useRef, useEffect } from 'react'
+import { Dialog } from '@chakra-ui/react'
+import { Box, Button, HStack, VStack } from '@chakra-ui/react'
+import { COLORS } from '../../styles/common'
+import { createPortal } from 'react-dom'
+import { wishlistAPI } from '../../services/wishlist'
+import { toaster } from '../ui/toaster'
+import { useNavigate } from 'react-router-dom'
+import { ItemForm, type ItemFormData, type ItemFormRef } from './ItemForm'
+import { ScrapeUrlForm } from './ScrapeUrlForm'
+
+interface AddItemModalProps {
+  isOpen: boolean
+  onClose: () => void
+  preSelectedWishlistId?: string
+  onSuccess?: () => void
+}
+
+type AddMode = 'manual' | 'link'
+
+export function AddItemModal({ isOpen, onClose, preSelectedWishlistId, onSuccess }: AddItemModalProps) {
+  const navigate = useNavigate()
+  const [addMode, setAddMode] = useState<AddMode>('manual')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [wishlists, setWishlists] = useState<any[]>([])
+  const [loadingWishlists, setLoadingWishlists] = useState(true)
+  const [selectedWishlistId, setSelectedWishlistId] = useState(preSelectedWishlistId || '')
+  const [initialFormValues, setInitialFormValues] = useState<Partial<ItemFormData>>({
+    name: '',
+    description: '',
+    price: '',
+    url: '',
+    priority: 0,
+  })
+
+  const itemFormRef = useRef<ItemFormRef>(null)
+
+  useEffect(() => {
+    if (isOpen) {
+      if (preSelectedWishlistId) {
+        setSelectedWishlistId(preSelectedWishlistId)
+        setLoadingWishlists(false)
+      } else {
+        fetchWishlists()
+      }
+    }
+  }, [isOpen, preSelectedWishlistId])
+
+  const fetchWishlists = async () => {
+    try {
+      setLoadingWishlists(true)
+      const response = await wishlistAPI.getWishlists()
+      setWishlists(response)
+
+      if (!preSelectedWishlistId && response && response.length > 0) {
+        setSelectedWishlistId(response[0].id)
+      }
+    } catch (error) {
+      console.error('Failed to fetch wishlists:', error)
+      toaster.create({
+        title: 'Error',
+        description: 'Failed to load your wishlists.',
+        type: 'error',
+      })
+    } finally {
+      setLoadingWishlists(false)
+    }
+  }
+
+  const handleScrapeSuccess = (data: Partial<ItemFormData>) => {
+    setInitialFormValues(data)
+    setAddMode('manual')
+  }
+
+  const handleAddItemSubmit = async (formData: ItemFormData, imageFile?: File | string) => {
+    setIsSubmitting(true)
+    try {
+      const itemDataPayload = {
+        name: formData.name.trim(),
+        description: formData.description?.trim() || null,
+        price: formData.price ? parseFloat(formData.price) : null,
+        url: formData.url?.trim() || null,
+        priority: formData.priority || 0,
+        wishlist_id: selectedWishlistId,
+        is_purchased: false,
+      }
+
+      await wishlistAPI.createItem(itemDataPayload, imageFile)
+
+      setInitialFormValues({
+        name: '',
+        description: '',
+        price: '',
+        url: '',
+        priority: 0,
+      })
+
+      if (itemFormRef.current) {
+        itemFormRef.current.resetForm()
+      }
+
+      toaster.create({
+        title: 'Success',
+        description: 'Item added to wishlist!',
+        type: 'success',
+      })
+
+      onSuccess?.()
+      onClose()
+
+      navigate(`/wishlist/${selectedWishlistId}`)
+    } catch (error) {
+      console.error('Error adding item:', error)
+      toaster.create({
+        title: 'Error',
+        description: 'Failed to add item. Please try again.',
+        type: 'error',
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleClose = () => {
+    setAddMode('manual')
+    setInitialFormValues({
+      name: '',
+      description: '',
+      price: '',
+      url: '',
+      priority: 0,
+    })
+    onClose()
+  }
+
+  return createPortal(
+    <>
+      <Dialog.Root scrollBehavior={'inside'} open={isOpen} onOpenChange={(e) => !e.open && handleClose()} size="xl">
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <Dialog.Content 
+            bg={COLORS.cardGray} 
+            maxH={{base:"100vh", md:"90vh"}} 
+            display="flex"
+            flexDirection="column"
+          >
+            <Dialog.CloseTrigger color={COLORS.text.primary} />
+            <Dialog.Header flexShrink={0}>
+              <Dialog.Title color={COLORS.text.primary}>Add New Item</Dialog.Title>
+            </Dialog.Header>
+
+            <Dialog.Body pb={6} overflowY="auto" flex={1}>
+              <VStack align="stretch" gap={6}>
+                <HStack gap={2} w="100%">
+                  <Button
+                    flex={1}
+                    variant={addMode === 'manual' ? 'solid' : 'outline'}
+                    onClick={() => setAddMode('manual')}
+                    bg={addMode === 'manual' ? COLORS.primary : undefined}
+                    color={addMode === 'manual' ? COLORS.text.primary : COLORS.text.secondary}
+                  >
+                    Manual
+                  </Button>
+                  <Button
+                    flex={1}
+                    variant={addMode === 'link' ? 'solid' : 'outline'}
+                    onClick={() => setAddMode('link')}
+                    bg={addMode === 'link' ? COLORS.primary : undefined}
+                    color={addMode === 'link' ? COLORS.text.primary : COLORS.text.secondary}
+                  >
+                    From Link
+                  </Button>
+                </HStack>
+
+                <Box>
+                  {addMode === 'manual' ? (
+                    <ItemForm
+                      ref={itemFormRef}
+                      initialValues={initialFormValues}
+                      onSubmit={handleAddItemSubmit}
+                      isLoading={isSubmitting}
+                      submitLabel="Add Item"
+                      wishlists={wishlists}
+                      selectedWishlistId={selectedWishlistId}
+                      onWishlistChange={setSelectedWishlistId}
+                      loadingWishlists={loadingWishlists}
+                      isEditMode={false}
+                      hideWishlistSelector={!!preSelectedWishlistId}
+                    />
+                  ) : (
+                    <ScrapeUrlForm onScrapeSuccess={handleScrapeSuccess} />
+                  )}
+                </Box>
+              </VStack>
+            </Dialog.Body>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Dialog.Root>
+    </>,
+    document.body
+  )
+}
