@@ -34,12 +34,6 @@ export function ItemClaimingSection({
 }: ItemClaimingSectionProps) {
   const baseLightColor = getLightColor(wishlistColor || COLORS.cardGray)
 
-  const isBlack =
-    wishlistColor?.toLowerCase().includes('rgb(0, 0, 0)') ||
-    wishlistColor?.toLowerCase().includes('rgb(27, 27, 27)')
-
-  const claimedColor = isBlack ? '#ffffff' : baseLightColor
-
   return (
     <>
       <Box>
@@ -76,7 +70,7 @@ export function ItemClaimingSection({
             w="100%"
             p={4}
             borderRadius="lg"
-            bg={claimedColor}
+            bg={baseLightColor}
             onClick={onClaimItem}
             disabled={isClaimLoading}
             _hover={{ bg: 'rgba(255, 255, 255, 0.05)' }}
@@ -122,7 +116,7 @@ export function ItemClaimingSection({
               <Button
                 onClick={onGuestClaim}
                 disabled={isClaimLoading}
-                bg={claimedColor}
+                bg={baseLightColor}
                 color={COLORS.background}
                 _hover={{ opacity: 0.9 }}
                 ml={3}

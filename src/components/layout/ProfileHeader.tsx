@@ -12,7 +12,7 @@ export function ProfileHeader() {
   const displayName = user?.name || user?.username || 'Guest'
 
   return (
-    <Box display={{ base: "block", lg: "none" }} p={4} bg="#141414" >
+    <Box display={{ base: "block", md: "none" }} p={4} bg="#141414" >
       <ProfileSection 
         displayName={displayName}
         profileImage={profileImage}

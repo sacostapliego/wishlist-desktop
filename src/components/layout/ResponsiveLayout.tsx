@@ -14,7 +14,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
   const { sidebarState, sidebarWidth, isResizing, handleMouseDown, toggleSidebar } = useSidebarResize()
 
   return (
-    <Flex minH="100vh" bg="#070707" p={{ base: 0, lg: 4 }} gap={{ base: 0, lg: 4 }}>
+    <Flex minH="100vh" bg="#070707" p={{ base: 0, md: 4 }} gap={{ base: 0, md: 4 }}>
       {/* Show Sidebar Toggle when Hidden */}
       {sidebarState === 'hidden' && (
         <IconButton
@@ -22,7 +22,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
           position="fixed"
           left="1"
           height="calc(100vh - 32px)"
-          display={{ base: "none", lg: "flex" }}
+          display={{ base: "none", md: "flex" }}
           onClick={toggleSidebar}
           zIndex={10}
           variant={"ghost"}
@@ -33,7 +33,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
 
       {/* Desktop Sidebar */}
       <Box
-        display={{ base: "none", lg: "block" }}
+        display={{ base: "none", md: "block" }}
         w={`${sidebarWidth}px`}
         position="fixed"
         left="16px"
@@ -53,7 +53,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
       {/* Resize Handle */}
       {sidebarState !== 'hidden' && (
         <Box
-          display={{ base: "none", lg: "block" }}
+          display={{ base: "none", md: "block" }}
           position="fixed"
           left={`calc(${sidebarWidth}px + 35px)`}
           top="16px"
@@ -71,9 +71,10 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
       {/* Main Content */}
       <Box
         flex="1"
-        ml={{ base: 0, lg: `calc(${sidebarWidth}px + 35px)` }}
+        ml={{ base: 0, md: `calc(${sidebarWidth}px + 35px)` }}
+        mb={{ base: '80px', md: 0}}
         transition={isResizing ? 'none' : 'margin-left 0.2s'}
-        borderRadius={{ base: 0, lg: "lg" }}
+        borderRadius={{ base: 0, md: "lg" }}
         bg="#141414"
         overflowY="auto"
         overflowX="hidden"
@@ -86,7 +87,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
 
       {/* Mobile Bottom Nav */}
       <Box
-        display={{ base: "flex", lg: "none" }}
+        display={{ base: "flex", md: "none" }}
         position="fixed"
         bottom="0"
         w="100%"
