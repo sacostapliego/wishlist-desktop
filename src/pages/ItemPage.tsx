@@ -74,7 +74,7 @@ function ItemPage() {
 
   if (error || !item) {
     return (
-      <Box h="calc(100vh - 32px)" w="100%" display="flex" flexDirection="column">
+      <Box h="calc(100vh - 32px)" w="100%" display="flex" flexDirection="column" bg={COLORS.background}>
         <Box bg={COLORS.background} px={8} py={4}>
           <HStack justify="space-between">
             <IconButton
@@ -200,6 +200,7 @@ function ItemPage() {
               bg={COLORS.cardGray}
               borderRadius="lg"
               p={4}
+              maxW={"50rem"}
             >
               <HStack gap={3}>
                 <Button
@@ -244,9 +245,9 @@ function ItemPage() {
       {!isOwner && (
         <Box
           position="fixed"
-          bottom={{ base: "calc(64px + 1rem)", md: "1rem" }} // Above bottom nav on mobile, just padding on desktop
-          left={0}
-          right={0}
+          bottom={{ base: "calc(64px + 1rem)", md: "1rem" }}          // Above bottom nav on mobile, just padding on desktop
+          left={{ base: 0, lg: "calc(var(--sidebar-width) + 51px)" }} // Sidebar width + gap + padding
+          right={{ base: 0, lg: "16px" }}
           px={4}
           zIndex={9}
         >

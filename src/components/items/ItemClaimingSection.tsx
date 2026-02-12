@@ -1,5 +1,5 @@
 import { Box, Button, HStack, Text, Input, Dialog } from '@chakra-ui/react'
-import { LuCircleCheck, LuCircleDashed } from 'react-icons/lu'
+import { LuCircleCheck, LuCircle } from 'react-icons/lu'
 import { COLORS } from '../../styles/common'
 import getLightColor from '../common/getLightColor'
 
@@ -83,7 +83,7 @@ export function ItemClaimingSection({
             justifyContent="flex-start"
           >
             <HStack gap={2}>
-              <LuCircleDashed size={20} color={'white'} />
+              <LuCircle size={20} color={'white'} />
               <Text color={'white'} fontSize="md" fontWeight="medium">
                 I'm getting this
               </Text>

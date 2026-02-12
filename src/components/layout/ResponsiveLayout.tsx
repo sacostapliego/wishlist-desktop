@@ -77,6 +77,9 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
         bg="#141414"
         overflowY="auto"
         overflowX="hidden"
+        css={{
+          '--sidebar-width': `${sidebarWidth}px`,
+        } as any}
       >
         {children || <Outlet />}
       </Box>
