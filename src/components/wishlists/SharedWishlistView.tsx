@@ -156,11 +156,15 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
           )}
 
           <HStack gap={2} color={COLORS.text.secondary} fontSize="sm" mt={2}>
-            <Avatar.Root size="xs">
+            <Avatar.Root 
+              size="xs"
+              cursor="pointer"
+              onClick={() => navigate(`/profile/${wishlist.owner_id}`)}
+            >
               <Avatar.Fallback name={wishlist.owner_name} />
               <Avatar.Image src={profileImage || undefined} />
             </Avatar.Root>
-            <Text fontWeight="semibold" color="white">
+            <Text fontWeight="semibold" color="white" cursor="pointer" onClick={() => navigate(`/profile/${wishlist.owner_id}`)}>
               {wishlist.owner_name}
             </Text>
             <Text display={{ base: 'none', md: 'block' }}>•</Text>

@@ -122,11 +122,15 @@ export function OwnerWishlistView({ wishlist }: OwnerWishlistViewProps) {
           )}
 
           <HStack gap={2} color={COLORS.text.secondary} fontSize="sm" mt={2}>
-            <Avatar.Root size="xs">
+            <Avatar.Root 
+              size="xs" 
+              cursor="pointer"
+              onClick={() => navigate(`/profile`)}
+            >
               <Avatar.Fallback name={wishlist.owner} />
               <Avatar.Image src={profileImage || undefined} />
             </Avatar.Root>
-            <Text fontWeight="semibold" color="white">
+            <Text fontWeight="semibold" color="white" cursor="pointer" onClick={() => navigate(`/profile`)}>
               {wishlist.owner}
             </Text>
             <Text display={{ base: 'none', md: 'block' }}>•</Text>
