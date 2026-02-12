@@ -9,6 +9,13 @@ interface User {
   username: string
   name?: string
   pfp?: string
+  shoe_size?: string
+  shirt_size?: string
+  pants_size?: string
+  hat_size?: string
+  ring_size?: string
+  dress_size?: string
+  jacket_size?: string
 }
 
 interface AuthContextType {

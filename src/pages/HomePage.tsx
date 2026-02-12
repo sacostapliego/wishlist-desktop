@@ -98,7 +98,7 @@ function HomePage() {
   }
 
   return (
-    <Box h={{base: "105%", md:"calc(100vh - 32px)"}} w="100%"  overflowX="visible" py={2}>
+    <Box h={{base: 0, md:"calc(100vh - 32px)"}} w="100%"  overflowX="visible" py={2}>
       <ProfileHeader />
       <VStack align="stretch">
         {/* Claimed Items Section */}
