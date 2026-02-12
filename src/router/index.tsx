@@ -3,6 +3,7 @@ import ResponsiveLayout from '../components/layout/ResponsiveLayout'
 import HomePage from '../pages/HomePage'
 import LoginPage from '../pages/LoginPage'
 import ProfilePage from '../pages/ProfilePage'
+import FriendsPage from '../pages/FriendsPage'
 import { ProtectedRoute } from '../components/auth/ProtectedRoute'
 import { useAuth } from '../context/AuthContext'
 import WishlsitPage from '../pages/WishlistPage'
@@ -27,6 +28,7 @@ const router = createBrowserRouter([
       { path: 'wishlist/:id/:itemId', element: <ItemPage /> },
       { path: 'profile', element: <ProfilePage /> },
       { path: 'profile/:userId', element: <ProfilePage /> },
+      { path: 'friends', element: <FriendsPage /> },
     ],
   },
   {
