@@ -8,6 +8,8 @@ import { ProtectedRoute } from '../components/auth/ProtectedRoute'
 import { useAuth } from '../context/AuthContext'
 import WishlsitPage from '../pages/WishlistPage'
 import ItemPage from '../pages/ItemPage'
+import AllWishlistsPage from '../pages/AllWishlistsPage'
+import AllClaimedItemsPage from '../pages/AllClaimedItemsPage'
 
 function AuthRedirect() {
   const { isLoggedIn } = useAuth()
@@ -26,6 +28,9 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: 'wishlist/:id', element: <WishlsitPage /> },
       { path: 'wishlist/:id/:itemId', element: <ItemPage /> },
+      { path: 'wishlists/friends', element: <AllWishlistsPage type="friends" /> },
+      { path: 'wishlists/mine', element: <AllWishlistsPage type="mine" /> },
+      { path: 'items/claimed', element: <AllClaimedItemsPage /> },
       { path: 'profile', element: <ProfilePage /> },
       { path: 'profile/:userId', element: <ProfilePage /> },
       { path: 'friends', element: <FriendsPage /> },

@@ -105,7 +105,7 @@ function HomePage() {
         {claimedItems.length > 0 && (
           <ClaimedItemsSection 
             items={claimedItems}
-            onShowAll={() => console.log('Show all claimed items')}
+            onShowAll={() => navigate('/items/claimed')}
             onItemClick={(item) => navigate(`/wishlist/${item.wishlist_id}/${item.id}`)}
           />
         )}
@@ -115,7 +115,7 @@ function HomePage() {
           <WishlistCarousel 
             title="Friends Lists" 
             wishlists={friendsWishlists}
-            onShowAll={() => console.log('Show all friends wishlists')}
+            onShowAll={() => navigate('/wishlists/friends')}
             onWishlistClick={(id) => navigate(`/wishlist/${id}`)}
           />
         )}
@@ -125,7 +125,7 @@ function HomePage() {
           <WishlistCarousel 
             title="My Lists" 
             wishlists={myWishlists}
-            onShowAll={() => console.log('Show all my wishlists')}
+            onShowAll={() => navigate('/wishlists/mine')}
             onWishlistClick={(id) => navigate(`/wishlist/${id}`)}
           />
         )}
