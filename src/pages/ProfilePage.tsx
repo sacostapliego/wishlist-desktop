@@ -139,61 +139,62 @@ function ProfilePage() {
       </Box>
 
       {/* Profile Content */}
-      <VStack gap={6} px={8} py={8} align="stretch">
-        {/* Profile Image and User Info */}
-        <VStack gap={4}>
-          {/* Profile Image */}
-          <Box
-            w="120px"
-            h="120px"
-            borderRadius="full"
-            overflow="hidden"
-            bg={COLORS.cardGray}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            {profileImage ? (
-              <Image
-                src={profileImage}
-                alt={displayName}
-                w="100%"
-                h="100%"
-                objectFit="cover"
-              />
-            ) : (
-              <Text color={COLORS.text.secondary} fontSize="4xl" fontWeight="bold">
-                {displayName.charAt(0).toUpperCase()}
-              </Text>
-            )}
-          </Box>
-
-          {/* User Info */}
-          <VStack gap={1}>
-            <Heading size="xl" color="white">
-              {displayName}
-            </Heading>
-            <Text color={COLORS.text.secondary} fontSize="lg">
-              @{target.username}
-            </Text>
-          </VStack>
-        </VStack>
-
-        {/* Sizes Section */}
-        {Object.values(sizeValues).some(value => value) && (
-          <Box>
-            <Text 
-              fontSize="lg" 
-              fontWeight="semibold" 
-              color="white" 
-              mb={3}
+      <VStack gap={6} align="stretch">
+        <Box gap={6} px={8} py={8} >
+          {/* Profile Image and User Info */}
+          <VStack gap={4}>
+            {/* Profile Image */}
+            <Box
+              w="120px"
+              h="120px"
+              borderRadius="full"
+              overflow="hidden"
+              bg={COLORS.cardGray}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
             >
-              Sizes
-            </Text>
-            <SizeCards values={sizeValues} />
-          </Box>
-        )}
+              {profileImage ? (
+                <Image
+                  src={profileImage}
+                  alt={displayName}
+                  w="100%"
+                  h="100%"
+                  objectFit="cover"
+                />
+              ) : (
+                <Text color={COLORS.text.secondary} fontSize="4xl" fontWeight="bold">
+                  {displayName.charAt(0).toUpperCase()}
+                </Text>
+              )}
+            </Box>
 
+            {/* User Info */}
+            <VStack gap={1}>
+              <Heading size="xl" color="white">
+                {displayName}
+              </Heading>
+              <Text color={COLORS.text.secondary} fontSize="lg">
+                @{target.username}
+              </Text>
+            </VStack>
+          </VStack>
+
+          {/* Sizes Section */}
+          {Object.values(sizeValues).some(value => value) && (
+            <Box>
+              <Text 
+                fontSize="lg" 
+                fontWeight="semibold" 
+                color="white" 
+                mb={3}
+              >
+                Sizes
+              </Text>
+              <SizeCards values={sizeValues} />
+            </Box>
+          )}
+        </Box>
         {!isSelf && friendWishlists.length > 0 && (
           <Box>
             <WishlistCarousel 

@@ -246,8 +246,8 @@ function ItemPage() {
         <Box
           position="fixed"
           bottom={{ base: "calc(64px + 1rem)", md: "1rem" }}          // Above bottom nav on mobile, just padding on desktop
-          left={{ base: 0, lg: "calc(var(--sidebar-width) + 51px)" }} // Sidebar width + gap + padding
-          right={{ base: 0, lg: "16px" }}
+          left={{ base: 0, md: "calc(var(--sidebar-width) + 51px)" }} // Sidebar width + gap + padding
+          right={{ base: 0, md: "16px" }}
           px={4}
           zIndex={9}
         >
