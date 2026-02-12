@@ -74,5 +74,5 @@ export function useWishlistDetail(wishlistId: string | undefined, shouldRefresh?
     }
   }
 
-  return { wishlist, items, isLoading, error, refetch: fetchWishlistDetails }
+  return { wishlist, items, isLoading, error, refetchItems: fetchWishlistDetails }
 }

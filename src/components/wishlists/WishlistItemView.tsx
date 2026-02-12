@@ -4,6 +4,7 @@ import { COLORS } from '../../styles/common'
 import { API_URL } from '../../services/api'
 import getLightColor from '../common/getLightColor'
 import { getPriorityColor } from '../common/getPriorityColor'
+import { LuCheck } from 'react-icons/lu'
 
 export type SortOption = 'none' | 'price-low' | 'price-high' | 'priority-high'
 
@@ -19,9 +20,12 @@ export interface WishlistItem {
 
 interface WishlistItemViewProps {
   items: WishlistItem[]
-  onItemClick?: (item: WishlistItem) => void
   wishlistColor?: string
-  sortBy?: SortOption
+  sortBy: SortOption
+  onItemClick: (item: WishlistItem) => void
+  isSelectionMode?: boolean
+  selectedItems?: string[]
+  onToggleSelect?: (itemId: string) => void
 }
 
 const getPriorityValue = (priority?: string | number): number => {
@@ -46,9 +50,12 @@ const formatDate = (dateString?: string) => {
 
 export function WishlistItemView({ 
   items, 
-  onItemClick, 
-  wishlistColor,
-  sortBy = 'none'
+  wishlistColor, 
+  sortBy, 
+  onItemClick,
+  isSelectionMode = false,
+  selectedItems = [],
+  onToggleSelect
 }: WishlistItemViewProps) {
   const sortedItems = useMemo(() => {
     const itemsCopy = [...items]
@@ -67,6 +74,14 @@ export function WishlistItemView({
 
   const backgroundLightColor = getLightColor(wishlistColor || COLORS.cardGray)
 
+  const handleItemClick = (item: WishlistItem) => {
+    if (isSelectionMode && onToggleSelect) {
+      onToggleSelect(item.id)
+    } else {
+      onItemClick(item)
+    }
+  }
+
   return (
     <VStack align="stretch" gap={{ base: '1rem', md: '1rem' }} px={{ base: '1rem', md: '2rem' }} py={{ base: '0', md: '1rem' }}>
       {sortedItems.map((item) => {
@@ -77,8 +92,9 @@ export function WishlistItemView({
           ? getPriorityColor(baseWishlistColor, item.priority)
           : baseWishlistColor
 
-        // Use updated_at if available, otherwise fall back to created_at
         const displayDate = item.updated_at || item.created_at
+
+        const isSelected = selectedItems.includes(item.id)
 
         return (
           <HStack
@@ -89,22 +105,44 @@ export function WishlistItemView({
             transition="all 0.2s"
             borderRadius="0.375rem"
             _hover={{ bg: backgroundLightColor || itemBackgroundColor }}
-            onClick={() => onItemClick?.(item)}
-            bg={itemBackgroundColor}
+            onClick={() => handleItemClick(item)}
+            bg={isSelected ? backgroundLightColor : itemBackgroundColor}
+            position="relative"
           >
-            {/* Image */}
-            <Box
-              w={{ base: '5rem', md: '9rem' }}
-              h={{ base: '5rem', md: '9rem' }}
-              borderRadius="0.375rem"
-              bg={hasImage ? backgroundLightColor : itemBackgroundColor}
-              flexShrink={0}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              overflow="hidden"
-            >
-              {hasImage ? (
+            {/* Selection Checkbox */}
+            {isSelectionMode && (
+              <Box
+                w={6}
+                h={6}
+                borderRadius="md"
+                border="2px solid"
+                borderColor={isSelected ? itemBackgroundColor : 'white'}
+                bg={isSelected ? itemBackgroundColor : 'transparent'}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                flexShrink={0}
+              >
+                {isSelected && (
+                  <LuCheck size={16} color="white" />
+                )}
+              </Box>
+            )}
+
+            {/* Image - Only render if hasImage */}
+            {/* Image - Only render if hasImage */}
+            {hasImage && (
+              <Box
+                w={{ base: '5rem', md: '9rem' }}
+                h={{ base: '5rem', md: '9rem' }}
+                borderRadius="0.375rem"
+                bg={backgroundLightColor}
+                flexShrink={0}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                overflow="hidden"
+              >
                 <Image
                   p={{base: 1, md: 2}}
                   src={`${API_URL}wishlist/${item.id}/image`}
@@ -113,12 +151,18 @@ export function WishlistItemView({
                   maxH="100%"
                   objectFit="contain"
                 />
-              ) : (
-                <Text color={COLORS.text.muted} fontSize="1.5rem" fontWeight="bold">
-                  {item.name.charAt(0).toUpperCase()}
-                </Text>
-              )}
-            </Box>
+              </Box>
+            )}
+
+            {/* Placeholder - Show when no image */}
+            {!hasImage && (
+              <Box
+                w={{ base: '5rem', md: '9rem' }}
+                h={{ base: '5rem', md: '9rem' }}
+                flexShrink={0}
+              />
+            )}
+
             <Stack
               flex={1}
               direction={{base: "column", md: "row"}}
@@ -142,13 +186,10 @@ export function WishlistItemView({
                     ${item.price.toFixed(2)}
                   </Text>
                 ) : (
-                  <Text>
-
-                  </Text>
+                  <Text></Text>
                 )}
               </Box>
             </Stack>
-
 
             {/* Date - Hidden on mobile */}
             <Box w="7.5rem" textAlign="right" display={{ base: 'none', md: 'block' }}>

@@ -64,9 +64,12 @@ function WishlistPage() {
   const [accessDenied, setAccessDenied] = useState(false)
   const [isOwner, setIsOwner] = useState(false)
   const [sortBy, setSortBy] = useState<SortOption>('none')
+  const [isSelectionMode, setIsSelectionMode] = useState(false)
+  const [selectedItems, setSelectedItems] = useState<string[]>([])
 
   // Use hook only for items
-  const { items, isLoading: itemsLoading } = useWishlistDetail(id)
+  const { items, isLoading: itemsLoading, refetchItems } = useWishlistDetail(id)
+
 
   useEffect(() => {
     if (id && !authLoading) {
@@ -188,7 +191,13 @@ function WishlistPage() {
               ...wishlist, 
               owner: user?.name || 'Unknown', 
               owner_id: user?.id 
-            }} 
+            }}
+            onItemAdded={refetchItems}
+            refetchItems={refetchItems}
+            isSelectionMode={isSelectionMode}
+            setIsSelectionMode={setIsSelectionMode}
+            selectedItems={selectedItems}
+            setSelectedItems={setSelectedItems}
           />
         ) : (
           <SharedWishlistView 
@@ -220,6 +229,15 @@ function WishlistPage() {
             wishlistColor={wishlist.color}
             sortBy={sortBy}
             onItemClick={(item) => navigate(`/wishlist/${wishlist.id}/${item.id}`)}
+            isSelectionMode={isSelectionMode}
+            selectedItems={selectedItems}
+            onToggleSelect={(itemId) => {
+              setSelectedItems(prev => 
+                prev.includes(itemId) 
+                  ? prev.filter(id => id !== itemId)
+                  : [...prev, itemId]
+              )
+            }}
           />
         ) : (
           <Box px={8} py={4}>

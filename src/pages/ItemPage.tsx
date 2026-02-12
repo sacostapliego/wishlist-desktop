@@ -8,13 +8,20 @@ import getLightColor from '../components/common/getLightColor'
 import { useItemDetail } from '../hooks/useItemDetail'
 import { useItemClaiming } from '../hooks/useItemClaiming'
 import { ItemClaimingSection } from '../components/items/ItemClaimingSection'
+import { ItemMenu, getItemMenuOptions } from '../components/items/ItemMenu'
+import { EditItemModal } from '../components/items/EditItemModal'
 import { useState } from 'react'
+import { wishlistAPI } from '../services/wishlist'
+import { ConfirmDialog } from '../components/common/ConfirmDialog'
 
 function ItemPage() {
   const { id: wishlistId, itemId } = useParams<{ id: string; itemId: string }>()
   const navigate = useNavigate()
   const [isNameExpanded, setIsNameExpanded] = useState(false)
-  
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+
   const { item, wishlistColor, wishlistInfo, isLoading, error, isOwner, refetchData } = useItemDetail(
     itemId,
     wishlistId,
@@ -59,6 +66,56 @@ function ItemPage() {
       window.open(item.url, '_blank', 'noopener,noreferrer')
     }
   }
+
+  const handleEditItem = () => {
+    setIsEditModalOpen(true)
+  }
+
+  const handleShareItem = async () => {
+    const shareUrl = `${window.location.origin}/wishlist/${wishlistId}/${itemId}`
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      toaster.create({
+        title: 'Link Copied',
+        description: 'Item link copied to clipboard!',
+        type: 'success',
+      })
+    } catch (error) {
+      console.error('Failed to copy link:', error)
+      toaster.create({
+        title: 'Error',
+        description: 'Failed to copy link',
+        type: 'error',
+      })
+    }
+  }
+
+  const handleDeleteItem = async () => {
+    if (!itemId) return
+
+    try {
+      await wishlistAPI.deleteItem(itemId)
+      toaster.create({
+        title: 'Success',
+        description: 'Item deleted successfully!',
+        type: 'success',
+      })
+      navigate(`/wishlist/${wishlistId}`)
+    } catch (error) {
+      console.error('Failed to delete item:', error)
+      toaster.create({
+        title: 'Error',
+        description: 'Failed to delete item',
+        type: 'error',
+      })
+    }
+  }
+
+  const menuOptions = getItemMenuOptions({
+    onEdit: handleEditItem,
+    onShare: handleShareItem,
+    onDelete: () => setIsDeleteDialogOpen(true),
+  })
 
   if (!wishlistId || !itemId) {
     return <Navigate to="/" replace />
@@ -134,7 +191,7 @@ function ItemPage() {
             <IconButton
               aria-label="Menu"
               variant="ghost"
-              onClick={() => console.log('Menu clicked')}
+              onClick={() => setIsMenuOpen(true)}
               color="white"
               size="lg"
             >
@@ -269,6 +326,34 @@ function ItemPage() {
           </Box>
         </Box>
       )}
+
+      {/* Item Menu */}
+      <ItemMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        options={menuOptions}
+      />
+
+      {/* Edit Item Modal */}
+      <EditItemModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        itemId={itemId!}
+        onSuccess={refetchData}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        title="Delete Item"
+        message="Are you sure you want to delete this item? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleDeleteItem}
+        isDestructive={true}
+      />
+      
     </Box>
   )
 }

@@ -1,4 +1,4 @@
-import { Box, HStack, VStack, Heading, Text, Avatar, IconButton } from '@chakra-ui/react'
+import { Box, HStack, VStack, Heading, Text, Avatar, IconButton, Button } from '@chakra-ui/react'
 import { LuArrowLeft, LuEllipsisVertical, LuPlus } from 'react-icons/lu'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -8,6 +8,7 @@ import { API_URL } from '../../services/api'
 import { WishlistMenu, getOwnerMenuOptions } from './WishlistMenu'
 import { EditWishlistModal } from './EditWishlistModal'
 import { AddItemModal } from '../items/AddItemModal'
+import { ItemSelectionManager } from '../items/ItemSelectionManager'
 
 interface OwnerWishlistViewProps {
   wishlist: {
@@ -23,13 +24,27 @@ interface OwnerWishlistViewProps {
     owner_id?: string
   }
   onItemAdded?: () => void
+  refetchItems?: () => void
+  isSelectionMode: boolean
+  setIsSelectionMode: (value: boolean) => void
+  selectedItems: string[]
+  setSelectedItems: (value: string[]) => void
 }
 
-export function OwnerWishlistView({ wishlist, onItemAdded }: OwnerWishlistViewProps) {
+export function OwnerWishlistView({ 
+  wishlist, 
+  onItemAdded, 
+  refetchItems,
+  isSelectionMode,
+  setIsSelectionMode,
+  selectedItems,
+  setSelectedItems
+}: OwnerWishlistViewProps) {
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false)
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false)
   const IconComponent = getWishlistIcon(wishlist.image)
   const profileImage = wishlist.owner_id ? `${API_URL}users/${wishlist.owner_id}/profile-image` : null
 
@@ -47,9 +62,14 @@ export function OwnerWishlistView({ wishlist, onItemAdded }: OwnerWishlistViewPr
     return date.toLocaleDateString()
   }
 
+  const cancelSelection = () => {
+    setIsSelectionMode(false)
+    setSelectedItems([])
+  }
+
   const menuOptions = getOwnerMenuOptions({
     onEdit: () => setIsEditModalOpen(true),
-    onSelectItems: () => console.log('Select items'),
+    onSelectItems: () => setIsSelectionMode(true),
     onShare: () => console.log('Share wishlist'),
     onDelete: () => console.log('Delete wishlist'),
   })
@@ -69,25 +89,52 @@ export function OwnerWishlistView({ wishlist, onItemAdded }: OwnerWishlistViewPr
         </IconButton>
 
         <HStack gap={2}>
-          <IconButton
-            aria-label="Add item"
-            variant="ghost"
-            onClick={() => setIsAddItemModalOpen(true)}
-            color="white"
-            size="lg"
-          >
-            <LuPlus />
-          </IconButton>
+          {!isSelectionMode && (
+            <>
+              <IconButton
+                aria-label="Add item"
+                variant="ghost"
+                onClick={() => setIsAddItemModalOpen(true)}
+                color="white"
+                size="lg"
+              >
+                <LuPlus />
+              </IconButton>
 
-          <IconButton
-            aria-label="Menu"
-            variant="ghost"
-            onClick={() => setIsMenuOpen(true)}
-            color="white"
-            size="lg"
-          >
-            <LuEllipsisVertical />
-          </IconButton>
+              <IconButton
+                aria-label="Menu"
+                variant="ghost"
+                onClick={() => setIsMenuOpen(true)}
+                color="white"
+                size="lg"
+              >
+                <LuEllipsisVertical />
+              </IconButton>
+            </>
+          )}
+
+          {isSelectionMode && (
+            <>
+              <Button
+                variant="ghost"
+                onClick={cancelSelection}
+                color="white"
+              >
+                Cancel
+              </Button>
+              <Button
+                bg={COLORS.error}
+                color="white"
+                onClick={() => setDeleteConfirmVisible(true)}
+                disabled={selectedItems.length === 0}
+                _hover={{
+                  opacity: 0.9
+                }}
+              >
+                Delete ({selectedItems.length})
+              </Button>
+            </>
+          )}
         </HStack>
       </HStack>
 
@@ -168,7 +215,16 @@ export function OwnerWishlistView({ wishlist, onItemAdded }: OwnerWishlistViewPr
         preSelectedWishlistId={wishlist.id}
         onSuccess={() => {
           onItemAdded?.()
+          refetchItems?.()
         }}
+      />
+
+      <ItemSelectionManager
+        selectedItems={selectedItems}
+        onItemsDeleted={cancelSelection}
+        refetchItems={refetchItems || (() => {})}
+        confirmDeleteVisible={deleteConfirmVisible}
+        setConfirmDeleteVisible={setDeleteConfirmVisible}
       />
     </Box>
   )
