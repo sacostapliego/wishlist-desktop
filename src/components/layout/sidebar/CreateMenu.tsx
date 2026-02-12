@@ -1,4 +1,5 @@
 import { Box, VStack, Button, Text } from '@chakra-ui/react'
+import { createPortal } from 'react-dom'
 import { LuList, LuPlus } from 'react-icons/lu'
 import { COLORS } from '../../../styles/common'
 
@@ -15,7 +16,7 @@ export function CreateMenu({ isOpen, onClose, anchorRef, onCreateWishlist, onAdd
 
   const anchorRect = anchorRef.current?.getBoundingClientRect()
   
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       <Box
@@ -24,7 +25,7 @@ export function CreateMenu({ isOpen, onClose, anchorRef, onCreateWishlist, onAdd
         left={0}
         right={0}
         bottom={0}
-        zIndex={998}
+        zIndex={9999}
         onClick={onClose}
       />
 
@@ -36,7 +37,7 @@ export function CreateMenu({ isOpen, onClose, anchorRef, onCreateWishlist, onAdd
         bg={COLORS.cardDarkLight}
         borderRadius="lg"
         p={2}
-        zIndex={999}
+        zIndex={10000}
         minW="250px"
         boxShadow="0 4px 20px rgba(0,0,0,0.5)"
       >
@@ -68,6 +69,7 @@ export function CreateMenu({ isOpen, onClose, anchorRef, onCreateWishlist, onAdd
           </Button>
         </VStack>
       </Box>
-    </>
+    </>,
+    document.body
   )
 }
