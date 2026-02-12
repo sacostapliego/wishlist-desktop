@@ -384,8 +384,8 @@ export const ItemForm = forwardRef<ItemFormRef, ItemFormProps>(
         {/* Priority Slider */}
         <Box>
           <Slider.Root
-            value={[priority]}
-            onValueChange={(details) => setPriority(details.value[0])}
+            value={[priority + 1]}
+            onValueChange={(details) => setPriority(details.value[0] - 1)}
             min={1}
             max={5}
             step={1}

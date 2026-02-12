@@ -5,7 +5,6 @@ import { COLORS } from '../../styles/common'
 import { createPortal } from 'react-dom'
 import { wishlistAPI } from '../../services/wishlist'
 import { toaster } from '../ui/toaster'
-import { useNavigate } from 'react-router-dom'
 import { ItemForm, type ItemFormData, type ItemFormRef } from './ItemForm'
 import { ScrapeUrlForm } from './ScrapeUrlForm'
 
@@ -19,7 +18,6 @@ interface AddItemModalProps {
 type AddMode = 'manual' | 'link'
 
 export function AddItemModal({ isOpen, onClose, preSelectedWishlistId, onSuccess }: AddItemModalProps) {
-  const navigate = useNavigate()
   const [addMode, setAddMode] = useState<AddMode>('manual')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [wishlists, setWishlists] = useState<any[]>([])
@@ -105,10 +103,11 @@ export function AddItemModal({ isOpen, onClose, preSelectedWishlistId, onSuccess
         type: 'success',
       })
 
-      onSuccess?.()
       onClose()
 
-      navigate(`/wishlist/${selectedWishlistId}`)
+      if (onSuccess) {
+        onSuccess()
+      }
     } catch (error) {
       console.error('Error adding item:', error)
       toaster.create({
@@ -120,6 +119,7 @@ export function AddItemModal({ isOpen, onClose, preSelectedWishlistId, onSuccess
       setIsSubmitting(false)
     }
   }
+
 
   const handleClose = () => {
     setAddMode('manual')
