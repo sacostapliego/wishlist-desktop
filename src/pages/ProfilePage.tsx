@@ -1,4 +1,4 @@
-import { Box, VStack, Heading, Text, IconButton, HStack, Image } from '@chakra-ui/react'
+import { Box, VStack, Heading, Text, IconButton, HStack, Image, Button } from '@chakra-ui/react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { LuArrowLeft, LuSettings } from 'react-icons/lu'
 import { useEffect, useState } from 'react'
@@ -10,14 +10,16 @@ import userAPI, { type PublicUserDetailsResponse } from '../services/user'
 import { toaster } from '../components/ui/toaster'
 import { friendsAPI, type FriendWishlistResponse } from '../services/friends'
 import { WishlistCarousel } from '../components/home/WishlistCarousel'
+import { EditSizesModal } from '../components/modals/EditSizesModal'
 
 function ProfilePage() {
   const navigate = useNavigate()
   const { userId } = useParams<{ userId?: string }>()
-  const { user } = useAuth()
+  const { user, refreshUser } = useAuth()
   const [publicUser, setPublicUser] = useState<PublicUserDetailsResponse | null>(null)
   const [friendWishlists, setFriendWishlists] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+  const [isEditSizesOpen, setIsEditSizesOpen] = useState(false)
 
   const isSelf = !userId || userId === user?.id
 
@@ -70,6 +72,10 @@ function ProfilePage() {
     }
   }
 
+  const handleSizesUpdated = async () => {
+    await refreshUser()
+  }
+
   if (loading || (!isSelf && !publicUser)) {
     return (
       <Box h="calc(100vh - 32px)" w="100%" display="flex" alignItems="center" justifyContent="center">
@@ -100,14 +106,17 @@ function ProfilePage() {
   const displayName = target.name || target.username
 
   const sizeValues = {
-    shoe_size: target.shoe_size,
-    shirt_size: target.shirt_size,
-    pants_size: target.pants_size,
-    hat_size: target.hat_size,
-    ring_size: target.ring_size,
-    dress_size: target.dress_size,
-    jacket_size: target.jacket_size,
+    shoe_size: target.shoe_size ?? undefined,
+    shirt_size: target.shirt_size ?? undefined,
+    pants_size: target.pants_size ?? undefined,
+    hat_size: target.hat_size ?? undefined,
+    ring_size: target.ring_size ?? undefined,
+    dress_size: target.dress_size ?? undefined,
+    jacket_size: target.jacket_size ?? undefined,
   }
+
+  const hasSizes = Object.values(sizeValues).some(value => value)
+  
 
   return (
     <Box h="calc(100vh - 32px)" w="100%" overflowY="auto" bg={COLORS.background}>
@@ -181,17 +190,33 @@ function ProfilePage() {
           </VStack>
 
           {/* Sizes Section */}
-          {Object.values(sizeValues).some(value => value) && (
-            <Box>
-              <Text 
-                fontSize="lg" 
-                fontWeight="semibold" 
-                color="white" 
-                mb={3}
-              >
-                Sizes
-              </Text>
-              <SizeCards values={sizeValues} />
+          {(hasSizes || isSelf) && (
+            <Box mt={6}>
+              <HStack justify="space-between" align="center" mb={3}>
+                <Text 
+                  fontSize="lg" 
+                  fontWeight="semibold" 
+                  color="white"
+                >
+                  Sizes
+                </Text>
+                {isSelf && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setIsEditSizesOpen(true)}
+                  >
+                    Edit Sizes
+                  </Button>
+                )}
+              </HStack>
+              {hasSizes ? (
+                <SizeCards values={sizeValues} />
+              ) : (
+                <Text color={COLORS.text.secondary} fontSize="sm">
+                  No sizes added yet. Click "Edit Sizes" to add your size preferences.
+                </Text>
+              )}
             </Box>
           )}
         </Box>
@@ -205,6 +230,17 @@ function ProfilePage() {
           </Box>
         )}
       </VStack>
+
+      {/* Edit Sizes Modal */}
+      {isSelf && user && (
+        <EditSizesModal
+          isOpen={isEditSizesOpen}
+          onClose={() => setIsEditSizesOpen(false)}
+          userId={user.id}
+          initialValues={sizeValues}
+          onSuccess={handleSizesUpdated}
+        />
+      )}
     </Box>
   )
 }
