@@ -84,8 +84,6 @@ export default function LoginPage() {
               borderColor={COLORS.primary}
               color="white"
               _placeholder={{ color: 'white' }}
-            //   _hover={{ borderColor: 'blue.500' }}
-            //   _focus={{ borderColor: 'blue.500', boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)' }}
               disabled={isLoading}
             />
 
@@ -100,8 +98,6 @@ export default function LoginPage() {
               borderColor={COLORS.primary}
               color="white"
               _placeholder={{ color: 'white' }}
-            //   _hover={{ borderColor: 'blue.500' }}
-            //   _focus={{ borderColor: 'blue.500', boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)' }}
               disabled={isLoading}
               onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
             />
@@ -110,7 +106,7 @@ export default function LoginPage() {
               w="100%"
               size="lg"
               background={COLORS.primary}
-              color={'white'}
+              color="white"
               onClick={handleLogin}
               loading={isLoading}
               disabled={isLoading}
@@ -118,11 +114,18 @@ export default function LoginPage() {
               Sign In
             </Button>
 
-            <Text color={COLORS.background} fontSize="sm">
+            <Text color={COLORS.text.secondary} fontSize="sm" textAlign="center">
               Don't have an account?{' '}
-              {/* <Text as={Link} to="/auth/register" color="blue.400" fontWeight="semibold" _hover={{ color: 'blue.300' }}>
-                Register
-              </Text> */}
+              <Text
+                as="span"
+                color={COLORS.primary}
+                fontWeight="semibold"
+                cursor="pointer"
+                onClick={() => navigate('/auth/register')}
+                _hover={{ textDecoration: 'underline' }}
+              >
+                Register here
+              </Text>
             </Text>
           </VStack>
         </VStack>

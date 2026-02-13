@@ -153,7 +153,8 @@ function FriendsPage() {
                       Send a friend request to get started
                     </Text>
                     <Button
-                      colorScheme="blue"
+                      bg={COLORS.primary}
+                      color={COLORS.text.primary}
                       size="sm"
                       mt={2}
                       onClick={() => setIsAddFriendOpen(true)}
@@ -248,7 +249,8 @@ function FriendsPage() {
                       <HStack gap={2}>
                         <Button
                           size="sm"
-                          colorScheme="green"
+                          bg={COLORS.primary}
+                          color={COLORS.text.primary}
                           onClick={() => handleAcceptRequest(request.id)}
                         >
                           <HStack gap={1}>
