@@ -27,7 +27,7 @@ export function ClaimedItemsSection({ items, onShowAll, onItemClick }: ClaimedIt
   };
 
   // Determine max items based on screen size
-  const maxItems = useBreakpointValue({ base: 6, md: 8 }) || 8;
+  const maxItems = useBreakpointValue({ base: 6, md: 8, xl: 8 }) || 8;
   const displayedItems = items.slice(0, maxItems);
 
   return (
