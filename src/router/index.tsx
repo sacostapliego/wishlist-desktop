@@ -2,8 +2,10 @@ import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import ResponsiveLayout from '../components/layout/ResponsiveLayout'
 import HomePage from '../pages/HomePage'
 import LoginPage from '../pages/LoginPage'
+import RegisterPage from '../pages/RegisterPage'
 import ProfilePage from '../pages/ProfilePage'
 import FriendsPage from '../pages/FriendsPage'
+import SettingsPage from '../pages/SettingsPage'
 import { ProtectedRoute } from '../components/auth/ProtectedRoute'
 import { useAuth } from '../context/AuthContext'
 import WishlsitPage from '../pages/WishlistPage'
@@ -34,6 +36,7 @@ const router = createBrowserRouter([
       { path: 'profile', element: <ProfilePage /> },
       { path: 'profile/:userId', element: <ProfilePage /> },
       { path: 'friends', element: <FriendsPage /> },
+      { path: 'settings', element: <SettingsPage /> },
     ],
   },
   {
@@ -41,6 +44,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <AuthRedirect /> },
       { path: 'login', element: <LoginPage /> },
+      { path: 'register', element: <RegisterPage /> },
     ],
   },
 ])
