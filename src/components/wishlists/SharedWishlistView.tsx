@@ -26,7 +26,7 @@ interface SharedWishlistViewProps {
 
 export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, isLoggedIn } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isFriend, setIsFriend] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
@@ -37,10 +37,11 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
 
   useEffect(() => {
     checkRelationship()
-  }, [wishlist.id, wishlist.owner_id, user?.id])
+  }, [wishlist.id, wishlist.owner_id, user?.id, isLoggedIn])
 
   const checkRelationship = async () => {
-    if (!wishlist?.owner_id || !user?.id) {
+    // Skip relationship checks for guests
+    if (!isLoggedIn || !wishlist?.owner_id || !user?.id) {
       setLoading(false)
       return
     }
@@ -90,11 +91,16 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
     return date.toLocaleDateString()
   }
 
-  const menuOptions = getSharedMenuOptions({
-    onAddFriend: !isFriend ? () => console.log('Add friend') : undefined,
-    onSaveWishlist: !isSaved ? () => console.log('Save wishlist') : undefined,
-    onRemoveSaved: isSaved ? () => console.log('Remove saved wishlist') : undefined,
-  })
+  const menuOptions = isLoggedIn 
+    ? getSharedMenuOptions({
+        onAddFriend: !isFriend ? () => console.log('Add friend') : undefined,
+        onSaveWishlist: !isSaved ? () => console.log('Save wishlist') : undefined,
+        onRemoveSaved: isSaved ? () => console.log('Remove saved wishlist') : undefined,
+      })
+    : getSharedMenuOptions({
+        onCreateAccount: () => navigate('/auth/register'),
+        onSignIn: () => navigate('/auth/login'),
+      })
 
   return (
     <Box bg={wishlist.color || COLORS.cardGray} px={8} py={6}>

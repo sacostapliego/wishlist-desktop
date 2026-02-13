@@ -12,6 +12,7 @@ import WishlsitPage from '../pages/WishlistPage'
 import ItemPage from '../pages/ItemPage'
 import AllWishlistsPage from '../pages/AllWishlistsPage'
 import AllClaimedItemsPage from '../pages/AllClaimedItemsPage'
+import { PublicAccessRoute } from '../components/auth/PublicAccessRoute'
 
 function AuthRedirect() {
   const { isLoggedIn } = useAuth()
@@ -19,6 +20,7 @@ function AuthRedirect() {
 }
 
 const router = createBrowserRouter([
+  // Authenticated routes with full layout
   {
     path: '/',
     element: (
@@ -28,15 +30,22 @@ const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <HomePage /> },
-      { path: 'wishlist/:id', element: <WishlsitPage /> },
-      { path: 'wishlist/:id/:itemId', element: <ItemPage /> },
       { path: 'wishlists/friends', element: <AllWishlistsPage type="friends" /> },
       { path: 'wishlists/mine', element: <AllWishlistsPage type="mine" /> },
       { path: 'items/claimed', element: <AllClaimedItemsPage /> },
-      { path: 'profile', element: <ProfilePage /> },
-      { path: 'profile/:userId', element: <ProfilePage /> },
       { path: 'friends', element: <FriendsPage /> },
       { path: 'settings', element: <SettingsPage /> },
+    ],
+  },
+  // Routes accessible by both authenticated and guest users
+  {
+    path: '/',
+    element: <PublicAccessRoute />,
+    children: [
+      { path: 'wishlist/:id', element: <WishlsitPage /> },
+      { path: 'wishlist/:id/:itemId', element: <ItemPage /> },
+      { path: 'profile', element: <ProfilePage /> },
+      { path: 'profile/:userId', element: <ProfilePage /> },
     ],
   },
   {

@@ -9,6 +9,7 @@ import { WishlistMenu, getOwnerMenuOptions } from './WishlistMenu'
 import { EditWishlistModal } from './EditWishlistModal'
 import { AddItemModal } from '../items/AddItemModal'
 import { ItemSelectionManager } from '../items/ItemSelectionManager'
+import { toaster } from '../ui/toaster'
 
 interface OwnerWishlistViewProps {
   wishlist: {
@@ -62,6 +63,20 @@ export function OwnerWishlistView({
     return date.toLocaleDateString()
   }
 
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/wishlist/${wishlist.id}`
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      toaster.create({
+        title: 'Link Copied',
+        description: 'Wishlist link copied to clipboard! Anyone with this link can view it.',
+        type: 'success',
+      })
+    } catch (error) {
+      console.error('Failed to copy link:', error)
+    }
+  }
+
   const cancelSelection = () => {
     setIsSelectionMode(false)
     setSelectedItems([])
@@ -70,7 +85,7 @@ export function OwnerWishlistView({
   const menuOptions = getOwnerMenuOptions({
     onEdit: () => setIsEditModalOpen(true),
     onSelectItems: () => setIsSelectionMode(true),
-    onShare: () => console.log('Share wishlist'),
+    onShare: handleShare,
     onDelete: () => console.log('Delete wishlist'),
   })
 

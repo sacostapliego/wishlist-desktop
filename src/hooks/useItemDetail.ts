@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { wishlistAPI } from '../services/wishlist'
 import { friendsAPI } from '../services/friends'
+import { userAPI } from '../services/user'
 import { COLORS } from '../styles/common'
 
 interface ItemDetail {
@@ -60,9 +61,24 @@ export const useItemDetail = (
         }
 
         setWishlistColor(publicWishlist.color || COLORS.cardGray)
+
+        // Extract owner name, fallback to fetching public profile
+        let ownerName = publicWishlist.owner_name || publicWishlist.owner_username
+        const ownerId = publicWishlist.user_id || publicWishlist.owner_id
+
+        if (!ownerName && ownerId) {
+          try {
+            const ownerProfile = await userAPI.getPublicUserDetails(ownerId)
+            ownerName = ownerProfile.name || ownerProfile.username || 'Unknown'
+          } catch (profileError) {
+            console.error('Failed to fetch owner profile:', profileError)
+            ownerName = 'Unknown'
+          }
+        }
+
         setWishlistInfo({
-          name: publicWishlist.wishlist_name || 'Wishlist',
-          ownerName: publicWishlist.owner_name || 'Unknown'
+          name: publicWishlist.title || publicWishlist.wishlist_name || 'Wishlist',
+          ownerName: ownerName || 'Unknown'
         })
 
         const publicItems = await wishlistAPI.getPublicWishlistItems(wishlistId)
@@ -93,7 +109,6 @@ export const useItemDetail = (
           }
 
           setWishlistColor(fetchedWishlist?.color || COLORS.cardGray)
-          // Don't set wishlistInfo for owner
           setWishlistInfo(null)
         } else {
           setIsOwner(false)
@@ -101,6 +116,7 @@ export const useItemDetail = (
           let color = COLORS.cardGray
           let wishlistName = 'Wishlist'
           let ownerName = 'Unknown'
+          let ownerId: string | undefined
 
           const friendsWishlists = await friendsAPI.getFriendsWishlists()
           const friendWishlist = friendsWishlists.find((w: any) => w.id === wishlistId)
@@ -109,6 +125,7 @@ export const useItemDetail = (
             color = friendWishlist.color || COLORS.cardGray
             wishlistName = friendWishlist.title || 'Wishlist'
             ownerName = friendWishlist.owner_name || 'Unknown'
+            ownerId = friendWishlist.owner_id
           }
 
           try {
@@ -116,11 +133,29 @@ export const useItemDetail = (
             if (publicWishlist?.color) {
               color = publicWishlist.color
             }
-            if (publicWishlist?.wishlist_name) {
-              wishlistName = publicWishlist.wishlist_name
+            if (publicWishlist?.title || publicWishlist?.wishlist_name) {
+              wishlistName = publicWishlist.title || publicWishlist.wishlist_name
             }
-            if (publicWishlist?.owner_name) {
-              ownerName = publicWishlist.owner_name
+            
+            // Extract owner name from public wishlist, or fetch profile
+            let extractedOwnerName = publicWishlist.owner_name || publicWishlist.owner_username
+            const extractedOwnerId = publicWishlist.user_id || publicWishlist.owner_id
+
+            if (!extractedOwnerName && extractedOwnerId) {
+              try {
+                const ownerProfile = await userAPI.getPublicUserDetails(extractedOwnerId)
+                extractedOwnerName = ownerProfile.name || ownerProfile.username || 'Unknown'
+              } catch (profileError) {
+                console.error('Failed to fetch owner profile:', profileError)
+                extractedOwnerName = 'Unknown'
+              }
+            }
+
+            if (extractedOwnerName) {
+              ownerName = extractedOwnerName
+            }
+            if (extractedOwnerId) {
+              ownerId = extractedOwnerId
             }
 
             const publicItems = await wishlistAPI.getPublicWishlistItems(wishlistId)

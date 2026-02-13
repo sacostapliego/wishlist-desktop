@@ -11,6 +11,7 @@ import { WishlistItemView, type SortOption } from '../components/wishlists/Wishl
 import { useWishlistDetail } from '../hooks/useWislistDetail'
 import { WishlistFilters } from '../components/wishlists/WishlistFilters'
 import { SimpleGridView } from '../components/wishlists/SimpleGridView'
+import { userAPI } from '../services/user'
 
 interface Wishlist {
   id: string
@@ -55,7 +56,7 @@ interface FriendWishlistResponse {
 function WishlistPage() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
-  const { user, loading: authLoading } = useAuth()
+  const { user, loading: authLoading, isLoggedIn } = useAuth()
   
   // Local state for ownership/access logic
   const [wishlist, setWishlist] = useState<Wishlist | null>(null)
@@ -70,7 +71,6 @@ function WishlistPage() {
   // Use hook only for items
   const { items, isLoading: itemsLoading, refetchItems } = useWishlistDetail(id)
 
-
   useEffect(() => {
     if (id && !authLoading) {
       loadWishlist(id)
@@ -81,53 +81,77 @@ function WishlistPage() {
     try {
       setLoading(true)
       setAccessDenied(false)
-      
-      const [myWishlists, friendsWishlists] = await Promise.all([
-        wishlistAPI.getWishlists() as Promise<MyWishlistResponse[]>,
-        friendsAPI.getFriendsWishlists()
-      ])
 
-      const myWishlist = myWishlists.find((w: MyWishlistResponse) => w.id === wishlistId)
-      
-      if (myWishlist) {
-        const fullWishlist = await wishlistAPI.getWishlist(wishlistId)
-        const ownerId = fullWishlist.user_id || fullWishlist.owner_id
-        setWishlist({
-          ...fullWishlist,
-          owner_id: ownerId || ''
-        })
-        setIsOwner(true)
-        return
+      // If user is authenticated, check ownership and friend access first
+      if (isLoggedIn && user) {
+        const [myWishlists, friendsWishlists] = await Promise.all([
+          wishlistAPI.getWishlists() as Promise<MyWishlistResponse[]>,
+          friendsAPI.getFriendsWishlists()
+        ])
+
+        const myWishlist = myWishlists.find((w: MyWishlistResponse) => w.id === wishlistId)
+        
+        if (myWishlist) {
+          const fullWishlist = await wishlistAPI.getWishlist(wishlistId)
+          const ownerId = fullWishlist.user_id || fullWishlist.owner_id
+          setWishlist({
+            ...fullWishlist,
+            owner_id: ownerId || ''
+          })
+          setIsOwner(true)
+          setOwnerName(user.name || user.username || 'You')
+          return
+        }
+
+        const friendWishlist = friendsWishlists.find((w: FriendWishlistResponse) => w.id === wishlistId)
+        
+        if (friendWishlist) {
+          setWishlist({
+            id: friendWishlist.id,
+            title: friendWishlist.title,
+            description: friendWishlist.description,
+            owner_id: friendWishlist.owner_id,
+            is_public: false,
+            color: friendWishlist.color,
+            image: friendWishlist.image,
+            item_count: friendWishlist.item_count,
+            updated_at: friendWishlist.updated_at,
+            created_at: friendWishlist.created_at
+          })
+          setOwnerName(friendWishlist.owner_name || friendWishlist.owner_username)
+          setIsOwner(false)
+          return
+        }
       }
 
-      const friendWishlist = friendsWishlists.find((w: FriendWishlistResponse) => w.id === wishlistId)
-      
-      if (friendWishlist) {
-        setWishlist({
-          id: friendWishlist.id,
-          title: friendWishlist.title,
-          description: friendWishlist.description,
-          owner_id: friendWishlist.owner_id,
-          is_public: false,
-          color: friendWishlist.color,
-          image: friendWishlist.image,
-          item_count: friendWishlist.item_count,
-          updated_at: friendWishlist.updated_at,
-          created_at: friendWishlist.created_at
-        })
-        setOwnerName(friendWishlist.owner_name || friendWishlist.owner_username)
-        setIsOwner(false)
-        return
-      }
-
+      // Try public access (works for both guests and authenticated users)
       try {
         const publicData = await wishlistAPI.getPublicWishlist(wishlistId)
         const ownerId = publicData.user_id || publicData.owner_id
+        
         setWishlist({
           ...publicData,
           owner_id: ownerId || ''
         })
-        setOwnerName(publicData.owner_name || 'Unknown')
+        
+        // Try to get the owner name from the response first
+        let extractedOwnerName = 
+          publicData.owner_name || 
+          publicData.owner_username || 
+          publicData.username
+
+        // If no owner name in wishlist response, fetch the user's public profile
+        if (!extractedOwnerName && ownerId) {
+          try {
+            const ownerProfile = await userAPI.getPublicUserDetails(ownerId)
+            extractedOwnerName = ownerProfile.name || ownerProfile.username || 'Unknown'
+          } catch (profileError) {
+            console.error('Failed to fetch owner profile:', profileError)
+            extractedOwnerName = 'Unknown'
+          }
+        }
+        
+        setOwnerName(extractedOwnerName || 'Unknown')
         setIsOwner(false)
       } catch (error: any) {
         if (error.response?.status === 403) {
@@ -151,7 +175,6 @@ function WishlistPage() {
       setLoading(false)
     }
   }
-
 
   if (!id) {
     return <Navigate to="/" replace />
@@ -179,7 +202,7 @@ function WishlistPage() {
   }
 
   if (!wishlist) {
-    return <Navigate to="/" replace />
+    return <Navigate to={isLoggedIn ? "/" : "/auth/login"} replace />
   }
 
   return (
@@ -220,10 +243,6 @@ function WishlistPage() {
 
         {/* Items */}
         {items.length > 0 ? (
-          // Decide between list or grid view ?????
-          // <SimpleGridView
-          // <WishlistItemView
-          
           <WishlistItemView 
             items={items}
             wishlistColor={wishlist.color}

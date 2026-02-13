@@ -1,5 +1,5 @@
 import { Box, VStack, Heading, Text, IconButton, HStack, Image, Button } from '@chakra-ui/react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { LuArrowLeft, LuSettings } from 'react-icons/lu'
 import { useEffect, useState } from 'react'
 import { COLORS } from '../styles/common'
@@ -15,20 +15,28 @@ import { EditSizesModal } from '../components/modals/EditSizesModal'
 function ProfilePage() {
   const navigate = useNavigate()
   const { userId } = useParams<{ userId?: string }>()
-  const { user, refreshUser } = useAuth()
+  const { user, refreshUser, isLoggedIn } = useAuth()
   const [publicUser, setPublicUser] = useState<PublicUserDetailsResponse | null>(null)
   const [friendWishlists, setFriendWishlists] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [isEditSizesOpen, setIsEditSizesOpen] = useState(false)
 
-  const isSelf = !userId || userId === user?.id
+  // If not logged in and no userId param, redirect to login
+  const isSelf = isLoggedIn && (!userId || userId === user?.id)
+
+  // Guests viewing their own profile should go to login
+  if (!isLoggedIn && !userId) {
+    return <Navigate to="/auth/login" replace />
+  }
 
   useEffect(() => {
     if (!isSelf && userId) {
       loadPublicUser(userId)
-      loadFriendWishlists(userId)
+      if (isLoggedIn) {
+        loadFriendWishlists(userId)
+      }
     }
-  }, [userId, isSelf])
+  }, [userId, isSelf, isLoggedIn])
 
   const loadFriendWishlists = async (ownerId: string) => {
   try {

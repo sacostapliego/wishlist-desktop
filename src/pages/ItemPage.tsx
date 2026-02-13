@@ -13,6 +13,7 @@ import { EditItemModal } from '../components/items/EditItemModal'
 import { useState } from 'react'
 import { wishlistAPI } from '../services/wishlist'
 import { ConfirmDialog } from '../components/common/ConfirmDialog'
+import { useAuth } from '../context/AuthContext'
 
 function ItemPage() {
   const { id: wishlistId, itemId } = useParams<{ id: string; itemId: string }>()
@@ -22,10 +23,14 @@ function ItemPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
+  // Pass `true` for isPublicView when user is not authenticated
+  const { isLoggedIn } = useAuth()
+  const isPublicView = !isLoggedIn
+
   const { item, wishlistColor, wishlistInfo, isLoading, error, isOwner, refetchData } = useItemDetail(
     itemId,
     wishlistId,
-    false
+    isPublicView
   )
 
   const {
@@ -299,7 +304,7 @@ function ItemPage() {
       </VStack>
 
       {/* Sticky Claim Button - Only for non-owners */}
-      {!isOwner && (
+      {!isOwner && isLoggedIn && (
         <Box
           position="fixed"
           bottom={{ base: "calc(64px + 1rem)", md: "1rem" }}          // Above bottom nav on mobile, just padding on desktop
@@ -323,6 +328,30 @@ function ItemPage() {
               onGuestClaim={handleGuestClaim}
               onCancelGuestModal={cancelGuestModal}
             />
+          </Box>
+        </Box>
+      )}
+
+      {!isOwner && !isLoggedIn && (
+        <Box
+          position="fixed"
+          bottom="1rem"
+          left={0}
+          right={0}
+          px={4}
+          zIndex={9}
+        >
+          <Box p={3} maxW="30rem" mx="auto">
+            <Button
+              w="100%"
+              bg="white"
+              color="black"
+              size="lg"
+              onClick={() => navigate('/auth/register')}
+              _hover={{ bg: 'gray.200' }}
+            >
+              Create an account to claim this item
+            </Button>
           </Box>
         </Box>
       )}

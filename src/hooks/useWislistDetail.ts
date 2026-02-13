@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { wishlistAPI } from '../services/wishlist'
 import { toaster } from '../components/ui/toaster'
-import type { WishlistItem } from '../components/wishlists/WishlistItemView'
+import { useAuth } from '../context/AuthContext'
 
 interface Wishlist {
   id: string
@@ -16,7 +16,20 @@ interface Wishlist {
   created_at?: string
 }
 
+interface WishlistItem {
+  id: string
+  name: string
+  description?: string
+  image?: string
+  price?: number
+  url?: string
+  wishlist_id: string
+  priority: number
+  is_claimed?: boolean | null
+}
+
 export function useWishlistDetail(wishlistId: string | undefined, shouldRefresh?: number) {
+  const { isLoggedIn } = useAuth()
   const [wishlist, setWishlist] = useState<Wishlist | null>(null)
   const [items, setItems] = useState<WishlistItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -26,36 +39,41 @@ export function useWishlistDetail(wishlistId: string | undefined, shouldRefresh?
     if (wishlistId) {
       fetchWishlistDetails()
     }
-  }, [wishlistId, shouldRefresh])
+  }, [wishlistId, shouldRefresh, isLoggedIn])
 
   const fetchWishlistDetails = async () => {
     if (!wishlistId) return
 
     setIsLoading(true)
     try {
-      // Try to fetch as owner first
       let wishlistData: Wishlist | null = null
       let itemsData: any[] = []
 
-      try {
-        wishlistData = await wishlistAPI.getWishlist(wishlistId)
-        const allItems = await wishlistAPI.getItems()
-        itemsData = allItems.filter(
-          (item: any) => item.wishlist_id === wishlistId
-        )
-      } catch (ownerError: any) {
-        // If that fails, try public wishlist
-        if (ownerError.response?.status === 403 || ownerError.response?.status === 404) {
-          try {
-            wishlistData = await wishlistAPI.getPublicWishlist(wishlistId)
-            itemsData = await wishlistAPI.getPublicWishlistItems(wishlistId)
-          } catch (publicError) {
-            console.error('Failed to fetch public wishlist:', publicError)
-            throw publicError
+      if (isLoggedIn) {
+        try {
+          wishlistData = await wishlistAPI.getWishlist(wishlistId)
+          const allItems = await wishlistAPI.getItems()
+          itemsData = allItems
+            .filter((item: any) => item.wishlist_id === wishlistId)
+            .map((item: any) => ({ ...item, priority: item.priority ?? 0 }))
+        } catch (ownerError: any) {
+          if (ownerError.response?.status === 403 || ownerError.response?.status === 404) {
+            try {
+              wishlistData = await wishlistAPI.getPublicWishlist(wishlistId)
+              const publicItems = await wishlistAPI.getPublicWishlistItems(wishlistId)
+              itemsData = publicItems.map((item: any) => ({ ...item, priority: item.priority ?? 0 }))
+            } catch (publicError) {
+              console.error('Failed to fetch public wishlist:', publicError)
+              throw publicError
+            }
+          } else {
+            throw ownerError
           }
-        } else {
-          throw ownerError
         }
+      } else {
+        wishlistData = await wishlistAPI.getPublicWishlist(wishlistId)
+        const publicItems = await wishlistAPI.getPublicWishlistItems(wishlistId)
+        itemsData = publicItems.map((item: any) => ({ ...item, priority: item.priority ?? 0 }))
       }
 
       setWishlist(wishlistData)

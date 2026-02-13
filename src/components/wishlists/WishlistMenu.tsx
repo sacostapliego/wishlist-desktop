@@ -1,5 +1,5 @@
 import { Box, Button, VStack, Text, Separator } from '@chakra-ui/react'
-import { LuPencil , LuSquareCheck , LuShare2, LuTrash2, LuUserPlus, LuBookmark, LuBookmarkX } from 'react-icons/lu'
+import { LuPencil , LuSquareCheck , LuShare2, LuTrash2, LuUserPlus, LuBookmark, LuBookmarkX, LuLogIn } from 'react-icons/lu'
 import { COLORS } from '../../styles/common'
 
 interface MenuOption {
@@ -14,6 +14,15 @@ interface WishlistMenuProps {
   onClose: () => void
   options: MenuOption[]
 }
+
+interface SharedMenuConfig {
+  onAddFriend?: () => void
+  onSaveWishlist?: () => void
+  onRemoveSaved?: () => void
+  onCreateAccount?: () => void
+  onSignIn?: () => void
+}
+
 
 export function WishlistMenu({ isOpen, onClose, options }: WishlistMenuProps) {
   if (!isOpen) return null
@@ -95,23 +104,49 @@ export function getOwnerMenuOptions(handlers: {
 }
 
 // Helper function to get shared wishlist menu options
-export function getSharedMenuOptions(handlers: {
-  onAddFriend?: () => void
-  onSaveWishlist?: () => void
-  onRemoveSaved?: () => void
-}) {
+export function getSharedMenuOptions(config: SharedMenuConfig): MenuOption[] {
   const options: MenuOption[] = []
 
-  if (handlers.onAddFriend) {
-    options.push({ label: 'Add Friend', icon: LuUserPlus, onClick: handlers.onAddFriend })
+  // Guest options
+  if (config.onCreateAccount) {
+    options.push({
+      label: 'Create Account',
+      icon: LuUserPlus,
+      onClick: config.onCreateAccount,
+    })
   }
 
-  if (handlers.onSaveWishlist) {
-    options.push({ label: 'Save Wishlist', icon: LuBookmark, onClick: handlers.onSaveWishlist })
+  if (config.onSignIn) {
+    options.push({
+      label: 'Sign In',
+      icon: LuLogIn,
+      onClick: config.onSignIn,
+    })
   }
 
-  if (handlers.onRemoveSaved) {
-    options.push({ label: 'Remove Saved Wishlist', icon: LuBookmarkX, onClick: handlers.onRemoveSaved })
+  // Authenticated user options
+  if (config.onAddFriend) {
+    options.push({
+      label: 'Add Friend',
+      icon: LuUserPlus,
+      onClick: config.onAddFriend,
+    })
+  }
+
+  if (config.onSaveWishlist) {
+    options.push({
+      label: 'Save Wishlist',
+      icon: LuBookmark,
+      onClick: config.onSaveWishlist,
+    })
+  }
+
+  if (config.onRemoveSaved) {
+    options.push({
+      label: 'Remove Saved',
+      icon: LuBookmarkX,
+      onClick: config.onRemoveSaved,
+    })
   }
 
   return options
