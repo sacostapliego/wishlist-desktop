@@ -28,7 +28,7 @@ interface WishlistItem {
   is_claimed?: boolean | null
 }
 
-export function useWishlistDetail(wishlistId: string | undefined, shouldRefresh?: number) {
+export function useWishlistDetail(wishlistId: string | undefined, shouldRefresh?: number, isPublicView: boolean = false) {
   const { isLoggedIn } = useAuth()
   const [wishlist, setWishlist] = useState<Wishlist | null>(null)
   const [items, setItems] = useState<WishlistItem[]>([])
@@ -49,7 +49,13 @@ export function useWishlistDetail(wishlistId: string | undefined, shouldRefresh?
       let wishlistData: Wishlist | null = null
       let itemsData: any[] = []
 
-      if (isLoggedIn) {
+      // If it's a public view or user is not logged in, go straight to public endpoint
+      if (isPublicView || !isLoggedIn) {
+        wishlistData = await wishlistAPI.getPublicWishlist(wishlistId)
+        const publicItems = await wishlistAPI.getPublicWishlistItems(wishlistId)
+        itemsData = publicItems.map((item: any) => ({ ...item, priority: item.priority ?? 0 }))
+      } else {
+        // Try authenticated endpoint first for logged in users
         try {
           wishlistData = await wishlistAPI.getWishlist(wishlistId)
           const allItems = await wishlistAPI.getItems()
@@ -57,23 +63,15 @@ export function useWishlistDetail(wishlistId: string | undefined, shouldRefresh?
             .filter((item: any) => item.wishlist_id === wishlistId)
             .map((item: any) => ({ ...item, priority: item.priority ?? 0 }))
         } catch (ownerError: any) {
+          // Fallback to public endpoint if authenticated fails
           if (ownerError.response?.status === 403 || ownerError.response?.status === 404) {
-            try {
-              wishlistData = await wishlistAPI.getPublicWishlist(wishlistId)
-              const publicItems = await wishlistAPI.getPublicWishlistItems(wishlistId)
-              itemsData = publicItems.map((item: any) => ({ ...item, priority: item.priority ?? 0 }))
-            } catch (publicError) {
-              console.error('Failed to fetch public wishlist:', publicError)
-              throw publicError
-            }
+            wishlistData = await wishlistAPI.getPublicWishlist(wishlistId)
+            const publicItems = await wishlistAPI.getPublicWishlistItems(wishlistId)
+            itemsData = publicItems.map((item: any) => ({ ...item, priority: item.priority ?? 0 }))
           } else {
             throw ownerError
           }
         }
-      } else {
-        wishlistData = await wishlistAPI.getPublicWishlist(wishlistId)
-        const publicItems = await wishlistAPI.getPublicWishlistItems(wishlistId)
-        itemsData = publicItems.map((item: any) => ({ ...item, priority: item.priority ?? 0 }))
       }
 
       setWishlist(wishlistData)

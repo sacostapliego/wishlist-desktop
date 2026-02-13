@@ -69,7 +69,7 @@ function WishlistPage() {
   const [selectedItems, setSelectedItems] = useState<string[]>([])
 
   // Use hook only for items
-  const { items, isLoading: itemsLoading, refetchItems } = useWishlistDetail(id)
+  const { items, isLoading: itemsLoading, refetchItems } = useWishlistDetail(id, undefined, true)
 
   useEffect(() => {
     if (id && !authLoading) {
