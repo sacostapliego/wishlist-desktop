@@ -1,6 +1,6 @@
 import { Box, VStack, Heading, Text, IconButton, HStack, Image, Button } from '@chakra-ui/react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
-import { LuArrowLeft, LuSettings } from 'react-icons/lu'
+import { LuArrowLeft, LuEllipsisVertical, LuSettings } from 'react-icons/lu'
 import { useEffect, useState } from 'react'
 import { COLORS } from '../styles/common'
 import { useAuth } from '../context/AuthContext'
@@ -152,6 +152,18 @@ function ProfilePage() {
               <LuSettings />
             </IconButton>
           )}
+
+          {!isSelf && (
+            <IconButton
+              aria-label="Settings"
+              variant="ghost"
+              onClick={() => console.log('/settings')}
+              color="white"
+              size="lg"
+            >
+              <LuEllipsisVertical />
+            </IconButton>
+          )} 
         </HStack>
       </Box>
 
