@@ -7,6 +7,7 @@ import { friendsAPI, type FriendWishlistResponse } from '../services/friends'
 import { toaster } from '../components/ui/toaster'
 import { useNavigate } from 'react-router-dom'
 import { ProfileHeader } from '../components/layout/ProfileHeader'
+import { COLORS } from '../styles/common'
 
 interface Wishlist {
   id: string
@@ -98,7 +99,7 @@ function HomePage() {
   }
 
   return (
-    <Box h={{base: 0, md:"calc(100vh - 32px)"}} w="100%"  overflowX="visible" py={2}>
+    <Box minH={{base: "calc(100vh + 80px)", md:"calc(100vh - 32px)"}} w="100%" overflowX="visible" bg={COLORS.background} py={2}>
       <ProfileHeader />
       <VStack align="stretch">
         {/* Claimed Items Section */}

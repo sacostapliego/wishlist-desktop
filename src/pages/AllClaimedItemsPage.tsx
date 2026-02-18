@@ -1,6 +1,6 @@
 import { Box, HStack, VStack, Heading, Text, IconButton, SimpleGrid, Image } from '@chakra-ui/react'
 import { LuArrowLeft, LuGift } from 'react-icons/lu'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { wishlistAPI } from '../services/wishlist'
 import { COLORS } from '../styles/common'
@@ -19,7 +19,10 @@ interface ClaimedItem {
 function AllClaimedItemsPage() {
   const navigate = useNavigate()
   const [items, setItems] = useState<ClaimedItem[]>([])
+  const location = useLocation()
   const [loading, setLoading] = useState(true)
+  const fromMobileNav = location.state?.fromMobileNav === true
+
 
   useEffect(() => {
     loadItems()
@@ -66,15 +69,17 @@ function AllClaimedItemsPage() {
       {/* Header */}
       <Box bg={COLORS.background} px={8} py={4} position="sticky" top={0} zIndex={10}>
         <HStack gap={4}>
-          <IconButton
-            aria-label="Go back"
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            color="white"
-            size="lg"
-          >
-            <LuArrowLeft />
-          </IconButton>
+        {!fromMobileNav && (
+            <IconButton
+              aria-label="Go back"
+              variant="ghost"
+              onClick={() => navigate(-1)}
+              color="white"
+              size="lg"
+            >
+              <LuArrowLeft />
+            </IconButton>
+          )}         
           <Heading size="xl" color="white">Items Claimed</Heading>
         </HStack>
       </Box>

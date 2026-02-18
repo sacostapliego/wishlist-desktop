@@ -3,6 +3,7 @@ import { Box, Flex, IconButton } from '@chakra-ui/react'
 import { Outlet } from 'react-router-dom'
 import { LuPanelLeft } from 'react-icons/lu'
 import Sidebar from './SideBar'
+import MobileNav from './MobileNav'
 import { useSidebarResize } from '../../hooks/useSidebarResize'
 import '../../App.css'
 
@@ -14,7 +15,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
   const { sidebarState, sidebarWidth, isResizing, handleMouseDown, toggleSidebar } = useSidebarResize()
 
   return (
-    <Flex minH="100vh" bg="#070707" p={{ base: 0, md: 4 }} gap={{ base: 0, md: 4 }}>
+    <Flex minH="100vh" bg={{base:"#141414", md:"#070707"}} p={{ base: 0, md: 4 }} gap={{ base: 0, md: 4 }}>
       {/* Show Sidebar Toggle when Hidden */}
       {sidebarState === 'hidden' && (
         <IconButton
@@ -86,16 +87,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
       </Box>
 
       {/* Mobile Bottom Nav */}
-      <Box
-        display={{ base: "flex", md: "none" }}
-        position="fixed"
-        bottom="0"
-        w="100%"
-        h="80px"
-        bg="#141414"
-      >
-        {/* Mobile nav content - to be implemented */}
-      </Box>
+       <MobileNav />
     </Flex>
   )
 }
