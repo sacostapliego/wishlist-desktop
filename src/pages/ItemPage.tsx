@@ -10,7 +10,7 @@ import { useItemClaiming } from '../hooks/useItemClaiming'
 import { ItemClaimingSection } from '../components/items/ItemClaimingSection'
 import { ItemMenu, getItemMenuOptions } from '../components/items/ItemMenu'
 import { EditItemModal } from '../components/items/EditItemModal'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { wishlistAPI } from '../services/wishlist'
 import { ConfirmDialog } from '../components/common/ConfirmDialog'
 import { useAuth } from '../context/AuthContext'
@@ -32,6 +32,17 @@ function ItemPage() {
     wishlistId,
     isPublicView
   )
+
+  useEffect(() => {
+    // Reset theme-color meta tag to default background color
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]')
+    if (!metaThemeColor) {
+      metaThemeColor = document.createElement('meta')
+      metaThemeColor.setAttribute('name', 'theme-color')
+      document.head.appendChild(metaThemeColor)
+    }
+    metaThemeColor.setAttribute('content', '#141414')
+  }, [])
 
   const {
     showGuestNameModal,

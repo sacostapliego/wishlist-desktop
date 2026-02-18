@@ -1,4 +1,5 @@
 import { Button, HStack, IconButton, Text, VStack, Avatar } from '@chakra-ui/react'
+import { COLORS } from '../../../styles/common'
 
 interface ProfileSectionProps {
   displayName: string
@@ -24,7 +25,7 @@ export function ProfileSection({ displayName, profileImage, isExpanded, onNaviga
             <Avatar.Image src={profileImage || undefined} />
           </Avatar.Root>
           <VStack align="start" gap={0}>
-            <Text fontSize="sm" fontWeight="semibold">
+            <Text fontSize="sm" color={COLORS.text.primary} fontWeight="semibold">
               {displayName}
             </Text>
           </VStack>

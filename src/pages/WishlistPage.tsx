@@ -77,6 +77,27 @@ function WishlistPage() {
     }
   }, [id, authLoading, user])
 
+  useEffect(() => {
+  if (wishlist?.color) {
+    // Update theme-color meta tag for iOS status bar
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]')
+    if (!metaThemeColor) {
+      metaThemeColor = document.createElement('meta')
+      metaThemeColor.setAttribute('name', 'theme-color')
+      document.head.appendChild(metaThemeColor)
+    }
+    metaThemeColor.setAttribute('content', wishlist.color)
+  }
+
+  // Cleanup: Reset to default when component unmounts or wishlist changes
+  return () => {
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]')
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', '#141414')
+    }
+  }
+}, [wishlist?.color])
+
   const loadWishlist = async (wishlistId: string) => {
     try {
       setLoading(true)
