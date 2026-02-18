@@ -86,13 +86,13 @@ export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick 
         <HStack
           ref={scrollRef}
           overflowX="auto"
-          gap={4}
+          gap={{base: 1, md:4}}
           css={{
             '&::-webkit-scrollbar': { display: 'none' },
             scrollbarWidth: 'none'
           }}
           pb={2}
-          pl={8}
+          pl={{base: 3, md: 8}}
         >
           {wishlists.map((wishlist) => {
             const IconComponent = getWishlistIcon(wishlist.image)

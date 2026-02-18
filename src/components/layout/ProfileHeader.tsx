@@ -1,8 +1,9 @@
-import { Box } from '@chakra-ui/react'
+import { Box, HStack, VStack } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { API_URL } from '../../services/api'
 import { ProfileSection } from './sidebar/ProfileSection'
+import { COLORS } from '../../styles/common'
 
 export function ProfileHeader() {
   const navigate = useNavigate()
@@ -12,13 +13,16 @@ export function ProfileHeader() {
   const displayName = user?.name || user?.username || 'Guest'
 
   return (
-    <Box display={{ base: "block", md: "none" }} p={4} bg="#141414" >
-      <ProfileSection 
-        displayName={displayName}
-        profileImage={profileImage}
-        isExpanded={true}
-        onNavigate={() => navigate('/profile')}
-      />
+    <Box display={{ base: "block", md: "none" }} p={{base:1, md:4}} bg="#141414" color={COLORS.text.primary} >
+      <HStack>
+        <ProfileSection 
+          displayName={displayName}
+          profileImage={profileImage}
+          isExpanded={true}
+          onNavigate={() => navigate('/profile')}
+        />
+      </HStack>
+      
     </Box>
   )
 }

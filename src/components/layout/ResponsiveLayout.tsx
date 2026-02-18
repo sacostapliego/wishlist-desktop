@@ -5,6 +5,7 @@ import { LuPanelLeft } from 'react-icons/lu'
 import Sidebar from './SideBar'
 import MobileNav from './MobileNav'
 import { useSidebarResize } from '../../hooks/useSidebarResize'
+import { useScrollToTop } from '../../hooks/useScrollToTop'
 import '../../App.css'
 
 interface ResponsiveLayoutProps {
@@ -13,6 +14,7 @@ interface ResponsiveLayoutProps {
 
 export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
   const { sidebarState, sidebarWidth, isResizing, handleMouseDown, toggleSidebar } = useSidebarResize()
+  useScrollToTop()
 
   return (
     <Flex minH="100vh" bg={{base:"#141414", md:"#070707"}} p={{ base: 0, md: 4 }} gap={{ base: 0, md: 4 }}>

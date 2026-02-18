@@ -174,7 +174,7 @@ function ItemPage() {
   const imageUrl = item.image ? `${API_URL}wishlist/${item.id}/image` : null
 
   return (
-    <Box h="calc(100vh - 32px)" w="100%" overflowY="auto" bg={COLORS.background} position="relative">
+    <Box h={{base: "calc(100vh + 80px)", md:"calc(100vh - 32px)"}} w="100%" overflowY="auto" bg={COLORS.background} position="relative">
       {/* Header */}
       <Box bg={COLORS.background} px={8} py={4} position="sticky" top={0} zIndex={10}>
         <HStack justify="space-between">
@@ -225,7 +225,6 @@ function ItemPage() {
         {imageUrl && (
           <Box
             w="100%"
-            maxW="30rem"
             mx="auto"
             aspectRatio={1}
             bg={backgroundColor}
@@ -238,8 +237,8 @@ function ItemPage() {
             <Image
               src={imageUrl}
               alt={item.name}
-              maxW="100%"
-              maxH="100%"
+              w="100%"
+              h="100%"
               objectFit="contain"
               p={4}
             />

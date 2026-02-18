@@ -62,14 +62,14 @@ function AllWishlistsPage({ type }: AllWishlistsPageProps) {
 
   if (loading) {
     return (
-      <Box h="calc(100vh - 32px)" w="100%" display="flex" alignItems="center" justifyContent="center">
+      <Box h={{base: "calc(100vh + 80px)", md:"calc(100vh - 32px)"}} w="100%" display="flex" alignItems="center" justifyContent="center">
         <Text color="white">Loading...</Text>
       </Box>
     )
   }
 
   return (
-    <Box h="calc(100vh - 32px)" w="100%" overflowY="auto" overflowX="hidden">
+    <Box h={{base: "calc(100vh + 80px)", md:"calc(100vh - 32px)"}} w="100%" overflowY="auto" overflowX="hidden">
       {/* Header */}
       <Box bg={COLORS.background} px={8} py={4} position="sticky" top={0} zIndex={10}>
         <HStack gap={4}>
@@ -87,11 +87,11 @@ function AllWishlistsPage({ type }: AllWishlistsPageProps) {
       </Box>
 
       {/* Grid */}
-      <Box px={8} py={6}>
+      <Box px={{ base: 4, md: 8 }} py={{ base: 4, md: 6 }}>
         {wishlists.length === 0 ? (
           <Text color="gray.400">No wishlists found</Text>
         ) : (
-          <SimpleGrid columns={{ base: 2, md: 3, lg: 4, xl: 5 }} gap={6}>
+          <SimpleGrid columns={{ base: 2, md: 3, lg: 4, xl: 5 }} gap={{ base: 0, md: 6 }}>
             {wishlists.map((wishlist) => {
               const IconComponent = getWishlistIcon(wishlist.image)
               
@@ -119,11 +119,11 @@ function AllWishlistsPage({ type }: AllWishlistsPageProps) {
                       <Box as={IconComponent} boxSize={{base:"5rem", md:"7rem", lg:"9rem", xl:"11rem"}} color="white" />
                     </Box>
                     <VStack gap={0} align="start">
-                      <Text color="white" fontWeight="semibold" fontSize="md" lineClamp={2}>
+                      <Text color="white" fontWeight="semibold" fontSize="md" lineClamp={{base:1, md: 2}}>
                         {wishlist.name}
                       </Text>
                       {type === 'friends' && wishlist.ownerName && (
-                        <Text color={COLORS.text.secondary} fontSize="sm">
+                        <Text color={COLORS.text.secondary} fontSize="sm" lineClamp={{base:1, md: 2}}>
                           {wishlist.ownerName}
                         </Text>
                       )}

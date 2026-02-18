@@ -79,7 +79,7 @@ function WishlistPage() {
 
   useEffect(() => {
   if (wishlist?.color) {
-    // Update theme-color meta tag for iOS status bar
+    // Legacy iOS — meta theme-color
     let metaThemeColor = document.querySelector('meta[name="theme-color"]')
     if (!metaThemeColor) {
       metaThemeColor = document.createElement('meta')
@@ -87,14 +87,20 @@ function WishlistPage() {
       document.head.appendChild(metaThemeColor)
     }
     metaThemeColor.setAttribute('content', wishlist.color)
+
+    // iOS 26+ — body background
+    document.body.style.backgroundColor = wishlist.color
   }
 
-  // Cleanup: Reset to default when component unmounts or wishlist changes
   return () => {
+    // Reset meta tag
     let metaThemeColor = document.querySelector('meta[name="theme-color"]')
     if (metaThemeColor) {
       metaThemeColor.setAttribute('content', '#141414')
     }
+
+    // Reset body background
+    document.body.style.backgroundColor = '#141414'
   }
 }, [wishlist?.color])
 

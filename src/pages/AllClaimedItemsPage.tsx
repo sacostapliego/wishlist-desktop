@@ -65,7 +65,7 @@ function AllClaimedItemsPage() {
   }
 
   return (
-    <Box h="calc(100vh - 32px)" w="100%" overflowY="auto" overflowX="hidden">
+    <Box h={{base: "calc(100vh + 80px)", md:"calc(100vh - 32px)"}} w="100%" overflowY="auto" overflowX="hidden">
       {/* Header */}
       <Box bg={COLORS.background} px={8} py={4} position="sticky" top={0} zIndex={10}>
         <HStack gap={4}>
@@ -85,11 +85,11 @@ function AllClaimedItemsPage() {
       </Box>
 
       {/* Grid */}
-      <Box px={8} py={6}>
+      <Box px={{ base: 4, md: 8 }} py={{ base: 4, md: 6 }}>
         {items.length === 0 ? (
           <Text color="gray.400">No claimed items found</Text>
         ) : (
-          <SimpleGrid columns={{ base: 2, md: 3, lg: 4, xl: 5 }} gap={6}>
+          <SimpleGrid columns={{ base: 2, md: 3, lg: 4, xl: 5 }} gap={{ base: 0, md: 6 }}>
             {items.map((item) => (
               <Box
                 key={item.id}
@@ -97,7 +97,7 @@ function AllClaimedItemsPage() {
                 transition="all 0.2s"
                 _hover={{ bg: '#2a2a2a' }}
                 onClick={() => navigate(`/wishlist/${item.wishlist_id}/${item.id}`)}
-                borderRadius="md"
+                borderRadius="lg"
                 p={4}
               >
                 <VStack gap={3} align="stretch">
@@ -105,7 +105,7 @@ function AllClaimedItemsPage() {
                     w="100%"
                     aspectRatio={1}
                     overflow="hidden" 
-                    borderRadius="md" 
+                    borderRadius="lg" 
                     display="flex" 
                     alignItems="center" 
                     justifyContent="center"
@@ -118,21 +118,22 @@ function AllClaimedItemsPage() {
                         objectFit="contain"
                         w="100%"
                         h="100%"
+                        p={1}
                       />
                     ) : (
                       <LuGift color="white" fontSize="4xl"/>
                     )}
                   </Box>
                   <VStack gap={0} align="start">
-                    <Text color="white" fontWeight="semibold" fontSize="md" lineClamp={2}>
+                    <Text color="white" fontWeight="semibold" fontSize={{base:"0.8rem", md:"md"}} lineClamp={{base:1, md: 2}}>
                       {item.name}
                     </Text>
                     {item.price && (
-                      <Text color={COLORS.text.secondary} fontSize="sm">
+                      <Text color={COLORS.text.secondary} fontSize={{base:"0.7rem", md:"sm"}}>
                         ${item.price.toFixed(2)}
                       </Text>
                     )}
-                    <Text color={COLORS.text.secondary} fontSize="sm">
+                    <Text color={COLORS.text.secondary} fontSize={{base:"0.7rem", md:"sm"}} lineClamp={{base:1, md:2}}>
                       For: {item.owner_name}
                     </Text>
                   </VStack>

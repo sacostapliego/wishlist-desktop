@@ -69,17 +69,18 @@ export function ClaimedItemsSection({ items, onShowAll, onItemClick }: ClaimedIt
                 maxW="100%"
                 maxH="100%"
                 objectFit="contain"
+                p={0.5}
               />
             </Box>
             <VStack align="start" gap={0} flex={1} p={3} overflow="hidden">
-              <Text color="white" fontWeight="bold" fontSize={{base: '0.7rem', md: 'md'}} lineClamp={1}>
+              <Text color="white" fontWeight="bold" fontSize={{base: '0.7rem', md: 'md'}} lineClamp={2}>
                 {item.name}
               </Text>
-              <Text color="gray.400" fontSize={{base: '0.60rem', md: 'sm'}} lineClamp={1}>
+              <Text color={COLORS.text.secondary} fontSize={{base: '0.65rem', md: 'sm'}} lineClamp={1}>
                 For: {item.owner_name}
               </Text>
               {item.price && (
-                <Text color={COLORS.text.primary} fontSize={{base: '0.60rem', md: 'sm'}} fontWeight="semibold">
+                <Text color={COLORS.text.primary} fontSize={{base: '0.65rem', md: 'sm'}} fontWeight="semibold">
                   ${item.price.toFixed(2)}
                 </Text>
               )}

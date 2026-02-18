@@ -87,14 +87,14 @@ function FriendsPage() {
 
   if (loading) {
     return (
-      <Box h="calc(100vh - 32px)" w="100%" display="flex" alignItems="center" justifyContent="center">
+      <Box h={{base: "calc(100vh + 80px)", md:"calc(100vh - 32px)"}} w="100%" display="flex" alignItems="center" justifyContent="center">
         <Text color="white">Loading...</Text>
       </Box>
     )
   }
 
   return (
-    <Box h="calc(100vh - 32px)" w="100%" overflowY="auto" p={6}>
+    <Box h={{base: "calc(100vh + 80px)", md:"calc(100vh - 32px)"}} w="100%" overflowY="auto" p={6}>
       <VStack align="stretch" gap={6} maxW="800px" mx="auto">
         {/* Header */}
         <HStack justify="space-between">
