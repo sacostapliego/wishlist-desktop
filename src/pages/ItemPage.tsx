@@ -27,7 +27,7 @@ function ItemPage() {
   const { isLoggedIn } = useAuth()
   const isPublicView = !isLoggedIn
 
-  const { item, wishlistColor, wishlistInfo, isLoading, error, isOwner, refetchData } = useItemDetail(
+  const { item, wishlistColor, wishlistInfo, isLoading, error, isOwner, refetchItemData: refetchData } = useItemDetail(
     itemId,
     wishlistId,
     isPublicView
@@ -224,7 +224,7 @@ function ItemPage() {
         {/* Image */}
         {imageUrl && (
           <Box
-            w="100%"
+            w={{base: "20rem", md: "22rem", lg: "30rem"}}
             mx="auto"
             aspectRatio={1}
             bg={backgroundColor}

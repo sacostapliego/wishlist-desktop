@@ -5,19 +5,6 @@ import { userAPI } from '../services/user'
 import { COLORS } from '../styles/common'
 import type { WishlistItem, Wishlist, ApiError } from '../types/types'
 
-interface ItemDetail {
-  id: string
-  name: string
-  description?: string
-  price?: number
-  url?: string
-  image?: string
-  wishlist_id: string
-  priority?: number
-  created_at?: string
-  updated_at?: string
-}
-
 interface WishlistInfo {
   name: string
   ownerName: string
@@ -28,7 +15,7 @@ export const useItemDetail = (
   wishlistId: string | undefined,
   isPublicView: boolean = false
 ) => {
-  const [item, setItem] = useState<ItemDetail | null>(null)
+  const [item, setItem] = useState<WishlistItem | null>(null)
   const [wishlistColor, setWishlistColor] = useState<string>('')
   const [wishlistInfo, setWishlistInfo] = useState<WishlistInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
