@@ -40,17 +40,21 @@ export const userAPI = {
     return response.data;
   },
   
-  updateProfileImage: async (imageFile: File): Promise<User> => {
+  updateProfileImage: async (userId: string, imageFile: File): Promise<User> => {
     const formData = new FormData();
     formData.append('profile_picture', imageFile);
-    const response = await api.put('/users/me/profile-image', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+    const response = await api.put(`/users/${userId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
     return response.data;
   },
 
-  removeProfileImage: async (): Promise<User> => {
-    const response = await api.delete('/users/me/profile-image');
+  removeProfileImage: async (userId: string): Promise<User> => {
+    const formData = new FormData();
+    formData.append('remove_profile_picture', 'true');
+    const response = await api.put(`/users/${userId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return response.data;
   },
 

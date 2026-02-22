@@ -1,12 +1,21 @@
-import { Box, VStack, Heading, Text, Button, HStack, IconButton } from '@chakra-ui/react'
+import { Box, VStack, Heading, Text, Button, HStack, IconButton, Image } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom'
 import { LuArrowLeft, LuLogOut } from 'react-icons/lu'
+import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { COLORS } from '../styles/common'
+import { API_URL } from '../services/api'
+import { EditProfilePictureModal } from '../components/modals/EditProfilePictureModal'
+import { ConfirmDialog } from '../components/common/ConfirmDialog'
+import userAPI from '../services/user'
+import { toaster } from '../components/ui/toaster'
 
 function SettingsPage() {
   const navigate = useNavigate()
-  const { user, logout } = useAuth()
+  const { user, logout, refreshUser } = useAuth()
+  const [isEditPictureOpen, setIsEditPictureOpen] = useState(false)
+  const [isRemovePictureOpen, setIsRemovePictureOpen] = useState(false)
+  const [isRemovingPicture, setIsRemovingPicture] = useState(false)
 
   const handleLogout = async () => {
     try {
@@ -17,9 +26,34 @@ function SettingsPage() {
     }
   }
 
+  const handleRemoveProfilePicture = async () => {
+    setIsRemovingPicture(true)
+    try {
+      await userAPI.removeProfileImage(user!.id)  // pass user.id
+      await refreshUser()
+      toaster.create({
+        title: 'Success',
+        description: 'Profile picture removed successfully!',
+        type: 'success',
+      })
+    } catch (error) {
+      console.error('Error removing profile picture:', error)
+      toaster.create({
+        title: 'Error',
+        description: 'Failed to remove profile picture',
+        type: 'error',
+      })
+    } finally {
+      setIsRemovingPicture(false)
+    }
+  }
+
   if (!user) {
     return null
   }
+
+  const profileImage = `${API_URL}users/${user.id}/profile-image`
+  const displayName = user.name || user.username
 
   return (
     <Box h="calc(100vh - 32px)" w="100%" overflowY="auto" bg={COLORS.background}>
@@ -38,12 +72,92 @@ function SettingsPage() {
           <Heading size="lg" color="white">
             Settings
           </Heading>
-          <Box w="40px" /> {/* Spacer for alignment */}
+          <Box w="40px" />
         </HStack>
       </Box>
 
       {/* Settings Content */}
       <VStack gap={6} align="stretch" px={8} py={6}>
+
+        {/* Profile Picture Section */}
+        <Box>
+          <Heading size="md" color="white" mb={4}>
+            Profile Picture
+          </Heading>
+
+          <VStack
+            gap={4}
+            align="stretch"
+            bg={COLORS.cardGray}
+            borderRadius="xl"
+            p={6}
+          >
+            {/* Current Profile Picture */}
+            <HStack gap={4} align="center">
+              <Box
+                w="80px"
+                h="80px"
+                borderRadius="full"
+                overflow="hidden"
+                bg={COLORS.cardDarkLight}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                flexShrink={0}
+              >
+                {user.pfp ? (
+                  <Image
+                    src={profileImage}
+                    alt={displayName}
+                    w="100%"
+                    h="100%"
+                    objectFit="cover"
+                  />
+                ) : (
+                  <Text color={COLORS.text.secondary} fontSize="3xl" fontWeight="bold">
+                    {displayName?.charAt(0).toUpperCase() || '?'}
+                  </Text>
+                )}
+              </Box>
+
+              <VStack align="start" gap={1}>
+                <Text color="white" fontWeight="medium">
+                  {displayName}
+                </Text>
+                <Text color={COLORS.text.secondary} fontSize="sm">
+                  @{user.username}
+                </Text>
+              </VStack>
+            </HStack>
+
+            {/* Update Picture Button */}
+            <Button
+              w="100%"
+              bg={COLORS.primary}
+              color="white"
+              onClick={() => setIsEditPictureOpen(true)}
+              _hover={{ opacity: 0.9 }}
+            >
+              Update Profile Picture
+            </Button>
+
+            {/* Remove Picture Button */}
+            {user.pfp && (
+              <Button
+                w="100%"
+                variant="outline"
+                borderColor="red.500"
+                color="red.500"
+                onClick={() => setIsRemovePictureOpen(true)}
+                loading={isRemovingPicture}
+                _hover={{ bg: 'red.500', color: 'white' }}
+              >
+                Remove Profile Picture
+              </Button>
+            )}
+          </VStack>
+        </Box>
+
         {/* Account Information Section */}
         <Box>
           <Heading size="md" color="white" mb={4}>
@@ -124,6 +238,29 @@ function SettingsPage() {
           </Box>
         </Box>
       </VStack>
+
+      {/* Edit Profile Picture Modal */}
+      <EditProfilePictureModal
+        isOpen={isEditPictureOpen}
+        onClose={() => setIsEditPictureOpen(false)}
+        userId={user.id}
+        currentImage={user.pfp}
+        onSuccess={async () => {
+          await refreshUser()
+        }}
+      />
+
+      {/* Remove Profile Picture Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={isRemovePictureOpen}
+        onClose={() => setIsRemovePictureOpen(false)}
+        title="Remove Profile Picture"
+        message="Are you sure you want to remove your profile picture? This action cannot be undone."
+        confirmText="Remove"
+        cancelText="Cancel"
+        onConfirm={handleRemoveProfilePicture}
+        isDestructive
+      />
     </Box>
   )
 }

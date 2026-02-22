@@ -60,7 +60,7 @@ export function EditProfilePictureModal({
     try {
       const file = new File([croppedBlob], 'profile-picture.jpg', { type: 'image/jpeg' })
       
-      await userAPI.updateProfileImage(file)
+      await userAPI.updateProfileImage(userId, file)
 
       toaster.create({
         title: 'Success',

@@ -190,6 +190,7 @@ function ProfilePage() {
               display="flex"
               alignItems="center"
               justifyContent="center"
+              flexShrink={0}
             >
               {profileImage ? (
                 <Image
