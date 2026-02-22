@@ -1,5 +1,6 @@
 import { Box, VStack, Button, Text } from '@chakra-ui/react'
 import { createPortal } from 'react-dom'
+import { useState, useEffect } from 'react'
 import { LuList, LuPlus } from 'react-icons/lu'
 import { COLORS } from '../../../styles/common'
 
@@ -12,9 +13,15 @@ interface MobileCreateMenuProps {
 }
 
 export function MobileCreateMenu({ isOpen, onClose, anchorRef, onCreateWishlist, onAddItem }: MobileCreateMenuProps) {
-  if (!isOpen) return null
+  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null)
 
-  const anchorRect = anchorRef.current?.getBoundingClientRect()
+  useEffect(() => {
+    if (isOpen && anchorRef.current) {
+      setAnchorRect(anchorRef.current.getBoundingClientRect())
+    }
+  }, [isOpen])
+
+  if (!isOpen) return null
 
   return createPortal(
     <>

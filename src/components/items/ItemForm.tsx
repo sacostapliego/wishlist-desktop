@@ -17,6 +17,7 @@ import { COLORS } from '../../styles/common'
 import { toaster } from '../ui/toaster'
 import { wishlistAPI } from '../../services/wishlist'
 import imageCompression from 'browser-image-compression'
+import type { Wishlist } from '../../types/types'
 
 export interface ItemFormData {
   name: string
@@ -34,7 +35,7 @@ interface ItemFormProps {
   onSubmit: (data: ItemFormData, imageFile?: File | string) => void
   isLoading?: boolean
   submitLabel?: string
-  wishlists?: any[]
+  wishlists?: Wishlist[]
   selectedWishlistId?: string
   onWishlistChange?: (wishlistId: string) => void
   loadingWishlists?: boolean

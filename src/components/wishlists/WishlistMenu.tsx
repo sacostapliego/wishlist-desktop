@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { Box, Button, VStack, Text, Separator } from '@chakra-ui/react'
 import { LuPencil , LuSquareCheck , LuShare2, LuTrash2, LuUserPlus, LuBookmark, LuBookmarkX, LuLogIn } from 'react-icons/lu'
 import { COLORS } from '../../styles/common'

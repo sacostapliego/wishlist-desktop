@@ -1,4 +1,4 @@
-import { Box, HStack, VStack } from '@chakra-ui/react'
+import { Box, HStack } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { API_URL } from '../../services/api'

@@ -39,10 +39,6 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false)
   const createButtonRef = useRef<HTMLButtonElement>(null)
 
-  useEffect(() => {
-    loadWishlists()
-  }, [])
-
   const loadWishlists = async () => {
     try {
       const [mine, friends] = await Promise.all([
@@ -60,6 +56,11 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
       })
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    loadWishlists()
+  }, [])
 
   const handleCreateWishlistSuccess = () => {
     loadWishlists()

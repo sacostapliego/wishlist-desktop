@@ -12,23 +12,27 @@ import { friendsAPI, type FriendWishlistResponse } from '../services/friends'
 import { WishlistCarousel } from '../components/home/WishlistCarousel'
 import { EditSizesModal } from '../components/modals/EditSizesModal'
 
+// Local display type that matches what WishlistCarousel expects
+interface WishlistDisplayItem {
+  id: string
+  name: string
+  ownerName: string
+  image?: string
+  color?: string
+}
+
 function ProfilePage() {
   const navigate = useNavigate()
   const { userId } = useParams<{ userId?: string }>()
   const { user, refreshUser, isLoggedIn } = useAuth()
   const [publicUser, setPublicUser] = useState<PublicUserDetailsResponse | null>(null)
-  const [friendWishlists, setFriendWishlists] = useState<any[]>([])
+  // Use the display type instead of FriendWishlistResponse
+  const [friendWishlists, setFriendWishlists] = useState<WishlistDisplayItem[]>([])
   const [loading, setLoading] = useState(false)
   const [isEditSizesOpen, setIsEditSizesOpen] = useState(false)
-
-  // If not logged in and no userId param, redirect to login
+  
   const isSelf = isLoggedIn && (!userId || userId === user?.id)
-
-  // Guests viewing their own profile should go to login
-  if (!isLoggedIn && !userId) {
-    return <Navigate to="/auth/login" replace />
-  }
-
+  
   useEffect(() => {
     if (!isSelf && userId) {
       loadPublicUser(userId)
@@ -36,31 +40,35 @@ function ProfilePage() {
         loadFriendWishlists(userId)
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, isSelf, isLoggedIn])
+  
+  if (!isLoggedIn && !userId) {
+    return <Navigate to="/auth/login" replace />
+  }
 
   const loadFriendWishlists = async (ownerId: string) => {
-  try {
-    // Get all saved wishlists, then filter by owner
-    const allWishlists = await friendsAPI.getFriendsWishlists()
-    
-    // Filter to only show wishlists from this specific owner
-    const ownerWishlists = allWishlists.filter((w: FriendWishlistResponse) => 
-      w.owner_id === ownerId
-    )
-    
-    const transformed = ownerWishlists.map((w: FriendWishlistResponse) => ({
-      id: w.id,
-      name: w.title,
-      ownerName: w.owner_name || w.owner_username,
-      image: w.image,
-      color: w.color
-    }))
-    
-    setFriendWishlists(transformed)
-  } catch (error) {
-    console.error('Error loading friend wishlists:', error)
+    try {
+      const allWishlists = await friendsAPI.getFriendsWishlists()
+      
+      const ownerWishlists = allWishlists.filter((w: FriendWishlistResponse) => 
+        w.owner_id === ownerId
+      )
+      
+      // Transform into WishlistDisplayItem - type now matches state
+      const transformed: WishlistDisplayItem[] = ownerWishlists.map((w: FriendWishlistResponse) => ({
+        id: w.id,
+        name: w.title,
+        ownerName: w.owner_name ?? w.owner_username ?? 'Unknown',
+        image: w.image,
+        color: w.color,
+      }))
+      
+      setFriendWishlists(transformed)
+    } catch (error) {
+      console.error('Error loading friend wishlists:', error)
+    }
   }
-}
 
   const loadPublicUser = async (id: string) => {
     try {
@@ -124,7 +132,6 @@ function ProfilePage() {
   }
 
   const hasSizes = Object.values(sizeValues).some(value => value)
-  
 
   return (
     <Box h="calc(100vh - 32px)" w="100%" overflowY="auto" bg={COLORS.background}>
@@ -169,10 +176,9 @@ function ProfilePage() {
 
       {/* Profile Content */}
       <VStack gap={6} align="stretch">
-        <Box gap={6} px={8} py={8} >
+        <Box gap={6} px={8} py={8}>
           {/* Profile Image and User Info */}
           <VStack gap={4}>
-            {/* Profile Image */}
             <Box
               w="120px"
               h="120px"
@@ -193,12 +199,11 @@ function ProfilePage() {
                 />
               ) : (
                 <Text color={COLORS.text.secondary} fontSize="4xl" fontWeight="bold">
-                  {displayName.charAt(0).toUpperCase()}
+                  {displayName?.charAt(0).toUpperCase() || '?'}
                 </Text>
               )}
             </Box>
 
-            {/* User Info */}
             <VStack gap={1}>
               <Heading size="xl" color="white">
                 {displayName}
@@ -213,11 +218,7 @@ function ProfilePage() {
           {(hasSizes || isSelf) && (
             <Box mt={6}>
               <HStack justify="space-between" align="center" mb={3}>
-                <Text 
-                  fontSize="lg" 
-                  fontWeight="semibold" 
-                  color="white"
-                >
+                <Text fontSize="lg" fontWeight="semibold" color="white">
                   Sizes
                 </Text>
                 {isSelf && (
@@ -240,10 +241,11 @@ function ProfilePage() {
             </Box>
           )}
         </Box>
+
         {!isSelf && friendWishlists.length > 0 && (
           <Box>
             <WishlistCarousel 
-              title={`Saved Lists`}
+              title="Saved Lists"
               wishlists={friendWishlists}
               onWishlistClick={(id) => navigate(`/wishlist/${id}`)}
             />
@@ -251,7 +253,6 @@ function ProfilePage() {
         )}
       </VStack>
 
-      {/* Edit Sizes Modal */}
       {isSelf && user && (
         <EditSizesModal
           isOpen={isEditSizesOpen}

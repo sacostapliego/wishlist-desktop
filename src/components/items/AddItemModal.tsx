@@ -7,6 +7,7 @@ import { wishlistAPI } from '../../services/wishlist'
 import { toaster } from '../ui/toaster'
 import { ItemForm, type ItemFormData, type ItemFormRef } from './ItemForm'
 import { ScrapeUrlForm } from './ScrapeUrlForm'
+import type { Wishlist } from '../../types/types'
 
 interface AddItemModalProps {
   isOpen: boolean
@@ -20,7 +21,7 @@ type AddMode = 'manual' | 'link'
 export function AddItemModal({ isOpen, onClose, preSelectedWishlistId, onSuccess }: AddItemModalProps) {
   const [addMode, setAddMode] = useState<AddMode>('manual')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [wishlists, setWishlists] = useState<any[]>([])
+  const [wishlists, setWishlists] = useState<Wishlist[]>([])
   const [loadingWishlists, setLoadingWishlists] = useState(true)
   const [selectedWishlistId, setSelectedWishlistId] = useState(preSelectedWishlistId || '')
   const [initialFormValues, setInitialFormValues] = useState<Partial<ItemFormData>>({
@@ -42,8 +43,8 @@ export function AddItemModal({ isOpen, onClose, preSelectedWishlistId, onSuccess
         fetchWishlists()
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, preSelectedWishlistId])
-
   const fetchWishlists = async () => {
     try {
       setLoadingWishlists(true)

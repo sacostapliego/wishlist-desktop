@@ -12,19 +12,20 @@ import {
 import { useAuth } from '../context/AuthContext'
 import { toaster } from '../components/ui/toaster'
 import { COLORS } from '../styles/common'
+import type { ApiError } from '../types/types'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
+  const [usernameOrEmail, setUsernameOrEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
 
   const handleLogin = async () => {
-    if (!email || !password) {
+    if (!usernameOrEmail || !password) {
       toaster.create({
         title: 'Error',
-        description: 'Enter email and password.',
+        description: 'Enter username or email and password.',
         type: 'error',
       })
       return
@@ -32,7 +33,7 @@ export default function LoginPage() {
 
     try {
       setIsLoading(true)
-      const response = await login(email, password)
+      const response = await login(usernameOrEmail, password)
       if (response && response.user) {
         toaster.create({
           title: 'Success',
@@ -47,10 +48,11 @@ export default function LoginPage() {
           type: 'error',
         })
       }
-    } catch (e: any) {
+    } catch (e) {
+      const error = e as ApiError
       let msg = 'Login failed.'
-      if (e?.response?.data?.detail) msg = e.response.data.detail
-      else if (typeof e?.message === 'string') msg = e.message
+      if (error?.response?.data?.detail) msg = error.response.data.detail as string
+      else if (error?.message) msg = error.message
       toaster.create({
         title: 'Error',
         description: msg,
@@ -74,10 +76,10 @@ export default function LoginPage() {
 
           <VStack gap={4} w="100%">
             <Input
-              placeholder="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email or Username"
+              type="text"
+              value={usernameOrEmail}
+              onChange={(e) => setUsernameOrEmail(e.target.value)}
               size="lg"
               bg="#1a1a1a"
               border="2px solid"

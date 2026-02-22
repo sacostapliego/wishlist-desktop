@@ -8,6 +8,7 @@ import { toaster } from '../components/ui/toaster'
 import { useNavigate } from 'react-router-dom'
 import { ProfileHeader } from '../components/layout/ProfileHeader'
 import { COLORS } from '../styles/common'
+import type { Wishlist as WishlistType } from '../types/types'
 
 interface Wishlist {
   id: string
@@ -47,7 +48,7 @@ function HomePage() {
       ])
 
       // Transform my wishlists data
-      const transformedMyWishlists = myWishlistsData.map((wishlist: any) => ({
+      const transformedMyWishlists = myWishlistsData.map((wishlist: WishlistType) => ({
         id: wishlist.id,
         name: wishlist.title,
         image: wishlist.image,

@@ -1,29 +1,16 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useState, useEffect, useContext, type ReactNode } from 'react'
 import storage from '../utils/storage'
 import authAPI from '../services/auth'
 import userAPI from '../services/user'
-
-interface User {
-  id: string
-  email: string
-  username: string
-  name?: string
-  pfp?: string
-  shoe_size?: string
-  shirt_size?: string
-  pants_size?: string
-  hat_size?: string
-  ring_size?: string
-  dress_size?: string
-  jacket_size?: string
-}
+import type { User, AuthResponse, ApiError } from '../types/types'
 
 interface AuthContextType {
   user: User | null
   loading: boolean
   isLoggedIn: boolean
-  login: (email: string, password: string) => Promise<any>
-  register: (userData: FormData) => Promise<any>
+  login: (identifier: string, password: string) => Promise<AuthResponse>
+  register: (userData: FormData) => Promise<AuthResponse>
   logout: () => Promise<void>
   refreshUser: () => Promise<void>
 }
@@ -58,8 +45,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const freshUserData = await userAPI.getProfile()
         setUser(freshUserData)
         await storage.setItem('user_data', JSON.stringify(freshUserData))
-      } catch (error: any) {
-        console.error('Failed server verification:', error?.response?.status)
+      } catch (error) {
+        const apiError = error as ApiError
+        console.error('Failed server verification:', apiError?.response?.status)
       }
     } catch (error) {
       console.error('Failed to load user', error)
@@ -68,20 +56,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const login = async (email: string, password: string) => {
-    try {
-      const response = await authAPI.login({ email, password })
+  const login = async (username: string, password: string) => {
+    const response = await authAPI.login({ username, password })
 
-      if (response && response.user && response.access_token) {
-        await storage.setItem('auth_token', response.access_token)
-        await storage.setItem('user_data', JSON.stringify(response.user))
-        setUser(response.user)
-        return response
-      } else {
-        throw new Error('Invalid response from server')
-      }
-    } catch (error) {
-      throw error
+    if (response && response.user && response.access_token) {
+      await storage.setItem('auth_token', response.access_token)
+      await storage.setItem('user_data', JSON.stringify(response.user))
+      setUser(response.user)
+      return response
+    } else {
+      throw new Error('Invalid response from server')
     }
   }
 

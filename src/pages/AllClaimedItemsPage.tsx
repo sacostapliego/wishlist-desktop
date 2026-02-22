@@ -2,7 +2,7 @@ import { Box, HStack, VStack, Heading, Text, IconButton, SimpleGrid, Image } fro
 import { LuArrowLeft, LuGift } from 'react-icons/lu'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { wishlistAPI } from '../services/wishlist'
+import { wishlistAPI, type ClaimedItemResponse } from '../services/wishlist'
 import { COLORS } from '../styles/common'
 import { API_URL } from '../services/api'
 
@@ -32,7 +32,7 @@ function AllClaimedItemsPage() {
     try {
       setLoading(true)
       const data = await wishlistAPI.getClaimedItems()
-      const transformed = data.map((item: any) => ({
+      const transformed = data.map((item: ClaimedItemResponse) => ({
         id: item.id,
         name: item.name,
         price: item.price,

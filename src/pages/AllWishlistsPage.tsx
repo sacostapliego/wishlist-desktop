@@ -6,6 +6,7 @@ import { wishlistAPI } from '../services/wishlist'
 import { friendsAPI } from '../services/friends'
 import { getWishlistIcon } from '../utils/wishlistIcons'
 import { COLORS } from '../styles/common'
+import type { Wishlist as WishlistType, FriendWishlist as FriendWishlistType } from '../types/types'
 
 interface Wishlist {
   id: string
@@ -28,6 +29,7 @@ function AllWishlistsPage({ type }: AllWishlistsPageProps) {
 
   useEffect(() => {
     loadWishlists()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type])
 
   const loadWishlists = async () => {
@@ -35,7 +37,7 @@ function AllWishlistsPage({ type }: AllWishlistsPageProps) {
       setLoading(true)
       if (type === 'friends') {
         const data = await friendsAPI.getFriendsWishlists()
-        const transformed = data.map((w: any) => ({
+        const transformed = data.map((w: FriendWishlistType) => ({
           id: w.id,
           name: w.title,
           ownerName: w.owner_name || w.owner_username,
@@ -45,7 +47,7 @@ function AllWishlistsPage({ type }: AllWishlistsPageProps) {
         setWishlists(transformed)
       } else {
         const data = await wishlistAPI.getWishlists()
-        const transformed = data.map((w: any) => ({
+        const transformed = data.map((w: WishlistType) => ({
           id: w.id,
           name: w.title,
           image: w.image,

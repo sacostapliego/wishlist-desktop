@@ -19,6 +19,7 @@ import { toaster } from '../components/ui/toaster'
 import { COLORS } from '../styles/common'
 import { ProfileImageCropper } from '../components/profile/ProfileImageCropper'
 import imageCompression from 'browser-image-compression'
+import type { ApiError } from '../types/types'
 
 // Shared input styles
 const inputStyles = {
@@ -179,10 +180,11 @@ export default function RegisterPage() {
           type: 'error',
         })
       }
-    } catch (e: any) {
+    } catch (e) {
+      const error = e as ApiError
       let msg = 'Registration failed.'
-      if (e?.response?.data?.detail) msg = e.response.data.detail
-      else if (typeof e?.message === 'string') msg = e.message
+      if (error?.response?.data?.detail) msg = error.response.data.detail as string
+      else if (error?.message) msg = error.message
       toaster.create({
         title: 'Error',
         description: msg,

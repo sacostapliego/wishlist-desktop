@@ -8,6 +8,7 @@ import type { WishlistFormRef } from './WishlistForm'
 import { COLORS } from '../../styles/common'
 import wishlistAPI from '../../services/wishlist'
 import { toaster } from '../ui/toaster'
+import type { CreateWishlistData } from '../../types/types'
 
 interface CreateWishlistModalProps {
   isOpen: boolean
@@ -20,7 +21,7 @@ export function CreateWishlistModal({ isOpen, onClose, onSuccess }: CreateWishli
   const formRef = useRef<WishlistFormRef>(null)
   const navigate = useNavigate()
 
-  const handleCreateWishlist = async (wishlistData: any) => {
+  const handleCreateWishlist = async (wishlistData: CreateWishlistData) => {
     setIsLoading(true)
     try {
       const result = await wishlistAPI.createWishlist(wishlistData)

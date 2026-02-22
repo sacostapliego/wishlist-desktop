@@ -37,6 +37,7 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
 
   useEffect(() => {
     checkRelationship()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wishlist.id, wishlist.owner_id, user?.id, isLoggedIn])
 
   const checkRelationship = async () => {

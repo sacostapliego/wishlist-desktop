@@ -2,9 +2,10 @@ import { Box, Button, HStack, Text, Input, Dialog } from '@chakra-ui/react'
 import { LuCircleCheck, LuCircle } from 'react-icons/lu'
 import { COLORS } from '../../styles/common'
 import getLightColor from '../common/getLightColor'
+import type { WishlistItem } from '../../types/types'
 
 interface ItemClaimingSectionProps {
-  item: any
+  item: WishlistItem
   wishlistColor?: string
   isItemClaimed: boolean
   canUserUnclaim: boolean

@@ -10,8 +10,8 @@ import { SharedWishlistView } from '../components/wishlists/SharedWishlistView'
 import { WishlistItemView, type SortOption } from '../components/wishlists/WishlistItemView'
 import { useWishlistDetail } from '../hooks/useWislistDetail'
 import { WishlistFilters } from '../components/wishlists/WishlistFilters'
-import { SimpleGridView } from '../components/wishlists/SimpleGridView'
 import { userAPI } from '../services/user'
+import type { ApiError } from '../types/types'
 
 interface Wishlist {
   id: string
@@ -75,18 +75,21 @@ function WishlistPage() {
     if (id && !authLoading) {
       loadWishlist(id)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, authLoading, user])
 
   useEffect(() => {
   if (wishlist?.color) {
     // Legacy iOS — meta theme-color
-    let metaThemeColor = document.querySelector('meta[name="theme-color"]')
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]')
     if (!metaThemeColor) {
-      metaThemeColor = document.createElement('meta')
-      metaThemeColor.setAttribute('name', 'theme-color')
-      document.head.appendChild(metaThemeColor)
+      const newMeta = document.createElement('meta')
+      newMeta.setAttribute('name', 'theme-color')
+      document.head.appendChild(newMeta)
+      newMeta.setAttribute('content', wishlist.color)
+    } else {
+      metaThemeColor.setAttribute('content', wishlist.color)
     }
-    metaThemeColor.setAttribute('content', wishlist.color)
 
     // iOS 26+ — body background
     document.body.style.backgroundColor = wishlist.color
@@ -94,7 +97,7 @@ function WishlistPage() {
 
   return () => {
     // Reset meta tag
-    let metaThemeColor = document.querySelector('meta[name="theme-color"]')
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]')
     if (metaThemeColor) {
       metaThemeColor.setAttribute('content', '#141414')
     }
@@ -180,8 +183,9 @@ function WishlistPage() {
         
         setOwnerName(extractedOwnerName || 'Unknown')
         setIsOwner(false)
-      } catch (error: any) {
-        if (error.response?.status === 403) {
+      } catch (error) {
+        const apiError = error as ApiError
+        if (apiError.response?.status === 403) {
           setAccessDenied(true)
         } else {
           toaster.create({
@@ -191,8 +195,9 @@ function WishlistPage() {
           })
         }
       }
-    } catch (error: any) {
-      console.error('Error loading wishlist:', error)
+    } catch (error) {
+      const apiError = error as ApiError
+      console.error('Error loading wishlist:', apiError)
       toaster.create({
         title: 'Error',
         description: 'Failed to load wishlist',

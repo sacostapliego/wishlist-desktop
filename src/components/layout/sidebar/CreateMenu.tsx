@@ -13,9 +13,8 @@ interface CreateMenuProps {
 
 export function CreateMenu({ isOpen, onClose, anchorRef, onCreateWishlist, onAddItem }: CreateMenuProps) {
   if (!isOpen) return null
+  const anchorRect = anchorRef.current?.getBoundingClientRect()  
 
-  const anchorRect = anchorRef.current?.getBoundingClientRect()
-  
   return createPortal(
     <>
       {/* Backdrop */}

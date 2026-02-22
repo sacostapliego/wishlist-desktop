@@ -3,6 +3,7 @@ import { wishlistAPI } from '../services/wishlist'
 import { friendsAPI } from '../services/friends'
 import { userAPI } from '../services/user'
 import { COLORS } from '../styles/common'
+import type { WishlistItem, Wishlist, ApiError } from '../types/types'
 
 interface ItemDetail {
   id: string
@@ -60,16 +61,16 @@ export const useItemDetail = (
           return
         }
 
-        setWishlistColor(publicWishlist.color || COLORS.cardGray)
+        setWishlistColor(publicWishlist.color ?? COLORS.cardGray)
 
         // Extract owner name, fallback to fetching public profile
-        let ownerName = publicWishlist.owner_name || publicWishlist.owner_username
-        const ownerId = publicWishlist.user_id || publicWishlist.owner_id
+        let ownerName = publicWishlist.owner_name ?? publicWishlist.owner_username ?? ''
+        const ownerId = publicWishlist.user_id ?? publicWishlist.owner_id
 
         if (!ownerName && ownerId) {
           try {
             const ownerProfile = await userAPI.getPublicUserDetails(ownerId)
-            ownerName = ownerProfile.name || ownerProfile.username || 'Unknown'
+            ownerName = ownerProfile.name ?? ownerProfile.username ?? 'Unknown'
           } catch (profileError) {
             console.error('Failed to fetch owner profile:', profileError)
             ownerName = 'Unknown'
@@ -77,12 +78,12 @@ export const useItemDetail = (
         }
 
         setWishlistInfo({
-          name: publicWishlist.title || publicWishlist.wishlist_name || 'Wishlist',
+          name: publicWishlist.title ?? publicWishlist.wishlist_name ?? 'Wishlist',
           ownerName: ownerName || 'Unknown'
         })
 
         const publicItems = await wishlistAPI.getPublicWishlistItems(wishlistId)
-        const foundItem = publicItems.find((i: any) => i.id === itemId)
+        const foundItem = publicItems.find((i: WishlistItem) => i.id === itemId)
 
         if (foundItem) {
           setItem(foundItem)
@@ -92,7 +93,7 @@ export const useItemDetail = (
         }
       } else {
         const myWishlists = await wishlistAPI.getWishlists()
-        const isMyWishlist = myWishlists.some((w: any) => w.id === wishlistId)
+        const isMyWishlist = myWishlists.some((w: Wishlist) => w.id === wishlistId)
 
         if (isMyWishlist) {
           setIsOwner(true)
@@ -108,7 +109,7 @@ export const useItemDetail = (
             setError('Item not found.')
           }
 
-          setWishlistColor(fetchedWishlist?.color || COLORS.cardGray)
+          setWishlistColor(fetchedWishlist?.color ?? COLORS.cardGray)
           setWishlistInfo(null)
         } else {
           setIsOwner(false)
@@ -116,16 +117,14 @@ export const useItemDetail = (
           let color = COLORS.cardGray
           let wishlistName = 'Wishlist'
           let ownerName = 'Unknown'
-          let ownerId: string | undefined
 
           const friendsWishlists = await friendsAPI.getFriendsWishlists()
-          const friendWishlist = friendsWishlists.find((w: any) => w.id === wishlistId)
+          const friendWishlist = friendsWishlists.find((w) => w.id === wishlistId)
 
           if (friendWishlist) {
-            color = friendWishlist.color || COLORS.cardGray
-            wishlistName = friendWishlist.title || 'Wishlist'
-            ownerName = friendWishlist.owner_name || 'Unknown'
-            ownerId = friendWishlist.owner_id
+            color = friendWishlist.color ?? COLORS.cardGray
+            wishlistName = friendWishlist.title ?? 'Wishlist'
+            ownerName = friendWishlist.owner_name ?? 'Unknown'
           }
 
           try {
@@ -134,17 +133,17 @@ export const useItemDetail = (
               color = publicWishlist.color
             }
             if (publicWishlist?.title || publicWishlist?.wishlist_name) {
-              wishlistName = publicWishlist.title || publicWishlist.wishlist_name
+              wishlistName = publicWishlist.title || publicWishlist.wishlist_name || 'Wishlist'
             }
             
             // Extract owner name from public wishlist, or fetch profile
-            let extractedOwnerName = publicWishlist.owner_name || publicWishlist.owner_username
-            const extractedOwnerId = publicWishlist.user_id || publicWishlist.owner_id
+            let extractedOwnerName = publicWishlist.owner_name ?? publicWishlist.owner_username ?? ''
+            const extractedOwnerId = publicWishlist.user_id ?? publicWishlist.owner_id
 
             if (!extractedOwnerName && extractedOwnerId) {
               try {
                 const ownerProfile = await userAPI.getPublicUserDetails(extractedOwnerId)
-                extractedOwnerName = ownerProfile.name || ownerProfile.username || 'Unknown'
+                extractedOwnerName = ownerProfile.name ?? ownerProfile.username ?? 'Unknown'
               } catch (profileError) {
                 console.error('Failed to fetch owner profile:', profileError)
                 extractedOwnerName = 'Unknown'
@@ -154,12 +153,9 @@ export const useItemDetail = (
             if (extractedOwnerName) {
               ownerName = extractedOwnerName
             }
-            if (extractedOwnerId) {
-              ownerId = extractedOwnerId
-            }
 
             const publicItems = await wishlistAPI.getPublicWishlistItems(wishlistId)
-            const foundItem = publicItems.find((i: any) => i.id === itemId)
+            const foundItem = publicItems.find((i: WishlistItem) => i.id === itemId)
 
             setWishlistColor(color)
             setWishlistInfo({ name: wishlistName, ownerName })
@@ -169,11 +165,12 @@ export const useItemDetail = (
             } else {
               setError('Item not found in this wishlist.')
             }
-          } catch (publicError: any) {
+          } catch (publicError) {
             console.error('Error fetching public wishlist items:', publicError)
-            if (publicError.response?.status === 403) {
+            const error = publicError as ApiError
+            if (error?.response?.status === 403) {
               setError('Access denied. This wishlist is private.')
-            } else if (publicError.response?.status === 404) {
+            } else if (error?.response?.status === 404) {
               setError('Wishlist not found.')
             } else {
               setError('Failed to load item details.')
@@ -181,16 +178,17 @@ export const useItemDetail = (
           }
         }
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to fetch item details:', err)
+      const error = err as unknown as ApiError
       let specificError = 'Failed to load item details.'
 
-      if (err.response?.status === 401 || err.response?.status === 403) {
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
         specificError = 'Access denied. You may need to be logged in or the content is private.'
-      } else if (err.response?.data?.detail) {
-        specificError = typeof err.response.data.detail === 'string'
-          ? err.response.data.detail
-          : specificError
+      } else if (error?.response?.data?.detail) {
+        specificError = typeof error.response.data.detail === 'string'
+          ? error.response.data.detail
+          : 'Failed to load item details.'
       }
 
       setError(specificError)
@@ -203,5 +201,13 @@ export const useItemDetail = (
     fetchData()
   }, [fetchData])
 
-  return { item, wishlistColor, wishlistInfo, isLoading, error, isOwner, refetchItemData: fetchData, refetchData: fetchData }
+  return { 
+    item, 
+    wishlistColor, 
+    wishlistInfo, 
+    isLoading, 
+    error, 
+    isOwner, 
+    refetchItemData: fetchData
+  }
 }

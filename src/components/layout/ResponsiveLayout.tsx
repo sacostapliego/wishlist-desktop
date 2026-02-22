@@ -81,9 +81,9 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
         bg="#141414"
         overflowY="auto"
         overflowX="hidden"
-        css={{
-          '--sidebar-width': `${sidebarWidth}px`,
-        } as any}
+        style={{
+          ['--sidebar-width' as string]: `${sidebarWidth}px`,
+        } as React.CSSProperties}
       >
         {children || <Outlet />}
       </Box>

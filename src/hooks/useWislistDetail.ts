@@ -1,94 +1,106 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { wishlistAPI } from '../services/wishlist'
-import { toaster } from '../components/ui/toaster'
-import { useAuth } from '../context/AuthContext'
+import type { WishlistItem, Wishlist, ApiError } from '../types/types'
 
-interface Wishlist {
-  id: string
-  title: string
-  description?: string
-  owner_id: string
-  is_public: boolean
-  color?: string
-  image?: string
-  item_count?: number
-  updated_at?: string
-  created_at?: string
-}
-
-interface WishlistItem {
-  id: string
-  name: string
-  description?: string
-  image?: string
-  price?: number
-  url?: string
-  wishlist_id: string
-  priority: number
-  is_claimed?: boolean | null
-}
-
-export function useWishlistDetail(wishlistId: string | undefined, shouldRefresh?: number, isPublicView: boolean = false) {
-  const { isLoggedIn } = useAuth()
+export const useWishlistDetail = (
+  wishlistId: string | undefined,
+  _isPublicView?: boolean,
+  fetchItemsOnly: boolean = false
+) => {
   const [wishlist, setWishlist] = useState<Wishlist | null>(null)
   const [items, setItems] = useState<WishlistItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (wishlistId) {
-      fetchWishlistDetails()
-    }
-  }, [wishlistId, shouldRefresh, isLoggedIn])
-
-  const fetchWishlistDetails = async () => {
-    if (!wishlistId) return
-
-    setIsLoading(true)
+  const fetchItems = useCallback(async (wId: string): Promise<WishlistItem[]> => {
     try {
-      let wishlistData: Wishlist | null = null
-      let itemsData: any[] = []
+      // Try authenticated endpoint first (works for owner + friends)
+      const fetchedItems = await wishlistAPI.getWishlistItems(wId)
+      return fetchedItems
+    } catch (authError) {
+      const apiError = authError as ApiError
 
-      // If it's a public view or user is not logged in, go straight to public endpoint
-      if (isPublicView || !isLoggedIn) {
-        wishlistData = await wishlistAPI.getPublicWishlist(wishlistId)
-        const publicItems = await wishlistAPI.getPublicWishlistItems(wishlistId)
-        itemsData = publicItems.map((item: any) => ({ ...item, priority: item.priority ?? 0 }))
-      } else {
-        // Try authenticated endpoint first for logged in users
+      // Only fall back to public if it's a 401/403 (not authed or no access)
+      if (
+        apiError.response?.status === 401 ||
+        apiError.response?.status === 403 ||
+        apiError.response?.status === 404
+      ) {
         try {
-          wishlistData = await wishlistAPI.getWishlist(wishlistId)
-          const allItems = await wishlistAPI.getItems()
-          itemsData = allItems
-            .filter((item: any) => item.wishlist_id === wishlistId)
-            .map((item: any) => ({ ...item, priority: item.priority ?? 0 }))
-        } catch (ownerError: any) {
-          // Fallback to public endpoint if authenticated fails
-          if (ownerError.response?.status === 403 || ownerError.response?.status === 404) {
-            wishlistData = await wishlistAPI.getPublicWishlist(wishlistId)
-            const publicItems = await wishlistAPI.getPublicWishlistItems(wishlistId)
-            itemsData = publicItems.map((item: any) => ({ ...item, priority: item.priority ?? 0 }))
-          } else {
-            throw ownerError
-          }
+          const publicItems = await wishlistAPI.getPublicWishlistItems(wId)
+          return publicItems
+        } catch (publicError) {
+          return []
         }
       }
 
-      setWishlist(wishlistData)
-      setItems(itemsData)
-      setError(null)
-    } catch (error) {
-      console.error('Failed to fetch wishlist details:', error)
-      setError('Failed to load wishlist details')
-      toaster.create({
-        title: 'Error',
-        description: 'Failed to load wishlist details',
-        type: 'error',
-      })
+      return []
+    }
+  }, [])
+
+  const fetchWishlistDetails = useCallback(async () => {
+    if (!wishlistId) {
+      setError('Wishlist ID is missing.')
+      setIsLoading(false)
+      return
+    }
+
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      if (fetchItemsOnly) {
+        const fetchedItems = await fetchItems(wishlistId)
+        setItems(fetchedItems)
+      } else {
+        let fetchedWishlist: Wishlist | null = null
+
+        try {
+          fetchedWishlist = await wishlistAPI.getWishlist(wishlistId)
+        } catch (authError) {
+          try {
+            fetchedWishlist = await wishlistAPI.getPublicWishlist(wishlistId)
+          } catch (publicError) {
+            const publicApiError = publicError as ApiError
+            if (publicApiError.response?.status === 403) {
+              setError('Access denied. This wishlist is private.')
+            } else if (publicApiError.response?.status === 404) {
+              setError('Wishlist not found.')
+            } else {
+              setError('Failed to load wishlist details.')
+            }
+            setIsLoading(false)
+            return
+          }
+        }
+
+        if (fetchedWishlist) {
+          setWishlist(fetchedWishlist)
+          const fetchedItems = await fetchItems(wishlistId)
+          setItems(fetchedItems)
+        }
+      }
+    } catch (err) {
+      const apiError = err as ApiError
+      setError(
+        typeof apiError.response?.data?.detail === 'string'
+          ? apiError.response.data.detail
+          : 'Failed to load wishlist details.'
+      )
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [wishlistId, fetchItemsOnly, fetchItems])
 
-  return { wishlist, items, isLoading, error, refetchItems: fetchWishlistDetails }
+  useEffect(() => {
+    fetchWishlistDetails()
+  }, [fetchWishlistDetails])
+
+  return {
+    wishlist,
+    items,
+    isLoading,
+    error,
+    refetchItems: fetchWishlistDetails,
+  }
 }

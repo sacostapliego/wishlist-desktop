@@ -24,6 +24,7 @@ export function EditItemModal({ isOpen, onClose, itemId, onSuccess }: EditItemMo
     if (isOpen && itemId) {
       fetchItemDetails()
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, itemId])
 
   const fetchItemDetails = async () => {

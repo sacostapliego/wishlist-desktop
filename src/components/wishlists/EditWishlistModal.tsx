@@ -6,6 +6,7 @@ import type { WishlistFormRef } from './WishlistForm'
 import { COLORS } from '../../styles/common'
 import wishlistAPI from '../../services/wishlist'
 import { toaster } from '../ui/toaster'
+import type { UpdateWishlistData } from '../../types/types'
 
 interface EditWishlistModalProps {
   isOpen: boolean
@@ -24,6 +25,7 @@ export function EditWishlistModal({ isOpen, onClose, wishlistId, onSuccess }: Ed
     if (isOpen && wishlistId) {
       fetchWishlistDetails()
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, wishlistId])
 
   const fetchWishlistDetails = async () => {
@@ -49,7 +51,7 @@ export function EditWishlistModal({ isOpen, onClose, wishlistId, onSuccess }: Ed
     }
   }
 
-  const handleUpdateWishlist = async (wishlistData: any) => {
+  const handleUpdateWishlist = async (wishlistData: Partial<UpdateWishlistData>) => {
     setIsSaving(true)
     try {
       await wishlistAPI.updateWishlist(wishlistId, wishlistData)

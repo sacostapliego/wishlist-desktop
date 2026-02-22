@@ -5,6 +5,7 @@ import { COLORS } from '../../styles/common'
 import { wishlistAPI } from '../../services/wishlist'
 import { toaster } from '../ui/toaster'
 import type { ItemFormData } from './ItemForm'
+import type { ApiError } from '../../types/types'
 
 interface ScrapeUrlFormProps {
   onScrapeSuccess: (data: Partial<ItemFormData>) => void
@@ -41,9 +42,10 @@ export const ScrapeUrlForm = ({ onScrapeSuccess }: ScrapeUrlFormProps) => {
         description: 'Product information retrieved successfully!',
         type: 'success',
       })
-    } catch (error: any) {
+    } catch (error) {
+      const apiError = error as ApiError
       const errorMessage =
-        error?.response?.data?.detail || 'Failed to scrape the URL. The site may be unsupported.'
+        apiError?.response?.data?.detail || 'Failed to scrape the URL. The site may be unsupported.'
       toaster.create({
         title: 'Scraping Error',
         description: errorMessage,
