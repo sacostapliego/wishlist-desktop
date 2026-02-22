@@ -3,7 +3,7 @@ import storage from '../utils/storage';
 import type { User } from '../types/types';
 
 interface LoginCredentials {
-  username: string
+  email: string
   password: string
 }
 
@@ -16,20 +16,18 @@ interface AuthResponse {
 export const authAPI = {
   register: async (userData: FormData): Promise<AuthResponse> => {
     const response = await api.post('/auth/register', userData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
     await storage.setItem('auth_token', response.data.access_token);
     return response.data;
   },
-  
+
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     const response = await api.post('/auth/login', credentials);
     await storage.setItem('auth_token', response.data.access_token);
     return response.data;
   },
-  
+
   logout: async (): Promise<void> => {
     await storage.removeItem('auth_token');
   },

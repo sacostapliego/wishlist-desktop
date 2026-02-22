@@ -34,7 +34,9 @@ function ProfilePage() {
   const isSelf = isLoggedIn && (!userId || userId === user?.id)
   
   useEffect(() => {
-    if (!isSelf && userId) {
+    if (isSelf) {
+      refreshUser()
+    } else if (userId) {
       loadPublicUser(userId)
       if (isLoggedIn) {
         loadFriendWishlists(userId)

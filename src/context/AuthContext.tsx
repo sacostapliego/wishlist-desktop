@@ -56,8 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const login = async (username: string, password: string) => {
-    const response = await authAPI.login({ username, password })
+  const login = async (identifier: string, password: string) => {
+    const response = await authAPI.login({ email: identifier, password })
 
     if (response && response.user && response.access_token) {
       await storage.setItem('auth_token', response.access_token)

@@ -1,66 +1,47 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  Box,
-  Button,
-  Input,
-  VStack,
-  Text,
-  Heading,
-  Container,
-} from '@chakra-ui/react'
+import { Box, Button, Input, VStack, Text, Heading, Container } from '@chakra-ui/react'
 import { useAuth } from '../context/AuthContext'
 import { toaster } from '../components/ui/toaster'
 import { COLORS } from '../styles/common'
-import type { ApiError } from '../types/types'
 
 export default function LoginPage() {
-  const [usernameOrEmail, setUsernameOrEmail] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
 
   const handleLogin = async () => {
-    if (!usernameOrEmail || !password) {
-      toaster.create({
-        title: 'Error',
-        description: 'Enter username or email and password.',
-        type: 'error',
-      })
+    if (!email || !password) {
+      toaster.create({ title: 'Error', description: 'Enter email and password.', type: 'error' })
       return
     }
 
     try {
       setIsLoading(true)
-      const response = await login(usernameOrEmail, password)
-      if (response && response.user) {
-        toaster.create({
-          title: 'Success',
-          description: 'Logged in successfully!',
-          type: 'success',
-        })
+      const response = await login(email, password)
+      if (response?.user) {
+        toaster.create({ title: 'Success', description: 'Logged in successfully!', type: 'success' })
         navigate('/')
-      } else {
-        toaster.create({
-          title: 'Error',
-          description: 'Invalid credentials.',
-          type: 'error',
-        })
       }
-    } catch (e) {
-      const error = e as ApiError
-      let msg = 'Login failed.'
-      if (error?.response?.data?.detail) msg = error.response.data.detail as string
-      else if (error?.message) msg = error.message
-      toaster.create({
-        title: 'Error',
-        description: msg,
-        type: 'error',
-      })
+    } catch (e: unknown) {
+      const msg =
+        (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+        ?? (e instanceof Error ? e.message : 'Login failed.')
+      toaster.create({ title: 'Error', description: msg, type: 'error' })
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const inputStyles = {
+    size: 'lg' as const,
+    bg: '#1a1a1a',
+    border: '2px solid',
+    borderColor: COLORS.primary,
+    color: 'white',
+    _placeholder: { color: 'white' },
   }
 
   return (
@@ -68,42 +49,28 @@ export default function LoginPage() {
       <Container maxW="md">
         <VStack gap={6} bg="#141414" p={8} borderRadius="xl">
           <VStack gap={2} w="100%" alignItems="flex-start">
-            <Heading size="2xl" color="white">
-              Welcome Back
-            </Heading>
+            <Heading size="2xl" color="white">Welcome Back</Heading>
             <Text color={COLORS.text.secondary}>Sign in to continue</Text>
           </VStack>
 
           <VStack gap={4} w="100%">
             <Input
-              placeholder="Email or Username"
-              type="text"
-              value={usernameOrEmail}
-              onChange={(e) => setUsernameOrEmail(e.target.value)}
-              size="lg"
-              bg="#1a1a1a"
-              border="2px solid"
-              borderColor={COLORS.primary}
-              color="white"
-              _placeholder={{ color: 'white' }}
+              {...inputStyles}
+              placeholder="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
             />
-
             <Input
+              {...inputStyles}
               placeholder="Password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              size="lg"
-              bg="#1a1a1a"
-              border="2px solid"
-              borderColor={COLORS.primary}
-              color="white"
-              _placeholder={{ color: 'white' }}
               disabled={isLoading}
               onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
             />
-
             <Button
               w="100%"
               size="lg"
@@ -115,7 +82,6 @@ export default function LoginPage() {
             >
               Sign In
             </Button>
-
             <Text color={COLORS.text.secondary} fontSize="sm" textAlign="center">
               Don't have an account?{' '}
               <Text
