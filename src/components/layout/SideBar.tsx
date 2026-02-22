@@ -20,6 +20,9 @@ interface Wishlist {
   title: string
   color?: string
   image?: string
+  thumbnail_type?: 'icon' | 'image'
+  thumbnail_icon?: string | null
+  thumbnail_image?: string | null
 }
 
 interface SidebarProps {
@@ -211,6 +214,9 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
                   ownerName={wishlist.owner_name || wishlist.owner_username}
                   color={wishlist.color}
                   image={wishlist.image}
+                  thumbnail_type={wishlist.thumbnail_type}
+                  thumbnail_icon={wishlist.thumbnail_icon}
+                  thumbnail_image={wishlist.thumbnail_image}
                   isCollapsed={!isExpanded}
                   onClick={() => navigate(`/wishlist/${wishlist.id}`)}
                 />

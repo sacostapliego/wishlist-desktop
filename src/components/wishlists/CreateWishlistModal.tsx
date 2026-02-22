@@ -24,7 +24,16 @@ export function CreateWishlistModal({ isOpen, onClose, onSuccess }: CreateWishli
   const handleCreateWishlist = async (wishlistData: CreateWishlistData) => {
     setIsLoading(true)
     try {
-      const result = await wishlistAPI.createWishlist(wishlistData)
+      const result = await wishlistAPI.createWishlist({
+        title: wishlistData.title,
+        description: wishlistData.description,
+        is_public: wishlistData.is_public,
+        color: wishlistData.color,
+        image: wishlistData.image,
+        thumbnail_type: wishlistData.thumbnail_type,
+        thumbnail_icon: wishlistData.thumbnail_icon,
+        thumbnail_image: wishlistData.thumbnail_image,
+      })
       
       if (formRef.current) {
         formRef.current.resetForm()

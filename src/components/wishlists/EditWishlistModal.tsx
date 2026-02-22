@@ -37,7 +37,10 @@ export function EditWishlistModal({ isOpen, onClose, wishlistId, onSuccess }: Ed
         description: wishlistData.description,
         color: wishlistData.color,
         is_public: wishlistData.is_public,
-        image: wishlistData.image
+        image: wishlistData.image,
+        thumbnail_type: wishlistData.thumbnail_type || 'icon',
+        thumbnail_icon: wishlistData.thumbnail_icon || null,
+        existing_thumbnail_image_url: wishlistData.thumbnail_image || null,
       })
     } catch (error) {
       console.error('Error fetching wishlist details:', error)
@@ -54,7 +57,17 @@ export function EditWishlistModal({ isOpen, onClose, wishlistId, onSuccess }: Ed
   const handleUpdateWishlist = async (wishlistData: Partial<UpdateWishlistData>) => {
     setIsSaving(true)
     try {
-      await wishlistAPI.updateWishlist(wishlistId, wishlistData)
+      await wishlistAPI.updateWishlist(wishlistId, {
+        title: wishlistData.title,
+        description: wishlistData.description,
+        is_public: wishlistData.is_public,
+        color: wishlistData.color,
+        image: wishlistData.image,
+        thumbnail_type: wishlistData.thumbnail_type,
+        thumbnail_icon: wishlistData.thumbnail_icon,
+        thumbnail_image: wishlistData.thumbnail_image,
+        remove_thumbnail_image: wishlistData.remove_thumbnail_image,
+      })
       
       toaster.create({
         title: 'Success',
@@ -142,6 +155,7 @@ export function EditWishlistModal({ isOpen, onClose, wishlistId, onSuccess }: Ed
             onSubmit={handleUpdateWishlist}
             isLoading={isSaving}
             submitLabel="Save Changes"
+            isEditMode={true}
           />
         )}
       </Box>

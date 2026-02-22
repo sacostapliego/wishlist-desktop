@@ -1,5 +1,5 @@
-import { Box, Button, HStack, IconButton, Text } from '@chakra-ui/react'
-import { getWishlistIcon } from '../../../utils/wishlistIcons'
+import { Box, Button, HStack, IconButton, Image, Text } from '@chakra-ui/react'
+import { resolveWishlistThumbnail } from '../../../utils/wishlistIcons'
 import { COLORS } from '../../../styles/common'
 
 interface WishlistItemProps {
@@ -7,14 +7,27 @@ interface WishlistItemProps {
   title: string
   color?: string
   image?: string
+  thumbnail_type?: 'icon' | 'image'
+  thumbnail_icon?: string | null
+  thumbnail_image?: string | null
   isCollapsed: boolean
   onClick: () => void
 }
 
-export function WishlistItem({ title, color, image, isCollapsed, onClick }: WishlistItemProps) {
-  const IconComponent = getWishlistIcon(image)
+export function WishlistItem({ title, color, image, thumbnail_type, thumbnail_icon, thumbnail_image, isCollapsed, onClick }: WishlistItemProps) {
+  const thumbnail = resolveWishlistThumbnail({ thumbnail_type, thumbnail_icon, thumbnail_image, image })
 
-  const iconBox = (
+  const iconBox = thumbnail.type === 'image' ? (
+    <Box
+      w="35px"
+      h="35px"
+      borderRadius="sm"
+      overflow="hidden"
+      flexShrink={0}
+    >
+      <Image src={thumbnail.url} alt={title} w="100%" h="100%" objectFit="cover" />
+    </Box>
+  ) : (
     <Box
       w="35px"
       h="35px"
@@ -24,7 +37,7 @@ export function WishlistItem({ title, color, image, isCollapsed, onClick }: Wish
       alignItems="center"
       justifyContent="center"
     >
-      <Box as={IconComponent} boxSize="25px" />
+      <Box as={thumbnail.icon} boxSize="25px" />
     </Box>
   )
 

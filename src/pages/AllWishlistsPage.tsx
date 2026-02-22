@@ -1,10 +1,10 @@
-import { Box, HStack, VStack, Heading, Text, IconButton, SimpleGrid } from '@chakra-ui/react'
+import { Box, HStack, VStack, Heading, Text, IconButton, SimpleGrid, Image } from '@chakra-ui/react'
 import { LuArrowLeft } from 'react-icons/lu'
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { wishlistAPI } from '../services/wishlist'
 import { friendsAPI } from '../services/friends'
-import { getWishlistIcon } from '../utils/wishlistIcons'
+import { resolveWishlistThumbnail } from '../utils/wishlistIcons'
 import { COLORS } from '../styles/common'
 import type { Wishlist as WishlistType, FriendWishlist as FriendWishlistType } from '../types/types'
 
@@ -13,6 +13,9 @@ interface Wishlist {
   name: string
   image?: string
   color?: string
+  thumbnail_type?: 'icon' | 'image'
+  thumbnail_icon?: string | null
+  thumbnail_image?: string | null
   ownerName?: string
 }
 
@@ -42,7 +45,10 @@ function AllWishlistsPage({ type }: AllWishlistsPageProps) {
           name: w.title,
           ownerName: w.owner_name || w.owner_username,
           image: w.image,
-          color: w.color
+          color: w.color,
+          thumbnail_type: w.thumbnail_type,
+          thumbnail_icon: w.thumbnail_icon,
+          thumbnail_image: w.thumbnail_image,
         }))
         setWishlists(transformed)
       } else {
@@ -51,7 +57,10 @@ function AllWishlistsPage({ type }: AllWishlistsPageProps) {
           id: w.id,
           name: w.title,
           image: w.image,
-          color: w.color
+          color: w.color,
+          thumbnail_type: w.thumbnail_type,
+          thumbnail_icon: w.thumbnail_icon,
+          thumbnail_image: w.thumbnail_image,
         }))
         setWishlists(transformed)
       }
@@ -95,7 +104,7 @@ function AllWishlistsPage({ type }: AllWishlistsPageProps) {
         ) : (
           <SimpleGrid columns={{ base: 2, md: 3, lg: 4, xl: 5 }} gap={{ base: 0, md: 6 }}>
             {wishlists.map((wishlist) => {
-              const IconComponent = getWishlistIcon(wishlist.image)
+              const thumbnail = resolveWishlistThumbnail(wishlist)
               
               return (
                 <Box
@@ -118,7 +127,11 @@ function AllWishlistsPage({ type }: AllWishlistsPageProps) {
                       justifyContent="center"
                       bg={wishlist.color || COLORS.cardGray}
                     >
-                      <Box as={IconComponent} boxSize={{base:"5rem", md:"7rem", lg:"9rem", xl:"11rem"}} color="white" />
+                      {thumbnail.type === 'image' ? (
+                        <Image src={thumbnail.url} alt={wishlist.name} w="100%" h="100%" objectFit="cover" />
+                      ) : (
+                        <Box as={thumbnail.icon} boxSize={{base:"5rem", md:"7rem", lg:"9rem", xl:"11rem"}} color="white" />
+                      )}
                     </Box>
                     <VStack gap={0} align="start">
                       <Text color="white" fontWeight="semibold" fontSize="md" lineClamp={{base:1, md: 2}}>

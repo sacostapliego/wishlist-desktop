@@ -15,6 +15,9 @@ interface Wishlist {
   name: string
   image?: string
   color?: string
+  thumbnail_type?: 'icon' | 'image'
+  thumbnail_icon?: string | null
+  thumbnail_image?: string | null
 }
 
 interface ClaimedItem {
@@ -52,7 +55,10 @@ function HomePage() {
         id: wishlist.id,
         name: wishlist.title,
         image: wishlist.image,
-        color: wishlist.color
+        color: wishlist.color,
+        thumbnail_type: wishlist.thumbnail_type,
+        thumbnail_icon: wishlist.thumbnail_icon,
+        thumbnail_image: wishlist.thumbnail_image,
       }))
 
       // Transform friends wishlists data
@@ -61,7 +67,10 @@ function HomePage() {
         name: wishlist.title,
         ownerName: wishlist.owner_name || wishlist.owner_username,
         image: wishlist.image,
-        color: wishlist.color
+        color: wishlist.color,
+        thumbnail_type: wishlist.thumbnail_type,
+        thumbnail_icon: wishlist.thumbnail_icon,
+        thumbnail_image: wishlist.thumbnail_image,
       }))
 
       // Transform claimed items data

@@ -6,16 +6,13 @@ import {
   Button, 
   Text,
   Switch,
-  Grid,
   HStack,
   SimpleGrid
 } from '@chakra-ui/react'
 import { useState, useImperativeHandle, forwardRef } from 'react'
 import { COLORS } from '../../styles/common'
-import { getWishlistIcon, WISHLIST_ICON_MAP } from '../../utils/wishlistIcons'
 import { WISHLIST_COLORS } from '../../styles/colors'
-
-const ICON_OPTIONS = Object.keys(WISHLIST_ICON_MAP)
+import { ThumbnailPicker } from './ThumbnailPicker'
 
 interface WishlistFormData {
   title: string
@@ -23,13 +20,22 @@ interface WishlistFormData {
   color: string
   is_public: boolean
   image: string
+  thumbnail_type: 'icon' | 'image'
+  thumbnail_icon: string | null
+  thumbnail_image: File | null
+  remove_thumbnail_image?: boolean
 }
 
 interface WishlistFormProps {
-  initialValues?: Partial<WishlistFormData>
+  initialValues?: Partial<WishlistFormData> & {
+    /** Existing uploaded thumbnail image URL (for edit mode) */
+    existing_thumbnail_image_url?: string | null
+  }
   onSubmit: (data: WishlistFormData) => Promise<void> | void
   isLoading?: boolean
   submitLabel?: string
+  /** Whether we are in edit mode (affects remove_thumbnail_image logic) */
+  isEditMode?: boolean
 }
 
 export interface WishlistFormRef {
@@ -40,23 +46,62 @@ export const WishlistForm = forwardRef<WishlistFormRef, WishlistFormProps>(({
   initialValues = {},
   onSubmit,
   isLoading,
-  submitLabel = "Save Wishlist"
+  submitLabel = "Save Wishlist",
+  isEditMode = false
 }, ref) => {
   const [title, setTitle] = useState(initialValues.title || '')
   const [description, setDescription] = useState(initialValues.description || '')
   const [isPublic, setIsPublic] = useState(initialValues.is_public || false)
   const [selectedColor, setSelectedColor] = useState(initialValues.color || '#ff7f50')
   const [selectedImage, setSelectedImage] = useState(initialValues.image || 'gift-outline')
+  
+  // Thumbnail state
+  const [thumbnailType, setThumbnailType] = useState<'icon' | 'image'>(
+    initialValues.thumbnail_type || 'icon'
+  )
+  const [thumbnailIcon, setThumbnailIcon] = useState<string>(
+    initialValues.thumbnail_icon || initialValues.image || 'gift-outline'
+  )
+  const [thumbnailImageFile, setThumbnailImageFile] = useState<File | null>(null)
+  const [existingThumbnailImageUrl, setExistingThumbnailImageUrl] = useState<string | null>(
+    initialValues.existing_thumbnail_image_url || null
+  )
+  // Track if user switched from image to icon (so we send remove_thumbnail_image)
+  const [hadExistingImage] = useState(
+    initialValues.thumbnail_type === 'image' && !!initialValues.existing_thumbnail_image_url
+  )
+
+  const handleThumbnailTypeChange = (type: 'icon' | 'image') => {
+    setThumbnailType(type)
+    if (type === 'icon') {
+      // Clear any selected image file when switching to icon
+      setThumbnailImageFile(null)
+    }
+  }
+
+  const handleImageSelect = (file: File | null) => {
+    setThumbnailImageFile(file)
+    if (!file) {
+      setExistingThumbnailImageUrl(null)
+    }
+  }
 
   const handleSubmit = async () => {
     if (!title.trim()) return
+    
+    const shouldRemoveThumbnailImage = 
+      isEditMode && hadExistingImage && thumbnailType === 'icon'
     
     await onSubmit({
       title: title.trim(),
       description: description.trim(),
       color: selectedColor,
       is_public: isPublic,
-      image: selectedImage
+      image: thumbnailType === 'icon' ? thumbnailIcon : selectedImage,
+      thumbnail_type: thumbnailType,
+      thumbnail_icon: thumbnailType === 'icon' ? thumbnailIcon : null,
+      thumbnail_image: thumbnailType === 'image' ? thumbnailImageFile : null,
+      ...(shouldRemoveThumbnailImage ? { remove_thumbnail_image: true } : {})
     })
   }
 
@@ -66,6 +111,10 @@ export const WishlistForm = forwardRef<WishlistFormRef, WishlistFormProps>(({
     setIsPublic(false)
     setSelectedColor('#ff7f50')
     setSelectedImage('gift-outline')
+    setThumbnailType('icon')
+    setThumbnailIcon('gift-outline')
+    setThumbnailImageFile(null)
+    setExistingThumbnailImageUrl(null)
   }
   
   useImperativeHandle(ref, () => ({
@@ -140,37 +189,15 @@ export const WishlistForm = forwardRef<WishlistFormRef, WishlistFormProps>(({
         </Switch.Root>
       </HStack>
 
-      <Box>
-        <Text fontSize="sm" fontWeight="medium" mb={3} color={COLORS.text.secondary}>
-          Icon
-        </Text>
-        <Grid templateColumns="repeat(4, 1fr)" gap={3}>
-          {ICON_OPTIONS.map((iconKey: string) => {
-            const IconComponent = getWishlistIcon(iconKey)
-            return (
-              <Box
-                key={iconKey}
-                p={3}
-                borderRadius="md"
-                bg={selectedImage === iconKey ? COLORS.primary : COLORS.cardGray}
-                cursor="pointer"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                transition="all 0.2s"
-                _hover={{ bg: selectedImage === iconKey ? COLORS.primary : COLORS.cardDarkLight }}
-                onClick={() => setSelectedImage(iconKey)}
-              >
-                <Box 
-                  as={IconComponent} 
-                  boxSize="24px" 
-                  color={selectedImage === iconKey ? 'white' : COLORS.text.primary} 
-                />
-              </Box>
-            )
-          })}
-        </Grid>
-      </Box>
+      <ThumbnailPicker
+        thumbnailType={thumbnailType}
+        selectedIcon={thumbnailIcon}
+        existingImageUrl={existingThumbnailImageUrl}
+        selectedImageFile={thumbnailImageFile}
+        onThumbnailTypeChange={handleThumbnailTypeChange}
+        onIconSelect={setThumbnailIcon}
+        onImageSelect={handleImageSelect}
+      />
       
       <Button
         onClick={handleSubmit}

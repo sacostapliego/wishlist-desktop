@@ -7,6 +7,9 @@ export interface Wishlist {
   is_public: boolean
   color?: string
   image?: string
+  thumbnail_type?: 'icon' | 'image'
+  thumbnail_icon?: string | null
+  thumbnail_image?: string | null
   item_count?: number
   updated_at?: string
   created_at?: string
@@ -41,7 +44,10 @@ export interface CreateWishlistData {
   description?: string
   is_public: boolean
   color?: string
-  image?: File | string
+  image?: string
+  thumbnail_type?: 'icon' | 'image'
+  thumbnail_icon?: string | null
+  thumbnail_image?: File | null
 }
 
 export interface UpdateWishlistData {
@@ -49,7 +55,11 @@ export interface UpdateWishlistData {
   description?: string
   is_public?: boolean
   color?: string
-  image?: File | string
+  image?: string
+  thumbnail_type?: 'icon' | 'image'
+  thumbnail_icon?: string | null
+  thumbnail_image?: File | null
+  remove_thumbnail_image?: boolean
 }
 
 // User Types
@@ -106,6 +116,9 @@ export interface FriendWishlist {
   owner_name: string
   owner_username: string
   image?: string
+  thumbnail_type?: 'icon' | 'image'
+  thumbnail_icon?: string | null
+  thumbnail_image?: string | null
   updated_at?: string
   created_at?: string
 }

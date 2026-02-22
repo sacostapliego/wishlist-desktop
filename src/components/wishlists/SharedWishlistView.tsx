@@ -2,12 +2,12 @@ import { Box, HStack, VStack, Heading, Text, Avatar, IconButton } from '@chakra-
 import { LuArrowLeft, LuEllipsisVertical } from 'react-icons/lu'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getWishlistIcon } from '../../utils/wishlistIcons'
 import { COLORS } from '../../styles/common'
 import { API_URL } from '../../services/api'
 import { WishlistMenu, getSharedMenuOptions } from './WishlistMenu'
 import { friendsAPI } from '../../services/friends'
 import { useAuth } from '../../context/AuthContext'
+import { WishlistThumbnail } from './WishlistThumbnail'
 
 interface SharedWishlistViewProps {
   wishlist: {
@@ -18,6 +18,9 @@ interface SharedWishlistViewProps {
     description?: string
     color?: string
     image?: string
+    thumbnail_type?: 'icon' | 'image'
+    thumbnail_icon?: string | null
+    thumbnail_image?: string | null
     item_count?: number
     updated_at?: string
     created_at?: string
@@ -32,7 +35,6 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
   const [isSaved, setIsSaved] = useState(false)
   const [loading, setLoading] = useState(true)
   
-  const IconComponent = getWishlistIcon(wishlist.image)
   const profileImage = wishlist.owner_id ? `${API_URL}users/${wishlist.owner_id}/profile-image` : null
 
   useEffect(() => {
@@ -131,19 +133,13 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
 
       <HStack align="flex-end" gap={6}>
         {/* Wishlist Icon */}
-        <Box
-          w={{ base: "9rem", md: "13rem", lg: "15rem", '2xl': "17rem" }}
-          h={{ base: "9rem", md: "13rem", lg: "15rem", '2xl': "17rem" }}
-          borderRadius="md"
-          bg={wishlist.color || COLORS.cardGray}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          flexShrink={0}
-          boxShadow="0 4px 60px rgba(0,0,0,0.5)"
-        >
-          <Box as={IconComponent} boxSize={{ base: "5rem", md: "6rem", lg: "8rem", '2xl': "10rem" }} color="white" />
-        </Box>
+        <WishlistThumbnail
+          wishlist={wishlist}
+          boxSize={{ base: "9rem", md: "13rem", lg: "15rem", '2xl': "17rem" }}
+          iconSize={{ base: "5rem", md: "6rem", lg: "8rem", '2xl': "10rem" }}
+          sx={{ boxShadow: '0 4px 60px rgba(0,0,0,0.5)' }}
+          showBackground={false}
+        />
 
         {/* Wishlist Info */}
         <VStack align="start" gap={2} pb={4}>

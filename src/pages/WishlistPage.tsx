@@ -21,6 +21,9 @@ interface Wishlist {
   is_public: boolean
   color?: string
   image?: string
+  thumbnail_type?: 'icon' | 'image'
+  thumbnail_icon?: string | null
+  thumbnail_image?: string | null
   item_count?: number
   updated_at?: string
   created_at?: string
@@ -50,6 +53,11 @@ interface FriendWishlistResponse {
   owner_name: string;
   owner_username: string;
   image?: string;
+  thumbnail_type?: 'icon' | 'image';
+  thumbnail_icon?: string | null;
+  thumbnail_image?: string | null;
+  updated_at?: string;
+  created_at?: string;
 }
 
 
@@ -144,6 +152,9 @@ function WishlistPage() {
             is_public: false,
             color: friendWishlist.color,
             image: friendWishlist.image,
+            thumbnail_type: friendWishlist.thumbnail_type,
+            thumbnail_icon: friendWishlist.thumbnail_icon,
+            thumbnail_image: friendWishlist.thumbnail_image,
             item_count: friendWishlist.item_count,
             updated_at: friendWishlist.updated_at,
             created_at: friendWishlist.created_at

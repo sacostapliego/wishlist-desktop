@@ -2,7 +2,6 @@ import { Box, HStack, VStack, Heading, Text, Avatar, IconButton, Button } from '
 import { LuArrowLeft, LuEllipsisVertical, LuPlus } from 'react-icons/lu'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getWishlistIcon } from '../../utils/wishlistIcons'
 import { COLORS } from '../../styles/common'
 import { API_URL } from '../../services/api'
 import { WishlistMenu, getOwnerMenuOptions } from './WishlistMenu'
@@ -10,6 +9,7 @@ import { EditWishlistModal } from './EditWishlistModal'
 import { AddItemModal } from '../items/AddItemModal'
 import { ItemSelectionManager } from '../items/ItemSelectionManager'
 import { toaster } from '../ui/toaster'
+import { WishlistThumbnail } from './WishlistThumbnail'
 
 interface OwnerWishlistViewProps {
   wishlist: {
@@ -19,6 +19,9 @@ interface OwnerWishlistViewProps {
     description?: string
     color?: string
     image?: string
+    thumbnail_type?: 'icon' | 'image'
+    thumbnail_icon?: string | null
+    thumbnail_image?: string | null
     item_count?: number
     updated_at?: string
     created_at?: string
@@ -46,7 +49,6 @@ export function OwnerWishlistView({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false)
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false)
-  const IconComponent = getWishlistIcon(wishlist.image)
   const profileImage = wishlist.owner_id ? `${API_URL}users/${wishlist.owner_id}/profile-image` : null
 
   const formatDate = (dateString?: string) => {
@@ -155,19 +157,13 @@ export function OwnerWishlistView({
 
       <HStack align="flex-end" gap={6}>
         {/* Wishlist Icon */}
-        <Box
-          w={{ base: "9rem", md: "13rem", lg: "15rem", '2xl': "17rem" }}
-          h={{ base: "9rem", md: "13rem", lg: "15rem", '2xl': "17rem" }}
-          borderRadius="md"
-          bg={wishlist.color || COLORS.cardGray}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          flexShrink={0}
-          boxShadow="0 4px 60px rgba(0,0,0,0.5)"
-        >
-          <Box as={IconComponent} boxSize={{ base: "5rem", md: "6rem", lg: "8rem", '2xl': "10rem" }} color="white" />
-        </Box>
+        <WishlistThumbnail
+          wishlist={wishlist}
+          boxSize={{ base: "9rem", md: "13rem", lg: "15rem", '2xl': "17rem" }}
+          iconSize={{ base: "5rem", md: "6rem", lg: "8rem", '2xl': "10rem" }}
+          sx={{ boxShadow: '0 4px 60px rgba(0,0,0,0.5)' }}
+          showBackground={false}
+        />
 
         {/* Wishlist Info */}
         <VStack align="start" gap={2} pb={4}>

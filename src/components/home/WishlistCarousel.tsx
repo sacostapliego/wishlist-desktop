@@ -1,14 +1,17 @@
-import { Box, Heading, HStack, Button, Text, IconButton } from '@chakra-ui/react'
+import { Box, Heading, HStack, Button, Text, IconButton, Image } from '@chakra-ui/react'
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import { useRef, useState } from 'react'
 import { COLORS } from '../../styles/common'
-import { getWishlistIcon } from '../../utils/wishlistIcons'
+import { resolveWishlistThumbnail } from '../../utils/wishlistIcons'
 
 interface Wishlist {
   id: string
   name: string
   image?: string
   color?: string
+  thumbnail_type?: 'icon' | 'image'
+  thumbnail_icon?: string | null
+  thumbnail_image?: string | null
 }
 
 interface WishlistCarouselProps {
@@ -95,7 +98,7 @@ export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick 
           pl={{base: 3, md: 8}}
         >
           {wishlists.map((wishlist) => {
-            const IconComponent = getWishlistIcon(wishlist.image)
+            const thumbnail = resolveWishlistThumbnail(wishlist)
             
             return (
               <Box
@@ -122,7 +125,11 @@ export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick 
                   justifyContent="center"
                   bg={wishlist.color || COLORS.cardGray}
                 >
-                  <Box as={IconComponent} boxSize="5rem" color="white" />
+                  {thumbnail.type === 'image' ? (
+                    <Image src={thumbnail.url} alt={wishlist.name} w="100%" h="100%" objectFit="cover" />
+                  ) : (
+                    <Box as={thumbnail.icon} boxSize="5rem" color="white" />
+                  )}
                 </Box>
                 <Box>
                   <Text color="white" fontWeight="semibold" fontSize={{base:"sm", md:"md", lg:"lg"}} lineClamp={1}>

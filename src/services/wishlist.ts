@@ -161,7 +161,19 @@ export const wishlistAPI = {
   
   createWishlist: async (wishlist: CreateWishlistData): Promise<Wishlist> => {
     try {
-      const response = await api.post('/wishlists/', wishlist);
+      const formData = new FormData();
+      formData.append('title', wishlist.title);
+      if (wishlist.description) formData.append('description', wishlist.description);
+      formData.append('is_public', String(wishlist.is_public));
+      if (wishlist.color) formData.append('color', wishlist.color);
+      if (wishlist.image) formData.append('image', wishlist.image);
+      if (wishlist.thumbnail_type) formData.append('thumbnail_type', wishlist.thumbnail_type);
+      if (wishlist.thumbnail_icon) formData.append('thumbnail_icon', wishlist.thumbnail_icon);
+      if (wishlist.thumbnail_image) formData.append('thumbnail_image', wishlist.thumbnail_image);
+
+      const response = await api.post('/wishlists/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       return response.data;
     } catch (error) {
       console.error('API Error in createWishlist:', error);
@@ -170,7 +182,20 @@ export const wishlistAPI = {
   },
   
   updateWishlist: async (id: string, wishlist: UpdateWishlistData): Promise<Wishlist> => {
-    const response = await api.put(`/wishlists/${id}`, wishlist);
+    const formData = new FormData();
+    if (wishlist.title !== undefined) formData.append('title', wishlist.title);
+    if (wishlist.description !== undefined) formData.append('description', wishlist.description);
+    if (wishlist.is_public !== undefined) formData.append('is_public', String(wishlist.is_public));
+    if (wishlist.color !== undefined) formData.append('color', wishlist.color);
+    if (wishlist.image !== undefined) formData.append('image', wishlist.image as string);
+    if (wishlist.thumbnail_type) formData.append('thumbnail_type', wishlist.thumbnail_type);
+    if (wishlist.thumbnail_icon) formData.append('thumbnail_icon', wishlist.thumbnail_icon);
+    if (wishlist.thumbnail_image) formData.append('thumbnail_image', wishlist.thumbnail_image);
+    if (wishlist.remove_thumbnail_image) formData.append('remove_thumbnail_image', 'true');
+
+    const response = await api.put(`/wishlists/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return response.data;
   },
   

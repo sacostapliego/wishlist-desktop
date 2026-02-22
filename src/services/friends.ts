@@ -10,6 +10,9 @@ export interface FriendWishlistResponse {
   owner_name: string;
   owner_username: string;
   image?: string;
+  thumbnail_type?: 'icon' | 'image';
+  thumbnail_icon?: string | null;
+  thumbnail_image?: string | null;
   updated_at?: string;
   created_at?: string;
 }
