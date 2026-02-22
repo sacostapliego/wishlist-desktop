@@ -1,5 +1,6 @@
 import storage from '../utils/storage';
 import api from './api';
+import type { User, UpdateUserData } from '../types/types'
 
 export interface PublicUserDetailsResponse {
   id: string;
@@ -16,21 +17,21 @@ export interface PublicUserDetailsResponse {
 }
 
 export const userAPI = {
-  getProfile: async () => {
+  getProfile: async (): Promise<User> => {
     const response = await api.get('/users/me');
     return response.data;
   },
   
-  updateProfile: async (userId: string, userData: any) => {
+  updateProfile: async (userId: string, userData: UpdateUserData): Promise<User> => {
     const response = await api.put(`/users/${userId}`, userData);
     return response.data;
   },
 
-  updateUserProfile: async (userId: string, userData: Record<string, any>) => {
+  updateUserProfile: async (userId: string, userData: UpdateUserData): Promise<User> => {
     const formData = new FormData();
     Object.entries(userData).forEach(([key, value]) => {
       if (value !== null && value !== undefined && value !== '') {
-        formData.append(key, value as any);
+        formData.append(key, value as string | Blob);
       }
     });
     const response = await api.put(`/users/${userId}`, formData, {
@@ -39,63 +40,35 @@ export const userAPI = {
     return response.data;
   },
   
-  updateProfileImage: async (imageFile: any) => {
+  updateProfileImage: async (imageFile: File): Promise<User> => {
     const formData = new FormData();
     formData.append('profile_picture', imageFile);
-
-    const userId = await userAPI.getCurrentUserId();
-    
-    const response = await api.put(`/users/${userId}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      }
+    const response = await api.put('/users/me/profile-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
     });
-
     return response.data;
   },
 
-  getCurrentUserId: async () => {
-    try {
-      const userData = await storage.getItem('user_data');
-      if (userData) {
-        const parsedData = JSON.parse(userData);
-        return parsedData.id || '';
-      }
-      return '';
-    } catch (e) {
-      console.error('Error getting user ID:', e);
-      return '';
-    }
-  },
-
-  removeProfileImage: async (userId: string) => {
-    try {
-      const formData = new FormData();
-      formData.append('remove_profile_picture', 'true');
-      
-      const response = await api.put(`/users/${userId}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        }
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error removing profile picture:', error);
-      throw error;
-    }
+  removeProfileImage: async (): Promise<User> => {
+    const response = await api.delete('/users/me/profile-image');
+    return response.data;
   },
 
   getPublicUserDetails: async (userId: string): Promise<PublicUserDetailsResponse> => {
-    try {
-      const response = await api.get<PublicUserDetailsResponse>(`/users/public/${userId}`);
-      return response.data;
-    } catch (error) {
-      console.error(`Error fetching public user details for ${userId}:`, error);
-      throw error; // Rethrow or handle as per your app's error strategy
+    const response = await api.get(`/users/public/${userId}`);
+    return response.data;
+  },
+
+  getCurrentUserId: async (): Promise<string> => {
+    const token = await storage.getItem('auth_token');
+    if (!token) {
+      throw new Error('Not authenticated');
     }
+    
+    // Decode JWT to get user ID (JWT format: header.payload.signature)
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.sub || payload.user_id || payload.id;
   },
 };
-
-
 
 export default userAPI;

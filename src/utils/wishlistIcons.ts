@@ -1,6 +1,7 @@
 import { LuGift, LuShoppingCart, LuTag, LuStar, LuHeart, LuDiamond, LuBike, LuGamepad2, LuShirt, LuPlane, LuHouse, LuBook } from 'react-icons/lu'
+import type { IconType } from 'react-icons'
 
-export const WISHLIST_ICON_MAP: Record<string, any> = {
+export const WISHLIST_ICON_MAP: Record<string, IconType> = {
   'gift-outline': LuGift,
   'cart-outline': LuShoppingCart,
   'pricetag-outline': LuTag,

@@ -18,7 +18,7 @@ api.interceptors.request.use(
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
-    } catch (error) {
+    } catch {
       // Silent error handling in production
     }
     return config;
