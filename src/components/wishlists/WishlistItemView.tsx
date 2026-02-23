@@ -159,21 +159,14 @@ export function WishlistItemView({
               </Box>
             )}
 
-            {/* Placeholder - Show when no image */}
-            {!hasImage && (
-              <Box
-                w={{ base: '5rem', md: '9rem' }}
-                h={{ base: '5rem', md: '9rem' }}
-                flexShrink={0}
-              />
-            )}
-
             <Stack
               flex={1}
               direction={{base: "column", md: "row"}}
+              alignItems={{base:"none", md:"center"}}
+              justifyContent={{base:"none", md:"center"}}
             >
               {/* Item Name */}
-              <Box flex={1} minW={0}>
+              {hasImage && (<Box flex={1} minW={0}>
                 <Text 
                   color="white" 
                   fontWeight="medium" 
@@ -182,7 +175,25 @@ export function WishlistItemView({
                 >
                   {item.name}
                 </Text>
-              </Box>
+              </Box>)}
+
+              {!hasImage && (
+                <Box 
+                  h={{ base: '5rem', md: '9rem' }}
+                  flex={1} 
+                  minW={0}
+                  display={'flex'}
+                  alignItems="center"
+                >
+                  <Text 
+                    color="white"
+                    fontWeight="medium" 
+                    fontSize="1rem"
+                    lineClamp={2}
+                  >
+                    {item.name}
+                  </Text>
+              </Box>)}
 
               {/* Price */}
               <Box w={{ base: '4rem', md: '6.25rem' }} textAlign={{base:"left", md:"right"}}>

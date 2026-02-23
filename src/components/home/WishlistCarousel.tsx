@@ -68,7 +68,7 @@ export function WishlistCarousel({ title, wishlists, onShowAll, onWishlistClick 
 
   return (
     <Box mb={{base: 1, md:1}}>
-      <HStack justifyContent="space-between" px={8} >
+      <HStack justifyContent="space-between" px={{ base: 4, md: 8 }} >
         <Heading size="lg" color="white">{title}</Heading>
         <Button color={COLORS.text.muted} bg={COLORS.background} fontWeight={"bolder"} fontSize="sm" onClick={onShowAll}>
           Show all

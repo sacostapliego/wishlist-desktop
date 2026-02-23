@@ -103,7 +103,7 @@ export const ItemForm = forwardRef<ItemFormRef, ItemFormProps>(
         maxSizeMB: 1,
         maxWidthOrHeight: 1200,
         useWebWorker: true,
-        fileType: 'image/jpeg',
+        fileType: 'image/png',
       }
 
       try {
