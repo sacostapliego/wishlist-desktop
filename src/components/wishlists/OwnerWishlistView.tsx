@@ -10,6 +10,8 @@ import { AddItemModal } from '../items/AddItemModal'
 import { ItemSelectionManager } from '../items/ItemSelectionManager'
 import { toaster } from '../ui/toaster'
 import { WishlistThumbnail } from './WishlistThumbnail'
+import { wishlistAPI } from '../../services/wishlist'
+import { ConfirmDialog } from '../common/ConfirmDialog'
 
 interface OwnerWishlistViewProps {
   wishlist: {
@@ -48,6 +50,8 @@ export function OwnerWishlistView({
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false)
+  const [isDeletingWishlist, setIsDeletingWishlist] = useState(false)
+  const [showDeleteWishlistConfirm, setShowDeleteWishlistConfirm] = useState(false)
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false)
   const profileImage = wishlist.owner_id ? `${API_URL}users/${wishlist.owner_id}/profile-image` : null
 
@@ -79,6 +83,29 @@ export function OwnerWishlistView({
     }
   }
 
+  const handleDeleteWishlist = async () => {
+    setIsDeletingWishlist(true)
+    try {
+      await wishlistAPI.deleteWishlist(wishlist.id)
+      toaster.create({
+        title: 'Wishlist Deleted',
+        description: `"${wishlist.title}" has been deleted.`,
+        type: 'success',
+      })
+      navigate('/', { replace: true })
+      window.location.reload()
+    } catch (error) {
+      console.error('Failed to delete wishlist:', error)
+      toaster.create({
+        title: 'Error',
+        description: 'Failed to delete wishlist. Please try again.',
+        type: 'error',
+      })
+    } finally {
+      setIsDeletingWishlist(false)
+    }
+  }
+
   const cancelSelection = () => {
     setIsSelectionMode(false)
     setSelectedItems([])
@@ -88,7 +115,7 @@ export function OwnerWishlistView({
     onEdit: () => setIsEditModalOpen(true),
     onSelectItems: () => setIsSelectionMode(true),
     onShare: handleShare,
-    onDelete: () => console.log('Delete wishlist'),
+    onDelete: () => setShowDeleteWishlistConfirm(true),  // open confirm first
   })
 
   return (
@@ -237,6 +264,33 @@ export function OwnerWishlistView({
         confirmDeleteVisible={deleteConfirmVisible}
         setConfirmDeleteVisible={setDeleteConfirmVisible}
       />
+
+      <ConfirmDialog
+        isOpen={showDeleteWishlistConfirm}
+        onClose={() => setShowDeleteWishlistConfirm(false)}
+        title="Delete Wishlist"
+        message={`Are you sure you want to delete "${wishlist.title}"? This will permanently delete the wishlist and all its items.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleDeleteWishlist}
+        isDestructive
+      />
+
+      {/* Loading overlay */}
+      {isDeletingWishlist && (
+        <Box
+          position="fixed"
+          top={0} left={0} right={0} bottom={0}
+          bg="rgba(0,0,0,0.6)"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          zIndex={1001}
+        >
+          <Text color="white" fontSize="lg">Deleting wishlist...</Text>
+        </Box>
+      )}
+      
     </Box>
   )
 }
