@@ -14,13 +14,17 @@ export interface WishlistItem {
   price?: number
   priority: number
   created_at?: string
+  updated_at?: string
 }
 
 interface WishlistItemViewProps {
   items: WishlistItem[]
-  onItemClick?: (item: WishlistItem) => void
   wishlistColor?: string
-  sortBy?: SortOption
+  sortBy: SortOption
+  onItemClick: (item: WishlistItem) => void
+  isSelectionMode?: boolean
+  selectedItems?: string[]
+  onToggleSelect?: (itemId: string) => void
 }
 
 const getPriorityValue = (priority?: string | number): number => {
@@ -44,13 +48,14 @@ const formatDate = (dateString?: string) => {
   return date.toLocaleDateString()
 }
 
-
-
 export function SimpleGridView({ 
   items, 
-  onItemClick, 
-  wishlistColor,
-  sortBy = 'none'
+  wishlistColor, 
+  sortBy, 
+  onItemClick,
+  isSelectionMode = false,
+  selectedItems = [],
+  onToggleSelect
 }: WishlistItemViewProps) {
   const sortedItems = useMemo(() => {
     const itemsCopy = [...items]
@@ -69,6 +74,14 @@ export function SimpleGridView({
 
   const backgroundLightColor = getLightColor(wishlistColor || COLORS.cardGray);
 
+  const handleItemClick = (item: WishlistItem) => {
+      if (isSelectionMode && onToggleSelect) {
+        onToggleSelect(item.id)
+      } else {
+        onItemClick(item)
+      }
+    }
+
 
   return (
     <SimpleGrid columns={{ base: 2, md: 3, lg: 4, xl: 5 }} gap={4} px={8} py={4}>
@@ -80,6 +93,8 @@ export function SimpleGridView({
           ? getPriorityColor(baseWishlistColor, item.priority)
           : baseWishlistColor
 
+        const isSelected = selectedItems.includes(item.id)
+
         return (
           <Box
             key={item.id}
@@ -88,8 +103,14 @@ export function SimpleGridView({
             cursor="pointer"
             transition="all 0.2s"
             _hover={{ transform: 'translateY(-4px)', boxShadow: 'lg' }}
-            onClick={() => onItemClick?.(item)}
-            bg={wishlistColor ? itemBackgroundColor : COLORS.cardGray}
+            onClick={() => handleItemClick(item)}
+            bg={
+              isSelected 
+                ? backgroundLightColor 
+                : wishlistColor 
+                  ? itemBackgroundColor 
+                  : COLORS.cardGray
+            }
           >
             {hasImage ? (
               <>
