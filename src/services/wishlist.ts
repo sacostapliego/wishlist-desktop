@@ -19,6 +19,8 @@ export interface ClaimedItemResponse {
   wishlist_id?: string;
   wishlist_color?: string;
   claimed_at?: string;
+  due_date?: string | null
+  wishlist_due_date?: string | null
 }
 
 export interface ProcessImageResponse {

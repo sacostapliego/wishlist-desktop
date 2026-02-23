@@ -1,4 +1,4 @@
-import { Box, VStack } from '@chakra-ui/react'
+import { Box, VStack, HStack, Heading, Button } from '@chakra-ui/react'
 import { ClaimedItemsSection } from '../components/home/ClaimedItemSection'
 import { WishlistCarousel } from '../components/home/WishlistCarousel'
 import { useEffect, useState } from 'react'
@@ -8,6 +8,7 @@ import { toaster } from '../components/ui/toaster'
 import { useNavigate } from 'react-router-dom'
 import { ProfileHeader } from '../components/layout/ProfileHeader'
 import { COLORS } from '../styles/common'
+import { isWishlistActive } from '../utils/wishlistUtils'
 import type { Wishlist as WishlistType } from '../types/types'
 
 interface Wishlist {
@@ -18,6 +19,7 @@ interface Wishlist {
   thumbnail_type?: 'icon' | 'image'
   thumbnail_icon?: string | null
   thumbnail_image?: string | null
+  due_date?: string | null
 }
 
 interface ClaimedItem {
@@ -28,6 +30,29 @@ interface ClaimedItem {
   owner_name: string
   color?: string
   wishlist_id?: string
+  wishlist_due_date?: string | null
+}
+
+function EmptySectionHeader({ title, onShowAll }: { title: string; onShowAll: () => void }) {
+  return (
+    <Box px={{ base: 4, md: 8 }} minH={{base: '5rem', md: '7rem'}} mb={2}>
+      <HStack justifyContent="space-between">
+        <Heading size="lg" color="white">{title}</Heading>
+        <Button
+          color={COLORS.text.muted}
+          bg={COLORS.background}
+          fontWeight="bolder"
+          fontSize="sm"
+          onClick={onShowAll}
+        >
+          Show all
+        </Button>
+      </HStack>
+      <Box mt={4} color={COLORS.text.muted}>
+        No {title.toLowerCase()} to show.
+      </Box>
+    </Box>
+  )
 }
 
 function HomePage() {
@@ -50,7 +75,6 @@ function HomePage() {
         wishlistAPI.getClaimedItems()
       ])
 
-      // Transform my wishlists data
       const transformedMyWishlists = myWishlistsData.map((wishlist: WishlistType) => ({
         id: wishlist.id,
         name: wishlist.title,
@@ -59,30 +83,35 @@ function HomePage() {
         thumbnail_type: wishlist.thumbnail_type,
         thumbnail_icon: wishlist.thumbnail_icon,
         thumbnail_image: wishlist.thumbnail_image,
+        due_date: wishlist.due_date,
       }))
 
-      // Transform friends wishlists data
-      const transformedFriendsWishlists = friendsWishlistsData.map((wishlist: FriendWishlistResponse) => ({
-        id: wishlist.id,
-        name: wishlist.title,
-        ownerName: wishlist.owner_name || wishlist.owner_username,
-        image: wishlist.image,
-        color: wishlist.color,
-        thumbnail_type: wishlist.thumbnail_type,
-        thumbnail_icon: wishlist.thumbnail_icon,
-        thumbnail_image: wishlist.thumbnail_image,
-      }))
+      const transformedFriendsWishlists = friendsWishlistsData
+        .filter((wishlist: FriendWishlistResponse) => isWishlistActive(wishlist.due_date))
+        .map((wishlist: FriendWishlistResponse) => ({
+          id: wishlist.id,
+          name: wishlist.title,
+          ownerName: wishlist.owner_name || wishlist.owner_username,
+          image: wishlist.image,
+          color: wishlist.color,
+          thumbnail_type: wishlist.thumbnail_type,
+          thumbnail_icon: wishlist.thumbnail_icon,
+          thumbnail_image: wishlist.thumbnail_image,
+          due_date: wishlist.due_date,
+        }))
 
-      // Transform claimed items data
-      const transformedClaimedItems = claimedItemsData.map((item: ClaimedItemResponse) => ({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        image: item.image,
-        owner_name: item.owner_name,
-        color: item.wishlist_color,
-        wishlist_id: item.wishlist_id
-      }))
+      const transformedClaimedItems = claimedItemsData
+        .filter((item: ClaimedItemResponse) => isWishlistActive(item.wishlist_due_date))
+        .map((item: ClaimedItemResponse) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          image: item.image,
+          owner_name: item.owner_name,
+          color: item.wishlist_color,
+          wishlist_id: item.wishlist_id,
+          wishlist_due_date: item.wishlist_due_date,
+        }))
 
       setMyWishlists(transformedMyWishlists)
       setFriendsWishlists(transformedFriendsWishlists)
@@ -112,29 +141,39 @@ function HomePage() {
     <Box h={{base: "calc(100vh + 80px)", md:"calc(100vh - 32px)"}} w="100%" overflowX="visible" bg={COLORS.background} py={2}>
       <ProfileHeader />
       <VStack align="stretch">
-        {/* Claimed Items Section */}
-        {claimedItems.length > 0 && (
-          <ClaimedItemsSection 
+        {/* Claimed Items Section - shows full section if items exist, otherwise just the header with Show all */}
+        {claimedItems.length > 0 ? (
+          <ClaimedItemsSection
             items={claimedItems}
             onShowAll={() => navigate('/items/claimed')}
             onItemClick={(item) => navigate(`/wishlist/${item.wishlist_id}/${item.id}`)}
           />
+        ) : (
+          <EmptySectionHeader
+            title="Items Claimed"
+            onShowAll={() => navigate('/items/claimed')}
+          />
         )}
 
-        {/* Friends Wishlists Carousel */}
-        {friendsWishlists.length > 0 && (
-          <WishlistCarousel 
-            title="Friends Lists" 
+        {/* Friends Wishlists - shows carousel if active items exist, otherwise just the header with Show all */}
+        {friendsWishlists.length > 0 ? (
+          <WishlistCarousel
+            title="Friends Lists"
             wishlists={friendsWishlists}
             onShowAll={() => navigate('/wishlists/friends')}
             onWishlistClick={(id) => navigate(`/wishlist/${id}`)}
           />
+        ) : (
+          <EmptySectionHeader
+            title="Friends Lists"
+            onShowAll={() => navigate('/wishlists/friends')}
+          />
         )}
 
-        {/* My Wishlists Carousel */}
+        {/* My Wishlists Carousel - all, only show if there are wishlists */}
         {myWishlists.length > 0 && (
-          <WishlistCarousel 
-            title="My Lists" 
+          <WishlistCarousel
+            title="My Lists"
             wishlists={myWishlists}
             onShowAll={() => navigate('/wishlists/mine')}
             onWishlistClick={(id) => navigate(`/wishlist/${id}`)}
