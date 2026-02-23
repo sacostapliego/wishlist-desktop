@@ -1,4 +1,4 @@
-import { Box, VStack, Heading, Text, Button, HStack, IconButton, Image } from '@chakra-ui/react'
+import { Box, VStack, Heading, Text, Button, HStack, IconButton, Image, Stack } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom'
 import { LuArrowLeft, LuLogOut } from 'react-icons/lu'
 import { useState } from 'react'
@@ -87,13 +87,13 @@ function SettingsPage() {
 
           <VStack
             gap={4}
-            align="stretch"
+            align="center"
             bg={COLORS.cardGray}
             borderRadius="xl"
             p={6}
           >
             {/* Current Profile Picture */}
-            <HStack gap={4} align="center">
+            <Stack gap={4} align="center">
               <Box
                 w="80px"
                 h="80px"
@@ -119,24 +119,16 @@ function SettingsPage() {
                   </Text>
                 )}
               </Box>
-
-              <VStack align="start" gap={1}>
-                <Text color="white" fontWeight="medium">
-                  {displayName}
-                </Text>
-                <Text color={COLORS.text.secondary} fontSize="sm">
-                  @{user.username}
-                </Text>
-              </VStack>
-            </HStack>
+            </Stack>
 
             {/* Update Picture Button */}
             <Button
-              w="100%"
+              w="fit-content"
               bg={COLORS.primary}
               color="white"
               onClick={() => setIsEditPictureOpen(true)}
               _hover={{ opacity: 0.9 }}
+              lineClamp={1}
             >
               Update Profile Picture
             </Button>
@@ -144,13 +136,14 @@ function SettingsPage() {
             {/* Remove Picture Button */}
             {user.pfp && (
               <Button
-                w="100%"
+                w="fit-content"
                 variant="outline"
-                borderColor="red.500"
-                color="red.500"
+                borderColor={COLORS.primary}
+                color={COLORS.primary}
                 onClick={() => setIsRemovePictureOpen(true)}
                 loading={isRemovingPicture}
-                _hover={{ bg: 'red.500', color: 'white' }}
+                _hover={{ bg: COLORS.primary, color: 'white' }}
+                lineClamp={1}
               >
                 Remove Profile Picture
               </Button>

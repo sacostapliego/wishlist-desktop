@@ -124,6 +124,17 @@ export const WishlistForm = forwardRef<WishlistFormRef, WishlistFormProps>(({
   return (
     <VStack align="stretch" gap={6} p={6}>
       <Box>
+        {/* Select image/icon first */}
+        <ThumbnailPicker
+          thumbnailType={thumbnailType}
+          selectedIcon={thumbnailIcon}
+          existingImageUrl={existingThumbnailImageUrl}
+          selectedImageFile={thumbnailImageFile}
+          onThumbnailTypeChange={handleThumbnailTypeChange}
+          onIconSelect={setThumbnailIcon}
+          onImageSelect={handleImageSelect}
+        />
+
         <Text fontSize="sm" fontWeight="medium" mb={2} color={COLORS.text.secondary}>
           Title
         </Text>
@@ -189,15 +200,6 @@ export const WishlistForm = forwardRef<WishlistFormRef, WishlistFormProps>(({
         </Switch.Root>
       </HStack>
 
-      <ThumbnailPicker
-        thumbnailType={thumbnailType}
-        selectedIcon={thumbnailIcon}
-        existingImageUrl={existingThumbnailImageUrl}
-        selectedImageFile={thumbnailImageFile}
-        onThumbnailTypeChange={handleThumbnailTypeChange}
-        onIconSelect={setThumbnailIcon}
-        onImageSelect={handleImageSelect}
-      />
       
       <Button
         onClick={handleSubmit}
