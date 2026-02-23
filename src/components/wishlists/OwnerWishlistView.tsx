@@ -28,6 +28,7 @@ interface OwnerWishlistViewProps {
     updated_at?: string
     created_at?: string
     owner_id?: string
+    is_public?: boolean
   }
   onItemAdded?: () => void
   refetchItems?: () => void
@@ -72,6 +73,15 @@ export function OwnerWishlistView({
   const handleShare = async () => {
     const shareUrl = `${window.location.origin}/wishlist/${wishlist.id}`
     try {
+      // Set wishlist to public if it isn't already
+      if (!wishlist.is_public) {
+        await wishlistAPI.updateWishlist(wishlist.id, {
+          is_public: true
+        })
+        // Update the local wishlist object to reflect the change
+        wishlist.is_public = true
+      }
+      
       await navigator.clipboard.writeText(shareUrl)
       toaster.create({
         title: 'Link Copied',
@@ -80,8 +90,14 @@ export function OwnerWishlistView({
       })
     } catch (error) {
       console.error('Failed to copy link:', error)
+      toaster.create({
+        title: 'Error',
+        description: 'Failed to share wishlist. Please try again.',
+        type: 'error',
+      })
     }
   }
+
 
   const handleDeleteWishlist = async () => {
     setIsDeletingWishlist(true)

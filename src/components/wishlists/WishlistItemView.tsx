@@ -130,7 +130,6 @@ export function WishlistItemView({
             )}
 
             {/* Image - Only render if hasImage */}
-            {/* Image - Only render if hasImage */}
             {hasImage && (
               <Box
                 w={{ base: '5rem', md: '9rem' }}

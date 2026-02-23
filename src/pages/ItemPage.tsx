@@ -322,6 +322,7 @@ function ItemPage() {
           right={{ base: 0, md: "16px" }}
           px={4}
           zIndex={9}
+          transition="all 0.2s"
         >
           <Box p={3} maxW="30rem" mx="auto">
             <ItemClaimingSection
