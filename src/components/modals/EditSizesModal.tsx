@@ -35,13 +35,13 @@ export function EditSizesModal({ isOpen, onClose, userId, initialValues, onSucce
     setIsLoading(true)
     try {
       await userAPI.updateUserProfile(userId, {
-        shoe_size: shoeSize.trim() || null,
-        shirt_size: shirtSize.trim() || null,
-        pants_size: pantsSize.trim() || null,
-        hat_size: hatSize.trim() || null,
-        ring_size: ringSize.trim() || null,
-        dress_size: dressSize.trim() || null,
-        jacket_size: jacketSize.trim() || null,
+        shoe_size: shoeSize.trim() || null || undefined,
+        shirt_size: shirtSize.trim() || null || undefined,
+        pants_size: pantsSize.trim() || null || undefined,
+        hat_size: hatSize.trim() || null || undefined,
+        ring_size: ringSize.trim() || null || undefined,
+        dress_size: dressSize.trim() || null || undefined,
+        jacket_size: jacketSize.trim() || null || undefined,
       })
 
       toaster.create({
