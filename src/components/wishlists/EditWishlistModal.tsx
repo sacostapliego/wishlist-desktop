@@ -7,6 +7,7 @@ import { COLORS } from '../../styles/common'
 import wishlistAPI from '../../services/wishlist'
 import { toaster } from '../ui/toaster'
 import type { UpdateWishlistData } from '../../types/types'
+import { API_URL } from '../../services/api'
 
 interface EditWishlistModalProps {
   isOpen: boolean
@@ -40,7 +41,9 @@ export function EditWishlistModal({ isOpen, onClose, wishlistId, onSuccess }: Ed
         image: wishlistData.image,
         thumbnail_type: wishlistData.thumbnail_type || 'icon',
         thumbnail_icon: wishlistData.thumbnail_icon || null,
-        existing_thumbnail_image_url: wishlistData.thumbnail_image || null,
+        existing_thumbnail_image_url: wishlistData.thumbnail_image 
+        ? `${API_URL}wishlists/${wishlistId}/thumbnail`
+        : null,
       })
     } catch (error) {
       console.error('Error fetching wishlist details:', error)

@@ -24,10 +24,11 @@ export function FriendWishlistItem({
   thumbnail_icon,
   thumbnail_image,
   isCollapsed, 
-  onClick 
+  onClick,
+  id
 }: FriendWishlistItemProps) {
-  const thumbnail = resolveWishlistThumbnail({ thumbnail_type, thumbnail_icon, thumbnail_image, image })
-
+  const thumbnail = resolveWishlistThumbnail({ id, thumbnail_type, thumbnail_icon, thumbnail_image, image })
+  
   const iconBox = thumbnail.type === 'image' ? (
     <Box
       w="35px"

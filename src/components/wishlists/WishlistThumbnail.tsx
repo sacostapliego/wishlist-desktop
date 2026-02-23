@@ -42,6 +42,7 @@ export function WishlistThumbnail({
         borderRadius={borderRadius}
         overflow="hidden"
         flexShrink={0}
+        bg={wishlist.color || 'transparent'}
         css={sx}
       >
         <Image

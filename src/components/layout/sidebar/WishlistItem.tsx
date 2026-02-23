@@ -14,8 +14,8 @@ interface WishlistItemProps {
   onClick: () => void
 }
 
-export function WishlistItem({ title, color, image, thumbnail_type, thumbnail_icon, thumbnail_image, isCollapsed, onClick }: WishlistItemProps) {
-  const thumbnail = resolveWishlistThumbnail({ thumbnail_type, thumbnail_icon, thumbnail_image, image })
+export function WishlistItem({ title, color, image, thumbnail_type, thumbnail_icon, thumbnail_image, isCollapsed, onClick, id }: WishlistItemProps) {
+  const thumbnail = resolveWishlistThumbnail({ id, thumbnail_type, thumbnail_icon, thumbnail_image, image })
 
   const iconBox = thumbnail.type === 'image' ? (
     <Box
@@ -24,6 +24,7 @@ export function WishlistItem({ title, color, image, thumbnail_type, thumbnail_ic
       borderRadius="sm"
       overflow="hidden"
       flexShrink={0}
+      bg={color || COLORS.cardGray}
     >
       <Image src={thumbnail.url} alt={title} w="100%" h="100%" objectFit="cover" />
     </Box>
