@@ -29,6 +29,7 @@ interface OwnerWishlistViewProps {
     created_at?: string
     owner_id?: string
     is_public?: boolean
+    due_date?: string | null
   }
   onItemAdded?: () => void
   refetchItems?: () => void
@@ -56,18 +57,10 @@ export function OwnerWishlistView({
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false)
   const profileImage = wishlist.owner_id ? `${API_URL}users/${wishlist.owner_id}/profile-image` : null
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return 'Never'
+  const formatDueDate = (dateString?: string | null) => {
+    if (!dateString) return null
     const date = new Date(dateString)
-    const now = new Date()
-    const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
-
-    if (diffInDays === 0) return 'Today'
-    if (diffInDays === 1) return 'Yesterday'
-    if (diffInDays < 7) return `${diffInDays} days ago`
-    if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`
-    if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`
-    return date.toLocaleDateString()
+    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
   }
 
   const handleShare = async () => {
@@ -241,8 +234,12 @@ export function OwnerWishlistView({
             <Text display={{ base: 'none', md: 'block' }}>
               {wishlist.item_count || 0} {wishlist.item_count === 1 ? 'item' : 'items'}
             </Text>
-            <Text display={{ base: 'none', md: 'block' }}>•</Text>
-            <Text display={{ base: 'none', md: 'block' }}>Last updated {formatDate(wishlist.updated_at || wishlist.created_at)}</Text>
+            {wishlist.due_date && (
+              <>
+                <Text display={{ base: 'none', md: 'block' }}>•</Text>
+                <Text display={{ base: 'none', md: 'block' }}>{formatDueDate(wishlist.due_date)}</Text>
+              </>
+            )}
           </HStack>
         </VStack>
       </HStack>

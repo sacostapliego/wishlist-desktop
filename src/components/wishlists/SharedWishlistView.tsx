@@ -24,6 +24,7 @@ interface SharedWishlistViewProps {
     item_count?: number
     updated_at?: string
     created_at?: string
+    due_date?: string | null
   }
 }
 
@@ -41,6 +42,12 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
     checkRelationship()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wishlist.id, wishlist.owner_id, user?.id, isLoggedIn])
+
+  const formatDueDate = (dateString?: string | null) => {
+    if (!dateString) return null
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  }
 
   const checkRelationship = async () => {
     // Skip relationship checks for guests
@@ -78,20 +85,6 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
     } finally {
       setLoading(false)
     }
-  }
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return 'Never'
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
-
-    if (diffInDays === 0) return 'Today'
-    if (diffInDays === 1) return 'Yesterday'
-    if (diffInDays < 7) return `${diffInDays} days ago`
-    if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`
-    if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`
-    return date.toLocaleDateString()
   }
 
   const menuOptions = isLoggedIn 
@@ -174,8 +167,12 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
             <Text display={{ base: 'none', md: 'block' }}>
               {wishlist.item_count || 0} {wishlist.item_count === 1 ? 'item' : 'items'}
             </Text>
-            <Text display={{ base: 'none', md: 'block' }}>•</Text>
-            <Text display={{ base: 'none', md: 'block' }}>Last updated {formatDate(wishlist.updated_at || wishlist.created_at)}</Text>
+            {wishlist.due_date && (
+              <>
+                <Text display={{ base: 'none', md: 'block' }}>•</Text>
+                <Text display={{ base: 'none', md: 'block' }}>{formatDueDate(wishlist.due_date)}</Text>
+              </>
+            )}
           </HStack>
         </VStack>
       </HStack>
