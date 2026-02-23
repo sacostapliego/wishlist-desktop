@@ -8,6 +8,7 @@ interface ProfileImageCropperProps {
   imageSrc: string
   onCropComplete: (croppedImageBlob: Blob) => void
   onCancel: () => void
+  circularCrop?: boolean  // default true for profile, false for wishlist
 }
 
 function centerAspectCrop(
@@ -30,7 +31,12 @@ function centerAspectCrop(
   )
 }
 
-export function ProfileImageCropper({ imageSrc, onCropComplete, onCancel }: ProfileImageCropperProps) {
+export function ProfileImageCropper({ 
+  imageSrc, 
+  onCropComplete, 
+  onCancel,
+  circularCrop = true  // keeps existing profile behavior unchanged
+}: ProfileImageCropperProps) {  
   const [crop, setCrop] = useState<Crop>()
   const [completedCrop, setCompletedCrop] = useState<Crop>()
   const imgRef = useRef<HTMLImageElement>(null)
@@ -133,7 +139,7 @@ export function ProfileImageCropper({ imageSrc, onCropComplete, onCancel }: Prof
           onChange={(_, percentCrop) => setCrop(percentCrop)}
           onComplete={(c) => setCompletedCrop(c)}
           aspect={1}
-          circularCrop
+          circularCrop={circularCrop}
         >
           <img
             ref={imgRef}
