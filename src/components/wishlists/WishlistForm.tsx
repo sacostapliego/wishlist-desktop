@@ -57,10 +57,10 @@ export const WishlistForm = forwardRef<WishlistFormRef, WishlistFormProps>(({
   const [title, setTitle] = useState(initialValues.title || '')
   const [description, setDescription] = useState(initialValues.description || '')
   const [isPublic, setIsPublic] = useState(initialValues.is_public || false)
-  const [selectedColor, setSelectedColor] = useState(initialValues.color || '#ff7f50')
+  const [selectedColor, setSelectedColor] = useState(initialValues.color || COLORS.primary)
   const [selectedImage, setSelectedImage] = useState(initialValues.image || 'gift-outline')
-  const [useItemColors, setUseItemColors] = useState(initialValues.use_item_colors ?? false)
-  const [defaultView, setDefaultView] = useState<'grid' | 'list'>(initialValues.default_view || 'grid')
+  const [useItemColors, setUseItemColors] = useState(initialValues.use_item_colors ?? true)
+  const [defaultView, setDefaultView] = useState<'grid' | 'list'>(initialValues.default_view || 'list')
   const [dueDate, setDueDate] = useState<string>(initialValues.due_date || '')
   
   // Thumbnail state
@@ -235,19 +235,6 @@ export const WishlistForm = forwardRef<WishlistFormRef, WishlistFormProps>(({
         </Text>
         <HStack gap={2}>
           <IconButton
-            aria-label="Grid view"
-            flex={1}
-            variant={defaultView === 'grid' ? 'solid' : 'ghost'}
-            bg={defaultView === 'grid' ? selectedColor : COLORS.cardGray}
-            color="white"
-            borderRadius="md"
-            size="lg"
-            onClick={() => setDefaultView('grid')}
-            _hover={{ bg: defaultView === 'grid' ? selectedColor : COLORS.cardDarkLight }}
-          >
-            <BsGrid />
-          </IconButton>
-          <IconButton
             aria-label="List view"
             flex={1}
             variant={defaultView === 'list' ? 'solid' : 'ghost'}
@@ -259,6 +246,19 @@ export const WishlistForm = forwardRef<WishlistFormRef, WishlistFormProps>(({
             _hover={{ bg: defaultView === 'list' ? selectedColor : COLORS.cardDarkLight }}
           >
             <BsList />
+          </IconButton>
+          <IconButton
+            aria-label="Grid view"
+            flex={1}
+            variant={defaultView === 'grid' ? 'solid' : 'ghost'}
+            bg={defaultView === 'grid' ? selectedColor : COLORS.cardGray}
+            color="white"
+            borderRadius="md"
+            size="lg"
+            onClick={() => setDefaultView('grid')}
+            _hover={{ bg: defaultView === 'grid' ? selectedColor : COLORS.cardDarkLight }}
+          >
+            <BsGrid />
           </IconButton>
         </HStack>
       </Box>

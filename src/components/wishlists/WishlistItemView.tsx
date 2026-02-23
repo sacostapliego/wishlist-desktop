@@ -104,9 +104,15 @@ export function WishlistItemView({
             cursor="pointer"
             transition="all 0.2s"
             borderRadius="0.375rem"
-            _hover={{ bg: backgroundLightColor || itemBackgroundColor }}
+            _hover={{ bg: backgroundLightColor }}
             onClick={() => handleItemClick(item)}
-            bg={isSelected ? backgroundLightColor : itemBackgroundColor}
+            bg={
+              isSelected 
+                ? backgroundLightColor 
+                : wishlistColor 
+                  ? itemBackgroundColor 
+                  : COLORS.cardGray
+            }
             position="relative"
           >
             {/* Selection Checkbox */}

@@ -12,6 +12,7 @@ import { useWishlistDetail } from '../hooks/useWislistDetail'
 import { WishlistFilters } from '../components/wishlists/WishlistFilters'
 import { userAPI } from '../services/user'
 import type { ApiError } from '../types/types'
+import { SimpleGridView } from '../components/wishlists/SimpleGridView'
 
 interface Wishlist {
   id: string
@@ -84,6 +85,7 @@ function WishlistPage() {
   const [sortBy, setSortBy] = useState<SortOption>('none')
   const [isSelectionMode, setIsSelectionMode] = useState(false)
   const [selectedItems, setSelectedItems] = useState<string[]>([])
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(wishlist?.default_view || 'list')
 
   // Use hook only for items
   const { items, isLoading: itemsLoading, refetchItems } = useWishlistDetail(id, undefined, true)
@@ -94,6 +96,12 @@ function WishlistPage() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, authLoading, user])
+
+  useEffect(() => {
+    if (wishlist?.default_view) {
+      setViewMode(wishlist.default_view)
+    }
+  }, [wishlist?.default_view])
 
   useEffect(() => {
   if (wishlist?.color) {
@@ -298,21 +306,30 @@ function WishlistPage() {
 
         {/* Items */}
         {items.length > 0 ? (
-          <WishlistItemView 
-            items={items}
-            wishlistColor={wishlist.color}
-            sortBy={sortBy}
-            onItemClick={(item) => navigate(`/wishlist/${wishlist.id}/${item.id}`)}
-            isSelectionMode={isSelectionMode}
-            selectedItems={selectedItems}
-            onToggleSelect={(itemId) => {
-              setSelectedItems(prev => 
-                prev.includes(itemId) 
-                  ? prev.filter(id => id !== itemId)
-                  : [...prev, itemId]
-              )
-            }}
-          />
+          viewMode === 'list' ? (
+            <WishlistItemView 
+              items={items}
+              wishlistColor={wishlist.use_item_colors ? wishlist.color : undefined}
+              sortBy={sortBy}
+              onItemClick={(item) => navigate(`/wishlist/${wishlist.id}/${item.id}`)}
+              isSelectionMode={isSelectionMode}
+              selectedItems={selectedItems}
+              onToggleSelect={(itemId) => {
+                setSelectedItems(prev => 
+                  prev.includes(itemId) 
+                    ? prev.filter(id => id !== itemId)
+                    : [...prev, itemId]
+                )
+              }}
+            />
+          ) : (
+            <SimpleGridView
+              items={items}
+              wishlistColor={wishlist.use_item_colors ? wishlist.color : undefined}
+              sortBy={sortBy}
+              onItemClick={(item) => navigate(`/wishlist/${wishlist.id}/${item.id}`)}
+            />
+          )
         ) : (
           <Box px={8} py={4}>
             <Text color="gray.400">No items yet...</Text>

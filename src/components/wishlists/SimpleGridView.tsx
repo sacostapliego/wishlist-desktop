@@ -89,7 +89,7 @@ export function SimpleGridView({
             transition="all 0.2s"
             _hover={{ transform: 'translateY(-4px)', boxShadow: 'lg' }}
             onClick={() => onItemClick?.(item)}
-            bg={itemBackgroundColor}
+            bg={wishlistColor ? itemBackgroundColor : COLORS.cardGray}
           >
             {hasImage ? (
               <>
