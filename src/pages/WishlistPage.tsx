@@ -27,6 +27,9 @@ interface Wishlist {
   item_count?: number
   updated_at?: string
   created_at?: string
+  use_item_colors?: boolean
+  default_view?: 'grid' | 'list'
+  due_date?: string | null
 }
 
 interface MyWishlistResponse {
@@ -41,6 +44,9 @@ interface MyWishlistResponse {
   item_count?: number
   updated_at?: string
   created_at?: string
+  use_item_colors?: boolean
+  default_view?: 'grid' | 'list'
+  due_date?: string | null
 }
 
 interface FriendWishlistResponse {
@@ -58,6 +64,9 @@ interface FriendWishlistResponse {
   thumbnail_image?: string | null;
   updated_at?: string;
   created_at?: string;
+  use_item_colors?: boolean
+  default_view?: 'grid' | 'list'
+  due_date?: string | null
 }
 
 
@@ -157,7 +166,10 @@ function WishlistPage() {
             thumbnail_image: friendWishlist.thumbnail_image,
             item_count: friendWishlist.item_count,
             updated_at: friendWishlist.updated_at,
-            created_at: friendWishlist.created_at
+            created_at: friendWishlist.created_at,
+            use_item_colors: friendWishlist.use_item_colors,
+            default_view: friendWishlist.default_view,
+            due_date: friendWishlist.due_date,
           })
           setOwnerName(friendWishlist.owner_name || friendWishlist.owner_username)
           setIsOwner(false)

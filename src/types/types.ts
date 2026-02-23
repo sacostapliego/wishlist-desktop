@@ -13,6 +13,10 @@ export interface Wishlist {
   item_count?: number
   updated_at?: string
   created_at?: string
+  // Added fields (2026)
+  use_item_colors?: boolean
+  default_view?: 'grid' | 'list'
+  due_date?: string | null
   // Additional optional properties from different API endpoints
   owner_name?: string
   owner_username?: string
@@ -48,6 +52,10 @@ export interface CreateWishlistData {
   thumbnail_type?: 'icon' | 'image'
   thumbnail_icon?: string | null
   thumbnail_image?: File | null
+  // Added fields (2026)
+  use_item_colors?: boolean
+  default_view?: 'grid' | 'list'
+  due_date?: string | null
 }
 
 export interface UpdateWishlistData {
@@ -60,6 +68,11 @@ export interface UpdateWishlistData {
   thumbnail_icon?: string | null
   thumbnail_image?: File | null
   remove_thumbnail_image?: boolean
+  // Added fields (2026)
+  use_item_colors?: boolean
+  default_view?: 'grid' | 'list'
+  due_date?: string | null
+  remove_due_date?: boolean
 }
 
 // User Types
@@ -121,6 +134,10 @@ export interface FriendWishlist {
   thumbnail_image?: string | null
   updated_at?: string
   created_at?: string
+  // Added fields (2026)
+  use_item_colors?: boolean
+  default_view?: 'grid' | 'list'
+  due_date?: string | null
 }
 
 // Item Types

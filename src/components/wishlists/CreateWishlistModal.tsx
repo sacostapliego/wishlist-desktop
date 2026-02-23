@@ -33,6 +33,9 @@ export function CreateWishlistModal({ isOpen, onClose, onSuccess }: CreateWishli
         thumbnail_type: wishlistData.thumbnail_type,
         thumbnail_icon: wishlistData.thumbnail_icon,
         thumbnail_image: wishlistData.thumbnail_image,
+        use_item_colors: wishlistData.use_item_colors,
+        default_view: wishlistData.default_view,
+        due_date: wishlistData.due_date,
       })
       
       if (formRef.current) {

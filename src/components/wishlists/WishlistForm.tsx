@@ -7,8 +7,10 @@ import {
   Text,
   Switch,
   HStack,
-  SimpleGrid
+  SimpleGrid,
+  IconButton
 } from '@chakra-ui/react'
+import { BsGrid, BsList } from "react-icons/bs";
 import { useState, useImperativeHandle, forwardRef } from 'react'
 import { COLORS } from '../../styles/common'
 import { WISHLIST_COLORS } from '../../styles/colors'
@@ -24,6 +26,9 @@ interface WishlistFormData {
   thumbnail_icon: string | null
   thumbnail_image: File | null
   remove_thumbnail_image?: boolean
+  use_item_colors?: boolean
+  default_view?: 'grid' | 'list'  
+  due_date?: string | null
 }
 
 interface WishlistFormProps {
@@ -54,6 +59,9 @@ export const WishlistForm = forwardRef<WishlistFormRef, WishlistFormProps>(({
   const [isPublic, setIsPublic] = useState(initialValues.is_public || false)
   const [selectedColor, setSelectedColor] = useState(initialValues.color || '#ff7f50')
   const [selectedImage, setSelectedImage] = useState(initialValues.image || 'gift-outline')
+  const [useItemColors, setUseItemColors] = useState(initialValues.use_item_colors ?? false)
+  const [defaultView, setDefaultView] = useState<'grid' | 'list'>(initialValues.default_view || 'grid')
+  const [dueDate, setDueDate] = useState<string>(initialValues.due_date || '')
   
   // Thumbnail state
   const [thumbnailType, setThumbnailType] = useState<'icon' | 'image'>(
@@ -101,8 +109,12 @@ export const WishlistForm = forwardRef<WishlistFormRef, WishlistFormProps>(({
       thumbnail_type: thumbnailType,
       thumbnail_icon: thumbnailType === 'icon' ? thumbnailIcon : null,
       thumbnail_image: thumbnailType === 'image' ? thumbnailImageFile : null,
+      use_item_colors: useItemColors,
+      default_view: defaultView,
+      due_date: dueDate || null,
       ...(shouldRemoveThumbnailImage ? { remove_thumbnail_image: true } : {})
     })
+    
   }
 
   const resetForm = () => {
@@ -115,6 +127,9 @@ export const WishlistForm = forwardRef<WishlistFormRef, WishlistFormProps>(({
     setThumbnailIcon('gift-outline')
     setThumbnailImageFile(null)
     setExistingThumbnailImageUrl(null)
+    setUseItemColors(false)
+    setDefaultView('grid')
+    setDueDate('')
   }
   
   useImperativeHandle(ref, () => ({
@@ -187,7 +202,20 @@ export const WishlistForm = forwardRef<WishlistFormRef, WishlistFormProps>(({
           ))}
         </SimpleGrid>
       </Box>
-      
+
+      {/* Use Item Colors Toggle */}
+      <HStack justify="space-between" align="center">
+        <Text fontSize="sm" fontWeight="medium" color={COLORS.text.secondary}>
+          Use Wishlist Color on Items
+        </Text>
+        <Switch.Root checked={useItemColors} onCheckedChange={(e) => setUseItemColors(e.checked)} colorPalette="red">
+          <Switch.HiddenInput />
+          <Switch.Control>
+            <Switch.Thumb />
+          </Switch.Control>
+        </Switch.Root>
+      </HStack>
+
       <HStack justify="space-between" align="center">
         <Text fontSize="sm" fontWeight="medium" color={COLORS.text.secondary}>
           Make Public
@@ -199,6 +227,69 @@ export const WishlistForm = forwardRef<WishlistFormRef, WishlistFormProps>(({
           </Switch.Control>
         </Switch.Root>
       </HStack>
+
+      {/* Default View Toggle */}
+      <Box>
+        <Text fontSize="sm" fontWeight="medium" mb={2} color={COLORS.text.secondary}>
+          Default View
+        </Text>
+        <HStack gap={2}>
+          <IconButton
+            aria-label="Grid view"
+            flex={1}
+            variant={defaultView === 'grid' ? 'solid' : 'ghost'}
+            bg={defaultView === 'grid' ? selectedColor : COLORS.cardGray}
+            color="white"
+            borderRadius="md"
+            size="lg"
+            onClick={() => setDefaultView('grid')}
+            _hover={{ bg: defaultView === 'grid' ? selectedColor : COLORS.cardDarkLight }}
+          >
+            <BsGrid />
+          </IconButton>
+          <IconButton
+            aria-label="List view"
+            flex={1}
+            variant={defaultView === 'list' ? 'solid' : 'ghost'}
+            bg={defaultView === 'list' ? selectedColor : COLORS.cardGray}
+            color="white"
+            borderRadius="md"
+            size="lg"
+            onClick={() => setDefaultView('list')}
+            _hover={{ bg: defaultView === 'list' ? selectedColor : COLORS.cardDarkLight }}
+          >
+            <BsList />
+          </IconButton>
+        </HStack>
+      </Box>
+
+      {/* Due Date */}
+      <Box>
+        <Text fontSize="sm" fontWeight="medium" mb={2} color={COLORS.text.secondary}>
+          Due Date <Text as="span" color={COLORS.inactive}>(Optional)</Text>
+        </Text>
+        <Input
+          type="date"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+          bg={COLORS.cardGray}
+          border="none"
+          color={dueDate ? 'white' : COLORS.inactive}
+          _focus={{ bg: COLORS.cardDarkLight }}
+          colorScheme="whiteAlpha"
+        />
+        {dueDate && (
+          <Button
+            size="xs"
+            variant="ghost"
+            color={COLORS.inactive}
+            mt={1}
+            onClick={() => setDueDate('')}
+          >
+            Clear date
+          </Button>
+        )}
+      </Box>
 
       
       <Button

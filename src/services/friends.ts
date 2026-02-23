@@ -15,6 +15,9 @@ export interface FriendWishlistResponse {
   thumbnail_image?: string | null;
   updated_at?: string;
   created_at?: string;
+  use_item_colors?: boolean
+  default_view?: 'grid' | 'list'
+  due_date?: string | null
 }
 
 export interface UserSearchResponse {

@@ -164,12 +164,16 @@ export const wishlistAPI = {
       const formData = new FormData();
       formData.append('title', wishlist.title);
       if (wishlist.description) formData.append('description', wishlist.description);
-      formData.append('is_public', String(wishlist.is_public));
+      formData.append('is_public', wishlist.is_public ? 'true' : 'false');
       if (wishlist.color) formData.append('color', wishlist.color);
       if (wishlist.image) formData.append('image', wishlist.image);
       if (wishlist.thumbnail_type) formData.append('thumbnail_type', wishlist.thumbnail_type);
       if (wishlist.thumbnail_icon) formData.append('thumbnail_icon', wishlist.thumbnail_icon);
       if (wishlist.thumbnail_image) formData.append('thumbnail_image', wishlist.thumbnail_image);
+      // Added fields (2026)
+      formData.append('use_item_colors', wishlist.use_item_colors ? 'true' : 'false');
+      formData.append('default_view', wishlist.default_view ?? 'grid');
+      if (wishlist.due_date) formData.append('due_date', wishlist.due_date);
 
       const response = await api.post('/wishlists/', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -185,13 +189,23 @@ export const wishlistAPI = {
     const formData = new FormData();
     if (wishlist.title !== undefined) formData.append('title', wishlist.title);
     if (wishlist.description !== undefined) formData.append('description', wishlist.description);
-    if (wishlist.is_public !== undefined) formData.append('is_public', String(wishlist.is_public));
+    if (wishlist.is_public !== undefined) formData.append('is_public', wishlist.is_public ? 'true' : 'false');
     if (wishlist.color !== undefined) formData.append('color', wishlist.color);
     if (wishlist.image !== undefined) formData.append('image', wishlist.image as string);
     if (wishlist.thumbnail_type) formData.append('thumbnail_type', wishlist.thumbnail_type);
     if (wishlist.thumbnail_icon) formData.append('thumbnail_icon', wishlist.thumbnail_icon);
     if (wishlist.thumbnail_image) formData.append('thumbnail_image', wishlist.thumbnail_image);
     if (wishlist.remove_thumbnail_image) formData.append('remove_thumbnail_image', 'true');
+    // Added fields (2026)
+    if (wishlist.use_item_colors !== undefined) formData.append('use_item_colors', wishlist.use_item_colors ? 'true' : 'false');
+    if (wishlist.default_view) formData.append('default_view', wishlist.default_view);
+    
+    // Handle due_date — use remove_due_date flag when clearing
+    if (wishlist.due_date) {
+      formData.append('due_date', wishlist.due_date);
+    } else if (wishlist.due_date === null || wishlist.due_date === '') {
+      formData.append('remove_due_date', 'true');
+    }
 
     const response = await api.put(`/wishlists/${id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },

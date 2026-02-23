@@ -44,6 +44,9 @@ export function EditWishlistModal({ isOpen, onClose, wishlistId, onSuccess }: Ed
         existing_thumbnail_image_url: wishlistData.thumbnail_image 
         ? `${API_URL}wishlists/${wishlistId}/thumbnail`
         : null,
+        use_item_colors: wishlistData.use_item_colors ?? false,
+        default_view: wishlistData.default_view || 'list',
+        due_date: wishlistData.due_date || null,
       })
     } catch (error) {
       console.error('Error fetching wishlist details:', error)
@@ -70,6 +73,9 @@ export function EditWishlistModal({ isOpen, onClose, wishlistId, onSuccess }: Ed
         thumbnail_icon: wishlistData.thumbnail_icon,
         thumbnail_image: wishlistData.thumbnail_image,
         remove_thumbnail_image: wishlistData.remove_thumbnail_image,
+        use_item_colors: wishlistData.use_item_colors,
+        default_view: wishlistData.default_view,
+        due_date: wishlistData.due_date,
       })
       
       toaster.create({
