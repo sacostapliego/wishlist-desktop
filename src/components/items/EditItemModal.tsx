@@ -6,6 +6,7 @@ import { COLORS } from '../../styles/common'
 import { wishlistAPI } from '../../services/wishlist'
 import { toaster } from '../ui/toaster'
 import { API_URL } from '../../services/api'
+import { createPortal } from 'react-dom'
 
 interface EditItemModalProps {
   isOpen: boolean
@@ -98,7 +99,7 @@ export function EditItemModal({ isOpen, onClose, itemId, onSuccess }: EditItemMo
 
   if (!isOpen) return null
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       <Box
@@ -162,6 +163,7 @@ export function EditItemModal({ isOpen, onClose, itemId, onSuccess }: EditItemMo
           )}
         </Box>
       </Box>
-    </>
+    </>,
+    document.body
   )
 }

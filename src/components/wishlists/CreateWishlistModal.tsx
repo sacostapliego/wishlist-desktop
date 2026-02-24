@@ -94,7 +94,7 @@ export function CreateWishlistModal({ isOpen, onClose, onSuccess }: CreateWishli
         bg={COLORS.cardDarkLight}
         borderRadius="lg"
         zIndex={999}
-        maxW="600px"
+        maxW={{base:"100%", md:"600px"}}
         maxH="90vh"
         w="90vw"
         overflowY="auto"
@@ -113,7 +113,7 @@ export function CreateWishlistModal({ isOpen, onClose, onSuccess }: CreateWishli
           alignItems="center"
           zIndex={1}
         >
-          <Heading size="lg">Create New Wishlist</Heading>
+          <Heading color={COLORS.text.primary} size="lg">Create New Wishlist</Heading>
           <IconButton
             aria-label="Close"
             variant="ghost"

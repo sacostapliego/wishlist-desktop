@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
-import { Dialog } from '@chakra-ui/react'
-import { Box, Button, HStack, VStack } from '@chakra-ui/react'
+import { Box, Button, HStack, VStack, Heading, IconButton } from '@chakra-ui/react'
+import { LuX } from 'react-icons/lu'
 import { COLORS } from '../../styles/common'
 import { createPortal } from 'react-dom'
 import { wishlistAPI } from '../../services/wishlist'
@@ -134,69 +134,107 @@ export function AddItemModal({ isOpen, onClose, preSelectedWishlistId, onSuccess
     onClose()
   }
 
+  if (!isOpen) return null
+
   return createPortal(
     <>
-      <Dialog.Root scrollBehavior={'inside'} open={isOpen} onOpenChange={(e) => !e.open && handleClose()} size="xl">
-        <Dialog.Backdrop />
-        <Dialog.Positioner>
-          <Dialog.Content 
-            bg={COLORS.cardGray} 
-            maxH={{base:"100vh", md:"90vh"}} 
-            display="flex"
-            flexDirection="column"
+      {/* Backdrop */}
+      <Box
+        position="fixed"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        bg="rgba(0, 0, 0, 0.7)"
+        zIndex={999}
+        onClick={handleClose}
+      />
+
+      {/* Modal */}
+      <Box
+        position="fixed"
+        top="50%"
+        left="50%"
+        transform="translate(-50%, -50%)"
+        bg={COLORS.cardGray}
+        borderRadius="lg"
+        zIndex={1000}
+        maxW={{ base: '100%', md: '600px' }}
+        maxH="90vh"
+        w="90vw"
+        overflowY="auto"
+      >
+        {/* Header */}
+        <Box
+          position="sticky"
+          top={0}
+          bg={COLORS.cardGray}
+          borderBottom="1px solid"
+          borderColor={COLORS.cardDarkLight}
+          px={6}
+          py={4}
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          zIndex={1}
+        >
+          <Heading color={COLORS.text.primary} size="lg">Add New Item</Heading>
+          <IconButton
+            aria-label="Close"
+            variant="ghost"
+            onClick={handleClose}
+            size="sm"
           >
-            <Dialog.CloseTrigger color={COLORS.text.primary} />
-            <Dialog.Header flexShrink={0}>
-              <Dialog.Title color={COLORS.text.primary}>Add New Item</Dialog.Title>
-            </Dialog.Header>
+            <LuX />
+          </IconButton>
+        </Box>
 
-            <Dialog.Body pb={6} overflowY="auto" flex={1}>
-              <VStack align="stretch" gap={6}>
-                <HStack gap={2} w="100%">
-                  <Button
-                    flex={1}
-                    variant={addMode === 'manual' ? 'solid' : 'outline'}
-                    onClick={() => setAddMode('manual')}
-                    bg={addMode === 'manual' ? COLORS.primary : undefined}
-                    color={addMode === 'manual' ? COLORS.text.primary : COLORS.text.secondary}
-                  >
-                    Manual
-                  </Button>
-                  <Button
-                    flex={1}
-                    variant={addMode === 'link' ? 'solid' : 'outline'}
-                    onClick={() => setAddMode('link')}
-                    bg={addMode === 'link' ? COLORS.primary : undefined}
-                    color={addMode === 'link' ? COLORS.text.primary : COLORS.text.secondary}
-                  >
-                    From Link
-                  </Button>
-                </HStack>
+        {/* Body */}
+        <Box px={6} pb={6}>
+          <VStack align="stretch" gap={6}>
+            <HStack gap={2} w="100%">
+              <Button
+                flex={1}
+                variant={addMode === 'manual' ? 'solid' : 'outline'}
+                onClick={() => setAddMode('manual')}
+                bg={addMode === 'manual' ? COLORS.primary : undefined}
+                color={addMode === 'manual' ? COLORS.text.primary : COLORS.text.secondary}
+              >
+                Manual
+              </Button>
+              <Button
+                flex={1}
+                variant={addMode === 'link' ? 'solid' : 'outline'}
+                onClick={() => setAddMode('link')}
+                bg={addMode === 'link' ? COLORS.primary : undefined}
+                color={addMode === 'link' ? COLORS.text.primary : COLORS.text.secondary}
+              >
+                From Link
+              </Button>
+            </HStack>
 
-                <Box>
-                  {addMode === 'manual' ? (
-                    <ItemForm
-                      ref={itemFormRef}
-                      initialValues={initialFormValues}
-                      onSubmit={handleAddItemSubmit}
-                      isLoading={isSubmitting}
-                      submitLabel="Add Item"
-                      wishlists={wishlists}
-                      selectedWishlistId={selectedWishlistId}
-                      onWishlistChange={setSelectedWishlistId}
-                      loadingWishlists={loadingWishlists}
-                      isEditMode={false}
-                      hideWishlistSelector={!!preSelectedWishlistId}
-                    />
-                  ) : (
-                    <ScrapeUrlForm onScrapeSuccess={handleScrapeSuccess} />
-                  )}
-                </Box>
-              </VStack>
-            </Dialog.Body>
-          </Dialog.Content>
-        </Dialog.Positioner>
-      </Dialog.Root>
+            <Box>
+              {addMode === 'manual' ? (
+                <ItemForm
+                  ref={itemFormRef}
+                  initialValues={initialFormValues}
+                  onSubmit={handleAddItemSubmit}
+                  isLoading={isSubmitting}
+                  submitLabel="Add Item"
+                  wishlists={wishlists}
+                  selectedWishlistId={selectedWishlistId}
+                  onWishlistChange={setSelectedWishlistId}
+                  loadingWishlists={loadingWishlists}
+                  isEditMode={false}
+                  hideWishlistSelector={!!preSelectedWishlistId}
+                />
+              ) : (
+                <ScrapeUrlForm onScrapeSuccess={handleScrapeSuccess} />
+              )}
+            </Box>
+          </VStack>
+        </Box>
+      </Box>
     </>,
     document.body
   )

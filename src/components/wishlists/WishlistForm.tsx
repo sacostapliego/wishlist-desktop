@@ -161,6 +161,7 @@ export const WishlistForm = forwardRef<WishlistFormRef, WishlistFormProps>(({
           border="none"
           _placeholder={{ color: COLORS.inactive }}
           _focus={{ bg: COLORS.cardDarkLight }}
+          color={COLORS.text.secondary}
         />
       </Box>
       

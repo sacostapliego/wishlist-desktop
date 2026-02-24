@@ -128,7 +128,7 @@ export function OwnerWishlistView({
   })
 
   return (
-    <Box bg={wishlist.color || COLORS.cardGray} px={8} py={6}>
+    <Box bg={wishlist.color || COLORS.cardGray} px={{base:4, md:6}} py={6}>
       {/* Header with back button and menu */}
       <HStack justify="space-between" mb={4}>
         <IconButton

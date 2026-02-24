@@ -8,6 +8,7 @@ import wishlistAPI from '../../services/wishlist'
 import { toaster } from '../ui/toaster'
 import type { UpdateWishlistData } from '../../types/types'
 import { API_URL } from '../../services/api'
+import { createPortal } from 'react-dom'
 
 interface EditWishlistModalProps {
   isOpen: boolean
@@ -103,7 +104,7 @@ export function EditWishlistModal({ isOpen, onClose, wishlistId, onSuccess }: Ed
 
   if (!isOpen) return null
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       <Box
@@ -126,7 +127,7 @@ export function EditWishlistModal({ isOpen, onClose, wishlistId, onSuccess }: Ed
         bg={COLORS.cardDarkLight}
         borderRadius="lg"
         zIndex={1000}
-        maxW="600px"
+        maxW={{base:"100%", md:"600px"}}
         maxH="90vh"
         w="90vw"
         overflowY="auto"
@@ -144,6 +145,7 @@ export function EditWishlistModal({ isOpen, onClose, wishlistId, onSuccess }: Ed
           justifyContent="space-between"
           alignItems="center"
           zIndex={1}
+          color={COLORS.text.primary}
         >
           <Heading size="lg">Edit Wishlist</Heading>
           <IconButton
@@ -168,6 +170,7 @@ export function EditWishlistModal({ isOpen, onClose, wishlistId, onSuccess }: Ed
           />
         )}
       </Box>
-    </>
+    </>,
+    document.body
   )
 }
