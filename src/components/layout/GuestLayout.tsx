@@ -4,7 +4,7 @@ import { COLORS } from '../../styles/common'
 
 export default function GuestLayout() {
   return (
-    <Box minH="100vh" bg={COLORS.background}>
+    <Box minH="120vh" bg={COLORS.background}>
       <Outlet />
     </Box>
   )

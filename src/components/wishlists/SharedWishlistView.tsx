@@ -99,7 +99,7 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
       })
 
   return (
-    <Box bg={wishlist.color || COLORS.cardGray} px={8} py={6}>
+    <Box bg={wishlist.color || COLORS.cardGray} px={8} py={{base:4, md:6}}>
       {/* Header with back button and menu */}
       <HStack justify="space-between" mb={4}>
         <IconButton
@@ -137,7 +137,7 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
         {/* Wishlist Info */}
         <VStack align="start" gap={2} pb={4}>
           <Heading 
-            size={{ base: "2xl", md: "3xl", lg: "4xl" }} 
+            size={{ base: "xl", md: "3xl", lg: "4xl" }} 
             color="white"
             lineHeight="1.2"
             wordBreak="break-word"
