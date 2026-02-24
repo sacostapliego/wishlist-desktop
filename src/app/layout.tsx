@@ -3,6 +3,7 @@ import { Provider } from '@/components/ui/provider'
 import { AuthProvider } from '@/context/AuthContext'
 import { Toaster } from '@/components/ui/toaster'
 import '@/App.css'
+import { Analytics } from '@vercel/analytics/next'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://cardinalwishlist.vercel.app'
 
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AuthProvider>
             {children}
             <Toaster />
+            <Analytics />
           </AuthProvider>
         </Provider>
       </body>
