@@ -1,6 +1,8 @@
+'use client'
+
 import { Box, HStack, VStack, Heading, Text, IconButton, SimpleGrid, Image } from '@chakra-ui/react'
 import { LuArrowLeft, LuGift } from 'react-icons/lu'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { wishlistAPI, type ClaimedItemResponse } from '../services/wishlist'
 import { isWishlistActive } from '../utils/wishlistUtils'
@@ -84,11 +86,11 @@ function ClaimedItemGrid({ items, onNavigate, getImageUrl }: ClaimedItemGridProp
 }
 
 function AllClaimedItemsPage() {
-  const navigate = useNavigate()
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [items, setItems] = useState<ClaimedItem[]>([])
-  const location = useLocation()
   const [loading, setLoading] = useState(true)
-  const fromMobileNav = location.state?.fromMobileNav === true
+  const fromMobileNav = searchParams?.get('fromMobileNav') === 'true'
 
   useEffect(() => {
     loadItems()
@@ -127,7 +129,7 @@ function AllClaimedItemsPage() {
   const inactiveItems = items.filter(item => !isWishlistActive(item.wishlist_due_date))
 
   const handleNavigate = (wishlistId: string, itemId: string) => {
-    navigate(`/wishlist/${wishlistId}/${itemId}`)
+    router.push(`/wishlist/${wishlistId}/${itemId}`)
   }
 
   if (loading) {
@@ -147,7 +149,7 @@ function AllClaimedItemsPage() {
             <IconButton
               aria-label="Go back"
               variant="ghost"
-              onClick={() => navigate(-1)}
+              onClick={() => router.back()}
               color="white"
               size="lg"
             >

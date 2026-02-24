@@ -1,8 +1,10 @@
+'use client'
+
 import { Box, Heading, IconButton } from '@chakra-ui/react'
 import { LuX } from 'react-icons/lu'
 import { useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { WishlistForm } from './WishlistForm'
 import type { WishlistFormRef } from './WishlistForm'
 import { COLORS } from '../../styles/common'
@@ -19,7 +21,7 @@ interface CreateWishlistModalProps {
 export function CreateWishlistModal({ isOpen, onClose, onSuccess }: CreateWishlistModalProps) {
   const [isLoading, setIsLoading] = useState(false)
   const formRef = useRef<WishlistFormRef>(null)
-  const navigate = useNavigate()
+  const router = useRouter()
 
   const handleCreateWishlist = async (wishlistData: CreateWishlistData) => {
     setIsLoading(true)
@@ -54,7 +56,7 @@ export function CreateWishlistModal({ isOpen, onClose, onSuccess }: CreateWishli
       
       onClose()
       
-      navigate(`/wishlist/${result.id}`)
+      router.push(`/wishlist/${result.id}`)
     } catch (error) {
       console.error('Error creating wishlist:', error)
       toaster.create({

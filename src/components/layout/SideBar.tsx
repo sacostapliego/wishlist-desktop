@@ -1,5 +1,7 @@
+'use client'
+
 import { Box, VStack, Text, Button, Separator, IconButton, HStack } from '@chakra-ui/react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { LuHouse, LuPlus, LuUsers, LuHeart, LuGift, LuX } from 'react-icons/lu'
 import { useEffect, useState, useRef } from 'react'
 import { wishlistAPI } from '../../services/wishlist'
@@ -33,7 +35,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarProps) {
-  const navigate = useNavigate()
+  const router = useRouter()
   const { user } = useAuth()
   const [myWishlists, setMyWishlists] = useState<Wishlist[]>([])
   const [friendsWishlists, setFriendsWishlists] = useState<FriendWishlistResponse[]>([])
@@ -99,7 +101,7 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
           displayName={displayName}
           profileImage={profileImage}
           isExpanded={isExpanded}
-          onNavigate={() => navigate('/profile')}
+          onNavigate={() => router.push('/profile')}
         />
       </Box>
 
@@ -110,7 +112,7 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
         <VStack align="stretch" gap={2}>
           {isExpanded ? (
             <>
-              <Button variant="ghost" justifyContent="flex-start" onClick={() => navigate('/')}>
+              <Button variant="ghost" justifyContent="flex-start" onClick={() => router.push('/')}>
                 <HStack><LuHouse /><Text>Home</Text></HStack>
               </Button>
               <Button 
@@ -132,13 +134,13 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
                   <Text>Create</Text>
                 </HStack>
               </Button>
-              <Button variant="ghost" justifyContent="flex-start" onClick={() => navigate('/friends')}>
+              <Button variant="ghost" justifyContent="flex-start" onClick={() => router.push('/friends')}>
                 <HStack><LuUsers /><Text>Friends</Text></HStack>
               </Button>
             </>
           ) : (
             <>
-              <IconButton aria-label="Home" variant="ghost" onClick={() => navigate('/')}><LuHouse /></IconButton>
+              <IconButton aria-label="Home" variant="ghost" onClick={() => router.push('/')}><LuHouse /></IconButton>
               <IconButton 
                 ref={createButtonRef}
                 aria-label="Create" 
@@ -155,7 +157,7 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
                   {isCreateMenuOpen ? <LuX /> : <LuPlus />}
                 </Box>
               </IconButton>
-              <IconButton aria-label="Friends" variant="ghost" onClick={() => navigate('/friends')}><LuUsers /></IconButton>
+              <IconButton aria-label="Friends" variant="ghost" onClick={() => router.push('/friends')}><LuUsers /></IconButton>
             </>
           )}
         </VStack>
@@ -182,7 +184,7 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
                   key={wishlist.id}
                   {...wishlist}
                   isCollapsed={!isExpanded}
-                  onClick={() => navigate(`/wishlist/${wishlist.id}`)}
+                  onClick={() => router.push(`/wishlist/${wishlist.id}`)}
                 />
               ))
             )}
@@ -218,7 +220,7 @@ export default function Sidebar({ isExpanded, isCollapsed, isHidden }: SidebarPr
                   thumbnail_icon={wishlist.thumbnail_icon}
                   thumbnail_image={wishlist.thumbnail_image}
                   isCollapsed={!isExpanded}
-                  onClick={() => navigate(`/wishlist/${wishlist.id}`)}
+                  onClick={() => router.push(`/wishlist/${wishlist.id}`)}
                 />
               ))
             )}

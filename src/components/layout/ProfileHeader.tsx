@@ -1,12 +1,14 @@
+'use client'
+
 import { Box, HStack } from '@chakra-ui/react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '../../context/AuthContext'
 import { API_URL } from '../../services/api'
 import { ProfileSection } from './sidebar/ProfileSection'
 import { COLORS } from '../../styles/common'
 
 export function ProfileHeader() {
-  const navigate = useNavigate()
+  const router = useRouter()
   const { user } = useAuth()
 
   const profileImage = user?.id ? `${API_URL}users/${user.id}/profile-image` : null
@@ -19,7 +21,7 @@ export function ProfileHeader() {
           displayName={displayName}
           profileImage={profileImage}
           isExpanded={true}
-          onNavigate={() => navigate('/profile')}
+          onNavigate={() => router.push('/profile')}
         />
       </HStack>
       

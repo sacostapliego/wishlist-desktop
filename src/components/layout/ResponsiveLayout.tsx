@@ -1,12 +1,12 @@
+'use client'
+
 import type { ReactNode } from 'react'
 import { Box, Flex, IconButton } from '@chakra-ui/react'
-import { Outlet } from 'react-router-dom'
 import { LuPanelLeft } from 'react-icons/lu'
 import Sidebar from './SideBar'
 import MobileNav from './MobileNav'
 import { useSidebarResize } from '../../hooks/useSidebarResize'
 import { useScrollToTop } from '../../hooks/useScrollToTop'
-import '../../App.css'
 
 interface ResponsiveLayoutProps {
   children?: ReactNode
@@ -85,7 +85,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
           ['--sidebar-width' as string]: `${sidebarWidth}px`,
         } as React.CSSProperties}
       >
-        {children || <Outlet />}
+        {children}
       </Box>
 
       {/* Mobile Bottom Nav */}

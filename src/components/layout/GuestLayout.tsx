@@ -1,11 +1,13 @@
+'use client'
+
+import type { ReactNode } from 'react'
 import { Box } from '@chakra-ui/react'
-import { Outlet } from 'react-router-dom'
 import { COLORS } from '../../styles/common'
 
-export default function GuestLayout() {
+export default function GuestLayout({ children }: { children: ReactNode }) {
   return (
     <Box minH="120vh" bg={COLORS.background}>
-      <Outlet />
+      {children}
     </Box>
   )
 }

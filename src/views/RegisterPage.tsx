@@ -1,5 +1,7 @@
+'use client'
+
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import {
   Box,
   Button,
@@ -44,7 +46,7 @@ export default function RegisterPage() {
   const [isCropperOpen, setIsCropperOpen] = useState(false)
   const [tempImageSrc, setTempImageSrc] = useState<string | null>(null)
   const { register } = useAuth()
-  const navigate = useNavigate()
+  const router = useRouter()
 
   const compressImage = async (file: File): Promise<File> => {
     const options = {
@@ -172,7 +174,7 @@ export default function RegisterPage() {
           description: 'Account created successfully!',
           type: 'success',
         })
-        navigate('/')
+        router.push('/')
       } else {
         toaster.create({
           title: 'Error',
@@ -332,7 +334,7 @@ export default function RegisterPage() {
                   color={COLORS.primary}
                   fontWeight="semibold"
                   cursor="pointer"
-                  onClick={() => navigate('/auth/login')}
+                  onClick={() => router.push('/auth/login')}
                   _hover={{ textDecoration: 'underline' }}
                 >
                   Sign In

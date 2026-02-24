@@ -1,6 +1,8 @@
+'use client'
+
 import { Box, VStack, HStack, Heading, Text, Button, IconButton, Avatar } from '@chakra-ui/react'
 import { LuArrowLeft, LuUserPlus, LuChevronRight, LuCheck, LuX } from 'react-icons/lu'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { COLORS } from '../styles/common'
 import { friendsAPI, type FriendInfo, type FriendRequestInfo } from '../services/friends'
@@ -10,7 +12,7 @@ import { AddFriendModal } from '../components/friends/AddFriendModal'
 import { Tabs } from '@chakra-ui/react'
 
 function FriendsPage() {
-  const navigate = useNavigate()
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<'friends' | 'requests'>('friends')
   const [friends, setFriends] = useState<FriendInfo[]>([])
   const [requests, setRequests] = useState<FriendRequestInfo[]>([])
@@ -102,7 +104,7 @@ function FriendsPage() {
             <IconButton
               aria-label="Back"
               variant="ghost"
-              onClick={() => navigate(-1)}
+              onClick={() => router.back()}
             >
               <LuArrowLeft />
             </IconButton>
@@ -176,7 +178,7 @@ function FriendsPage() {
                     cursor="pointer"
                     _hover={{ bg: '#252525' }}
                     transition="background 0.2s"
-                    onClick={() => navigate(`/profile/${friend.id}`)}
+                    onClick={() => router.push(`/profile/${friend.id}`)}
                   >
                     <HStack justify="space-between">
                       <HStack gap={3}>

@@ -1,7 +1,9 @@
+'use client'
+
 import { Box, HStack, VStack, Heading, Text, Avatar, IconButton } from '@chakra-ui/react'
 import { LuArrowLeft, LuEllipsisVertical } from 'react-icons/lu'
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { COLORS } from '../../styles/common'
 import { API_URL } from '../../services/api'
 import { WishlistMenu, getSharedMenuOptions } from './WishlistMenu'
@@ -29,7 +31,7 @@ interface SharedWishlistViewProps {
 }
 
 export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
-  const navigate = useNavigate()
+  const router = useRouter()
   const { user, isLoggedIn } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isFriend, setIsFriend] = useState(false)
@@ -94,8 +96,8 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
         onRemoveSaved: isSaved ? () => console.log('Remove saved wishlist') : undefined,
       })
     : getSharedMenuOptions({
-        onCreateAccount: () => navigate('/auth/register'),
-        onSignIn: () => navigate('/auth/login'),
+        onCreateAccount: () => router.push('/auth/register'),
+        onSignIn: () => router.push('/auth/login'),
       })
 
   return (
@@ -105,7 +107,7 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
         <IconButton
           aria-label="Go back"
           variant="ghost"
-          onClick={() => navigate(-1)}
+          onClick={() => router.back()}
           color="white"
           size="lg"
         >
@@ -155,12 +157,12 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
             <Avatar.Root 
               size="xs"
               cursor="pointer"
-              onClick={() => navigate(`/profile/${wishlist.owner_id}`)}
+              onClick={() => router.push(`/profile/${wishlist.owner_id}`)}
             >
               <Avatar.Fallback name={wishlist.owner_name} />
               <Avatar.Image src={profileImage || undefined} />
             </Avatar.Root>
-            <Text fontWeight="semibold" color="white" cursor="pointer" onClick={() => navigate(`/profile/${wishlist.owner_id}`)}>
+            <Text fontWeight="semibold" color="white" cursor="pointer" onClick={() => router.push(`/profile/${wishlist.owner_id}`)}>
               {wishlist.owner_name}
             </Text>
             <Text display={{ base: 'none', md: 'block' }}>•</Text>

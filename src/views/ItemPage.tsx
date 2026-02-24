@@ -1,5 +1,7 @@
+'use client'
+
 import { Box, VStack, Heading, Text, Image, IconButton, HStack, Button, Stack } from '@chakra-ui/react'
-import { useParams, useNavigate, Navigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { LuArrowLeft, LuEllipsisVertical, LuCopy, LuExternalLink } from 'react-icons/lu'
 import { COLORS } from '../styles/common'
 import { API_URL } from '../services/api'
@@ -14,17 +16,19 @@ import { useEffect, useState } from 'react'
 import { wishlistAPI } from '../services/wishlist'
 import { ConfirmDialog } from '../components/common/ConfirmDialog'
 import { useAuth } from '../context/AuthContext'
-import { usePageMeta } from '../hooks/usePageMeta'
 
-function ItemPage() {
-  const { id: wishlistId, itemId } = useParams<{ id: string; itemId: string }>()
-  const navigate = useNavigate()
+interface ItemPageProps {
+  wishlistId: string
+  itemId: string
+}
+
+function ItemPage({ wishlistId, itemId }: ItemPageProps) {
+  const router = useRouter()
   const [isNameExpanded, setIsNameExpanded] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
-  // Pass `true` for isPublicView when user is not authenticated
   const { isLoggedIn } = useAuth()
   const isPublicView = !isLoggedIn
 
@@ -35,7 +39,6 @@ function ItemPage() {
   )
 
   useEffect(() => {
-    // Reset theme-color meta tag to default background color
     let metaThemeColor = document.querySelector('meta[name="theme-color"]')
     if (!metaThemeColor) {
       metaThemeColor = document.createElement('meta')
@@ -117,7 +120,7 @@ function ItemPage() {
         description: 'Item deleted successfully!',
         type: 'success',
       })
-      navigate(`/wishlist/${wishlistId}`)
+      router.push(`/wishlist/${wishlistId}`)
     } catch (error) {
       console.error('Failed to delete item:', error)
       toaster.create({
@@ -133,22 +136,6 @@ function ItemPage() {
     onShare: handleShareItem,
     onDelete: () => setIsDeleteDialogOpen(true),
   })
-
-  const metaImage = (() => {
-    if (!item) return undefined
-    if (item.image) return `${API_URL}${item.image}`
-    return '/favicon.png'
-  })()
-
-  usePageMeta({
-    title: item?.name,
-    description: item?.description || `View this item from ${wishlistInfo?.name}`,
-    image: metaImage,
-  })
-
-  if (!wishlistId || !itemId) {
-    return <Navigate to="/" replace />
-  }
 
   if (isLoading) {
     return (
@@ -166,7 +153,7 @@ function ItemPage() {
             <IconButton
               aria-label="Go back"
               variant="ghost"
-              onClick={() => navigate(-1)}
+              onClick={() => router.back()}
               color="white"
               size="lg"
             >
@@ -194,7 +181,7 @@ function ItemPage() {
           <IconButton
             aria-label="Go back"
             variant="ghost"
-            onClick={() => navigate(-1)}
+            onClick={() => router.back()}
             color="white"
             size="lg"
           >
@@ -330,8 +317,8 @@ function ItemPage() {
       {!isOwner && isLoggedIn && (
         <Box
           position="fixed"
-          bottom={{ base: "calc(64px + 1rem)", md: "1rem" }}          // Above bottom nav on mobile, just padding on desktop
-          left={{ base: 0, md: "calc(var(--sidebar-width) + 51px)" }} // Sidebar width + gap + padding
+          bottom={{ base: "calc(64px + 1rem)", md: "1rem" }}
+          left={{ base: 0, md: "calc(var(--sidebar-width) + 51px)" }}
           right={{ base: 0, md: "16px" }}
           px={4}
           zIndex={9}
@@ -371,7 +358,7 @@ function ItemPage() {
               bg="white"
               color="black"
               size="lg"
-              onClick={() => navigate('/auth/register')}
+              onClick={() => router.push('/auth/register')}
               _hover={{ bg: 'gray.200' }}
             >
               Create an account to claim this item
@@ -391,7 +378,7 @@ function ItemPage() {
       <EditItemModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        itemId={itemId!}
+        itemId={itemId}
         onSuccess={refetchData}
       />
 

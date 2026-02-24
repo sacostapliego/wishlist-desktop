@@ -1,6 +1,8 @@
+'use client'
+
 import { Box, HStack, VStack, Heading, Text, IconButton, SimpleGrid, Image } from '@chakra-ui/react'
 import { LuArrowLeft } from 'react-icons/lu'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { wishlistAPI } from '../services/wishlist'
 import { friendsAPI } from '../services/friends'
@@ -84,7 +86,7 @@ function WishlistGrid({ wishlists, type, onNavigate }: WishlistGridProps) {
 }
 
 function AllWishlistsPage({ type }: AllWishlistsPageProps) {
-  const navigate = useNavigate()
+  const router = useRouter()
   const [wishlists, setWishlists] = useState<Wishlist[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -152,7 +154,7 @@ function AllWishlistsPage({ type }: AllWishlistsPageProps) {
           <IconButton
             aria-label="Go back"
             variant="ghost"
-            onClick={() => navigate(-1)}
+            onClick={() => router.back()}
             color="white"
             size="lg"
           >
@@ -173,7 +175,7 @@ function AllWishlistsPage({ type }: AllWishlistsPageProps) {
               {activeWishlists.length === 0 ? (
                 <Text color={COLORS.text.secondary} fontSize="sm">No active wishlists</Text>
               ) : (
-                <WishlistGrid wishlists={activeWishlists} type={type} onNavigate={(id) => navigate(`/wishlist/${id}`)} />
+                <WishlistGrid wishlists={activeWishlists} type={type} onNavigate={(id) => router.push(`/wishlist/${id}`)} />
               )}
             </Box>
 
@@ -183,7 +185,7 @@ function AllWishlistsPage({ type }: AllWishlistsPageProps) {
               {inactiveWishlists.length === 0 ? (
                 <Text color={COLORS.text.secondary} fontSize="sm">No inactive wishlists</Text>
               ) : (
-                <WishlistGrid wishlists={inactiveWishlists} type={type} onNavigate={(id) => navigate(`/wishlist/${id}`)} />
+                <WishlistGrid wishlists={inactiveWishlists} type={type} onNavigate={(id) => router.push(`/wishlist/${id}`)} />
               )}
             </Box>
           </VStack>

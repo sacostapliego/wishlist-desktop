@@ -1,4 +1,5 @@
-/* eslint-disable react-refresh/only-export-components */
+'use client'
+
 import { createContext, useState, useEffect, useContext, type ReactNode } from 'react'
 import storage from '../utils/storage'
 import authAPI from '../services/auth'

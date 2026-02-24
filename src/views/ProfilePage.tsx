@@ -1,5 +1,7 @@
+'use client'
+
 import { Box, VStack, Heading, Text, IconButton, HStack, Image, Button } from '@chakra-ui/react'
-import { Navigate, useNavigate, useParams } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { LuArrowLeft, LuEllipsisVertical, LuSettings } from 'react-icons/lu'
 import { useEffect, useState } from 'react'
 import { COLORS } from '../styles/common'
@@ -12,7 +14,6 @@ import { friendsAPI, type FriendWishlistResponse } from '../services/friends'
 import { WishlistCarousel } from '../components/home/WishlistCarousel'
 import { EditSizesModal } from '../components/modals/EditSizesModal'
 
-// Local display type that matches what WishlistCarousel expects
 interface WishlistDisplayItem {
   id: string
   name: string
@@ -21,12 +22,14 @@ interface WishlistDisplayItem {
   color?: string
 }
 
-function ProfilePage() {
-  const navigate = useNavigate()
-  const { userId } = useParams<{ userId?: string }>()
+interface ProfilePageProps {
+  userId?: string
+}
+
+function ProfilePage({ userId }: ProfilePageProps) {
+  const router = useRouter()
   const { user, refreshUser, isLoggedIn } = useAuth()
   const [publicUser, setPublicUser] = useState<PublicUserDetailsResponse | null>(null)
-  // Use the display type instead of FriendWishlistResponse
   const [friendWishlists, setFriendWishlists] = useState<WishlistDisplayItem[]>([])
   const [loading, setLoading] = useState(false)
   const [isEditSizesOpen, setIsEditSizesOpen] = useState(false)
@@ -45,9 +48,11 @@ function ProfilePage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, isSelf, isLoggedIn])
   
-  if (!isLoggedIn && !userId) {
-    return <Navigate to="/auth/login" replace />
-  }
+  useEffect(() => {
+    if (!loading && !isLoggedIn && !userId) {
+      router.replace('/auth/login')
+    }
+  }, [loading, isLoggedIn, userId, router])
 
   const loadFriendWishlists = async (ownerId: string) => {
     try {
@@ -57,7 +62,6 @@ function ProfilePage() {
         w.owner_id === ownerId
       )
       
-      // Transform into WishlistDisplayItem - type now matches state
       const transformed: WishlistDisplayItem[] = ownerWishlists.map((w: FriendWishlistResponse) => ({
         id: w.id,
         name: w.title,
@@ -84,7 +88,7 @@ function ProfilePage() {
         description: 'Failed to load user profile',
         type: 'error',
       })
-      navigate(-1)
+      router.back()
     } finally {
       setLoading(false)
     }
@@ -92,6 +96,10 @@ function ProfilePage() {
 
   const handleSizesUpdated = async () => {
     await refreshUser()
+  }
+
+  if (!isLoggedIn && !userId) {
+    return null
   }
 
   if (loading || (!isSelf && !publicUser)) {
@@ -143,7 +151,7 @@ function ProfilePage() {
           <IconButton
             aria-label="Go back"
             variant="ghost"
-            onClick={() => navigate(-1)}
+            onClick={() => router.back()}
             color="white"
             size="lg"
           >
@@ -154,7 +162,7 @@ function ProfilePage() {
             <IconButton
               aria-label="Settings"
               variant="ghost"
-              onClick={() => navigate('/settings')}
+              onClick={() => router.push('/settings')}
               color="white"
               size="lg"
             >
@@ -250,7 +258,7 @@ function ProfilePage() {
             <WishlistCarousel 
               title="Saved Lists"
               wishlists={friendWishlists}
-              onWishlistClick={(id) => navigate(`/wishlist/${id}`)}
+              onWishlistClick={(id) => router.push(`/wishlist/${id}`)}
             />
           </Box>
         )}

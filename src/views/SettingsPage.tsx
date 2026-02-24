@@ -1,5 +1,7 @@
+'use client'
+
 import { Box, VStack, Heading, Text, Button, HStack, IconButton, Image, Stack } from '@chakra-ui/react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { LuArrowLeft, LuLogOut } from 'react-icons/lu'
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
@@ -11,7 +13,7 @@ import userAPI from '../services/user'
 import { toaster } from '../components/ui/toaster'
 
 function SettingsPage() {
-  const navigate = useNavigate()
+  const router = useRouter()
   const { user, logout, refreshUser } = useAuth()
   const [isEditPictureOpen, setIsEditPictureOpen] = useState(false)
   const [isRemovePictureOpen, setIsRemovePictureOpen] = useState(false)
@@ -20,7 +22,7 @@ function SettingsPage() {
   const handleLogout = async () => {
     try {
       await logout()
-      navigate('/auth/login')
+      router.push('/auth/login')
     } catch (error) {
       console.error('Logout failed:', error)
     }
@@ -63,7 +65,7 @@ function SettingsPage() {
           <IconButton
             aria-label="Go back"
             variant="ghost"
-            onClick={() => navigate(-1)}
+            onClick={() => router.back()}
             color="white"
             size="lg"
           >

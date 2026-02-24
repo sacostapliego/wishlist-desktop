@@ -1,3 +1,6 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import { Box, VStack, Button, Text } from '@chakra-ui/react'
 import { createPortal } from 'react-dom'
 import { LuList, LuPlus } from 'react-icons/lu'
@@ -12,8 +15,15 @@ interface CreateMenuProps {
 }
 
 export function CreateMenu({ isOpen, onClose, anchorRef, onCreateWishlist, onAddItem }: CreateMenuProps) {
+  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null)
+
+  useEffect(() => {
+    if (isOpen && anchorRef.current) {
+      setAnchorRect(anchorRef.current.getBoundingClientRect())
+    }
+  }, [isOpen, anchorRef])
+
   if (!isOpen) return null
-  const anchorRect = anchorRef.current?.getBoundingClientRect()  
 
   return createPortal(
     <>

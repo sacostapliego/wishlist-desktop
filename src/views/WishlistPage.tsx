@@ -1,5 +1,7 @@
+'use client'
+
 import { Box, VStack, Heading, Text } from '@chakra-ui/react'
-import { useParams, Navigate, useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { wishlistAPI } from '../services/wishlist'
 import { friendsAPI } from '../services/friends'
@@ -13,8 +15,6 @@ import { WishlistFilters } from '../components/wishlists/WishlistFilters'
 import { userAPI } from '../services/user'
 import type { ApiError } from '../types/types'
 import { SimpleGridView } from '../components/wishlists/SimpleGridView'
-import { usePageMeta } from '../hooks/usePageMeta'
-import { API_URL } from '../services/api'
 
 interface Wishlist {
   id: string
@@ -72,13 +72,14 @@ interface FriendWishlistResponse {
   due_date?: string | null
 }
 
+interface WishlistPageProps {
+  id: string
+}
 
-function WishlistPage() {
-  const navigate = useNavigate()
-  const { id } = useParams<{ id: string }>()
+function WishlistPage({ id }: WishlistPageProps) {
+  const router = useRouter()
   const { user, loading: authLoading, isLoggedIn } = useAuth()
   
-  // Local state for ownership/access logic
   const [wishlist, setWishlist] = useState<Wishlist | null>(null)
   const [ownerName, setOwnerName] = useState<string>('')
   const [loading, setLoading] = useState(true)
@@ -89,7 +90,6 @@ function WishlistPage() {
   const [selectedItems, setSelectedItems] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(wishlist?.default_view || 'list')
 
-  // Use hook only for items
   const { items, isLoading: itemsLoading, refetchItems } = useWishlistDetail(id, undefined, true)
 
   useEffect(() => {
@@ -107,7 +107,6 @@ function WishlistPage() {
 
   useEffect(() => {
   if (wishlist?.color) {
-    // Legacy iOS — meta theme-color
     const metaThemeColor = document.querySelector('meta[name="theme-color"]')
     if (!metaThemeColor) {
       const newMeta = document.createElement('meta')
@@ -118,18 +117,15 @@ function WishlistPage() {
       metaThemeColor.setAttribute('content', wishlist.color)
     }
 
-    // iOS 26+ — body background
     document.body.style.backgroundColor = wishlist.color
   }
 
   return () => {
-    // Reset meta tag
     const metaThemeColor = document.querySelector('meta[name="theme-color"]')
     if (metaThemeColor) {
       metaThemeColor.setAttribute('content', '#141414')
     }
 
-    // Reset body background
     document.body.style.backgroundColor = '#141414'
   }
 }, [wishlist?.color])
@@ -139,7 +135,6 @@ function WishlistPage() {
       setLoading(true)
       setAccessDenied(false)
 
-      // If user is authenticated, check ownership and friend access first
       if (isLoggedIn && user) {
         const [myWishlists, friendsWishlists] = await Promise.all([
           wishlistAPI.getWishlists() as Promise<MyWishlistResponse[]>,
@@ -187,7 +182,6 @@ function WishlistPage() {
         }
       }
 
-      // Try public access (works for both guests and authenticated users)
       try {
         const publicData = await wishlistAPI.getPublicWishlist(wishlistId)
         const ownerId = publicData.user_id || publicData.owner_id
@@ -197,13 +191,11 @@ function WishlistPage() {
           owner_id: ownerId || ''
         })
         
-        // Try to get the owner name from the response first
         let extractedOwnerName = 
           publicData.owner_name || 
           publicData.owner_username || 
           publicData.username
 
-        // If no owner name in wishlist response, fetch the user's public profile
         if (!extractedOwnerName && ownerId) {
           try {
             const ownerProfile = await userAPI.getPublicUserDetails(ownerId)
@@ -241,24 +233,11 @@ function WishlistPage() {
     }
   }
 
-  const metaImage = (() => {
-    if (!wishlist) return undefined
-    if (wishlist.thumbnail_type === 'image' && wishlist.thumbnail_image) {
-      return `${API_URL}${wishlist.thumbnail_image}`
+  useEffect(() => {
+    if (!authLoading && !loading && !wishlist && !accessDenied && !itemsLoading) {
+      router.replace(isLoggedIn ? '/' : '/auth/login')
     }
-    // For icon type or fallback, use favicon
-    return '/favicon.png'
-  })()
-
-  usePageMeta({
-    title: wishlist?.title,
-    description: wishlist?.description,
-    image: metaImage,
-  })
-
-  if (!id) {
-    return <Navigate to="/" replace />
-  }
+  }, [authLoading, loading, wishlist, accessDenied, itemsLoading, isLoggedIn, router])
 
   if (authLoading || loading || itemsLoading) {
     return (
@@ -282,7 +261,7 @@ function WishlistPage() {
   }
 
   if (!wishlist) {
-    return <Navigate to={isLoggedIn ? "/" : "/auth/login"} replace />
+    return null
   }
 
   return (
@@ -312,7 +291,6 @@ function WishlistPage() {
           />
         )}
         
-        {/* Filter Buttons */}
         {items.length > 0 && (
           <WishlistFilters 
             sortBy={sortBy}
@@ -321,14 +299,13 @@ function WishlistPage() {
           />
         )}
 
-        {/* Items */}
         {items.length > 0 ? (
           viewMode === 'list' ? (
             <WishlistItemView 
               items={items}
               wishlistColor={wishlist.use_item_colors ? wishlist.color : undefined}
               sortBy={sortBy}
-              onItemClick={(item) => navigate(`/wishlist/${wishlist.id}/${item.id}`)}
+              onItemClick={(item) => router.push(`/wishlist/${wishlist.id}/${item.id}`)}
               isSelectionMode={isSelectionMode}
               selectedItems={selectedItems}
               onToggleSelect={(itemId) => {
@@ -344,7 +321,7 @@ function WishlistPage() {
               items={items}
               wishlistColor={wishlist.use_item_colors ? wishlist.color : undefined}
               sortBy={sortBy}
-              onItemClick={(item) => navigate(`/wishlist/${wishlist.id}/${item.id}`)}
+              onItemClick={(item) => router.push(`/wishlist/${wishlist.id}/${item.id}`)}
             />
           )
         ) : (

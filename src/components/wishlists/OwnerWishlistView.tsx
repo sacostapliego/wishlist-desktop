@@ -1,7 +1,9 @@
+'use client'
+
 import { Box, HStack, VStack, Heading, Text, Avatar, IconButton, Button } from '@chakra-ui/react'
 import { LuArrowLeft, LuEllipsisVertical, LuPlus } from 'react-icons/lu'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { COLORS } from '../../styles/common'
 import { API_URL } from '../../services/api'
 import { WishlistMenu, getOwnerMenuOptions } from './WishlistMenu'
@@ -48,7 +50,7 @@ export function OwnerWishlistView({
   selectedItems,
   setSelectedItems
 }: OwnerWishlistViewProps) {
-  const navigate = useNavigate()
+  const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false)
@@ -97,7 +99,7 @@ export function OwnerWishlistView({
         description: `"${wishlist.title}" has been deleted.`,
         type: 'success',
       })
-      navigate('/', { replace: true })
+      router.replace('/')
       window.location.reload()
     } catch (error) {
       console.error('Failed to delete wishlist:', error)
@@ -130,7 +132,7 @@ export function OwnerWishlistView({
         <IconButton
           aria-label="Go back"
           variant="ghost"
-          onClick={() => navigate(-1)}
+          onClick={() => router.back()}
           color="white"
           size="lg"
         >
@@ -218,12 +220,12 @@ export function OwnerWishlistView({
             <Avatar.Root 
               size="xs" 
               cursor="pointer"
-              onClick={() => navigate(`/profile`)}
+              onClick={() => router.push(`/profile`)}
             >
               <Avatar.Fallback name={wishlist.owner} />
               <Avatar.Image src={profileImage || undefined} />
             </Avatar.Root>
-            <Text fontWeight="semibold" color="white" cursor="pointer" onClick={() => navigate(`/profile`)} lineClamp={1}>
+            <Text fontWeight="semibold" color="white" cursor="pointer" onClick={() => router.push(`/profile`)} lineClamp={1}>
               {wishlist.owner}
             </Text>
             <Text display={{ base: 'none', md: 'block' }}>•</Text>

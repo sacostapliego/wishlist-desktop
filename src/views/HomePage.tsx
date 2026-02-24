@@ -1,3 +1,5 @@
+'use client'
+
 import { Box, VStack, HStack, Heading, Button } from '@chakra-ui/react'
 import { ClaimedItemsSection } from '../components/home/ClaimedItemSection'
 import { WishlistCarousel } from '../components/home/WishlistCarousel'
@@ -5,7 +7,7 @@ import { useEffect, useState } from 'react'
 import { wishlistAPI, type ClaimedItemResponse } from '../services/wishlist'
 import { friendsAPI, type FriendWishlistResponse } from '../services/friends'
 import { toaster } from '../components/ui/toaster'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { ProfileHeader } from '../components/layout/ProfileHeader'
 import { COLORS } from '../styles/common'
 import { isWishlistActive } from '../utils/wishlistUtils'
@@ -56,7 +58,7 @@ function EmptySectionHeader({ title, onShowAll }: { title: string; onShowAll: ()
 }
 
 function HomePage() {
-  const navigate = useNavigate()
+  const router = useRouter()
   const [myWishlists, setMyWishlists] = useState<Wishlist[]>([])
   const [friendsWishlists, setFriendsWishlists] = useState<Wishlist[]>([])
   const [claimedItems, setClaimedItems] = useState<ClaimedItem[]>([])
@@ -145,13 +147,13 @@ function HomePage() {
         {claimedItems.length > 0 ? (
           <ClaimedItemsSection
             items={claimedItems}
-            onShowAll={() => navigate('/items/claimed')}
-            onItemClick={(item) => navigate(`/wishlist/${item.wishlist_id}/${item.id}`)}
+            onShowAll={() => router.push('/items/claimed')}
+            onItemClick={(item) => router.push(`/wishlist/${item.wishlist_id}/${item.id}`)}
           />
         ) : (
           <EmptySectionHeader
             title="Items Claimed"
-            onShowAll={() => navigate('/items/claimed')}
+            onShowAll={() => router.push('/items/claimed')}
           />
         )}
 
@@ -160,13 +162,13 @@ function HomePage() {
           <WishlistCarousel
             title="Friends Lists"
             wishlists={friendsWishlists}
-            onShowAll={() => navigate('/wishlists/friends')}
-            onWishlistClick={(id) => navigate(`/wishlist/${id}`)}
+            onShowAll={() => router.push('/wishlists/friends')}
+            onWishlistClick={(id) => router.push(`/wishlist/${id}`)}
           />
         ) : (
           <EmptySectionHeader
             title="Friends Lists"
-            onShowAll={() => navigate('/wishlists/friends')}
+            onShowAll={() => router.push('/wishlists/friends')}
           />
         )}
 
@@ -175,8 +177,8 @@ function HomePage() {
           <WishlistCarousel
             title="My Lists"
             wishlists={myWishlists}
-            onShowAll={() => navigate('/wishlists/mine')}
-            onWishlistClick={(id) => navigate(`/wishlist/${id}`)}
+            onShowAll={() => router.push('/wishlists/mine')}
+            onWishlistClick={(id) => router.push(`/wishlist/${id}`)}
           />
         )}
       </VStack>

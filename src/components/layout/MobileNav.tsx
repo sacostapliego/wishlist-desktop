@@ -1,8 +1,10 @@
+'use client'
+
 import { Box, HStack, IconButton } from '@chakra-ui/react'
 import { LuPlus, LuX } from 'react-icons/lu'
 import { GoHome, GoHomeFill } from 'react-icons/go'
 import { BiGift, BiSolidGift } from 'react-icons/bi'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useRouter, usePathname } from 'next/navigation'
 import { useState, useRef } from 'react'
 import { COLORS } from '../../styles/common'
 import { MobileCreateMenu } from './nav/MobileCreateMenu'
@@ -10,14 +12,14 @@ import { CreateWishlistModal } from '../wishlists/CreateWishlistModal'
 import { AddItemModal } from '../items/AddItemModal'
 
 export default function MobileNav() {
-  const navigate = useNavigate()
-  const location = useLocation()
+  const router = useRouter()
+  const pathname = usePathname()
   const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false)
   const [isCreateWishlistModalOpen, setIsCreateWishlistModalOpen] = useState(false)
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false)
   const createButtonRef = useRef<HTMLButtonElement>(null)
 
-  const isActive = (path: string) => location.pathname === path
+  const isActive = (path: string) => pathname === path
 
   const navItems = [
     {
@@ -25,7 +27,7 @@ export default function MobileNav() {
       activeIcon: GoHomeFill,
       inactiveIcon: GoHome,
       active: isActive('/'),
-      onClick: () => navigate('/'),
+      onClick: () => router.push('/'),
     },
     {
       label: 'Create',
@@ -40,7 +42,7 @@ export default function MobileNav() {
       activeIcon: BiSolidGift,
       inactiveIcon: BiGift,
       active: isActive('/items/claimed'),
-      onClick: () => navigate('/items/claimed', { state: { fromMobileNav: true } }),
+      onClick: () => router.push('/items/claimed?fromMobileNav=true'),
     },
   ]
 

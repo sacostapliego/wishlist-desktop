@@ -1,5 +1,7 @@
+'use client'
+
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { Box, Button, Input, VStack, Text, Heading, Container } from '@chakra-ui/react'
 import { useAuth } from '../context/AuthContext'
 import { toaster } from '../components/ui/toaster'
@@ -10,7 +12,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const { login } = useAuth()
-  const navigate = useNavigate()
+  const router = useRouter()
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -23,7 +25,7 @@ export default function LoginPage() {
       const response = await login(email, password)
       if (response?.user) {
         toaster.create({ title: 'Success', description: 'Logged in successfully!', type: 'success' })
-        navigate('/')
+        router.push('/')
       }
     } catch (e: unknown) {
       const msg =
@@ -89,7 +91,7 @@ export default function LoginPage() {
                 color={COLORS.primary}
                 fontWeight="semibold"
                 cursor="pointer"
-                onClick={() => navigate('/auth/register')}
+                onClick={() => router.push('/auth/register')}
                 _hover={{ textDecoration: 'underline' }}
               >
                 Register here
