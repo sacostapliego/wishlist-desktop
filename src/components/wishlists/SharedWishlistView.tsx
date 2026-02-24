@@ -101,7 +101,7 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
       })
 
   return (
-    <Box bg={wishlist.color || COLORS.cardGray} px={8} py={{base:4, md:6}}>
+    <Box bg={wishlist.color || COLORS.cardGray} px={{base:4, md:6}} py={{base:4, md:6}}>
       {/* Header with back button and menu */}
       <HStack justify="space-between" mb={4}>
         <IconButton

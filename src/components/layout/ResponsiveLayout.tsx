@@ -81,6 +81,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
         bg="#141414"
         overflowY="auto"
         overflowX="hidden"
+        className="scroll-container-ios"
         style={{
           ['--sidebar-width' as string]: `${sidebarWidth}px`,
         } as React.CSSProperties}

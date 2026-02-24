@@ -12,6 +12,14 @@ body {
   background-color: #141414;
 }
 
+/* iOS scroll fix - momentum scrolling and prevent scroll chaining */
+@supports (-webkit-touch-callout: none) {
+  .scroll-container-ios {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+}
+
 
 /* 
 @media (prefers-color-scheme: light) {
