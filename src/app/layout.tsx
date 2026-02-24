@@ -4,7 +4,10 @@ import { AuthProvider } from '@/context/AuthContext'
 import { Toaster } from '@/components/ui/toaster'
 import '@/App.css'
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://cardinalwishlist.vercel.app'
+
 export const metadata: Metadata = {
+  metadataBase: new URL(APP_URL),
   title: 'Wishlist',
   description: 'View this wishlist',
   openGraph: {

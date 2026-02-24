@@ -21,9 +21,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     let ogImage: string
     if (wishlist.thumbnail_type === 'image' && wishlist.thumbnail_image) {
-      ogImage = `${API_URL}${wishlist.thumbnail_image}`
+      ogImage = `${API_URL.replace(/\/$/, '')}/wishlists/${id}/thumbnail`
     } else {
-      ogImage = `${API_URL}users/${ownerId}/profile-image`
+      ogImage = `${API_URL.replace(/\/$/, '')}/users/${ownerId}/profile-image`
     }
 
     return {

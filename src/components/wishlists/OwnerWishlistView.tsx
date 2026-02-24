@@ -66,7 +66,9 @@ export function OwnerWishlistView({
   }
 
   const handleShare = async () => {
-    const shareUrl = `${API_URL}shared/vercel/${wishlist.id}`
+    const shareUrl = typeof window !== 'undefined'
+      ? `${window.location.origin}/wishlist/${wishlist.id}`
+      : `https://cardinalwishlist.vercel.app/wishlist/${wishlist.id}`
     try {
       if (!wishlist.is_public) {
         await wishlistAPI.updateWishlist(wishlist.id, { is_public: true })
