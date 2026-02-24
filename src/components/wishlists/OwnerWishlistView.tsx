@@ -204,7 +204,7 @@ export function OwnerWishlistView({
         {/* Wishlist Info */}
         <VStack align="start" gap={2} pb={4}>
           <Heading 
-            size={{ base: "2xl", md: "3xl", lg: "4xl" }} 
+            size={{ base: "xl", md: "3xl", lg: "4xl" }} 
             color="white"
             lineHeight="1.2"
             wordBreak="break-word"
@@ -227,7 +227,7 @@ export function OwnerWishlistView({
               <Avatar.Fallback name={wishlist.owner} />
               <Avatar.Image src={profileImage || undefined} />
             </Avatar.Root>
-            <Text fontWeight="semibold" color="white" cursor="pointer" onClick={() => navigate(`/profile`)}>
+            <Text fontWeight="semibold" color="white" cursor="pointer" onClick={() => navigate(`/profile`)} lineClamp={1}>
               {wishlist.owner}
             </Text>
             <Text display={{ base: 'none', md: 'block' }}>•</Text>

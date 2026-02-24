@@ -13,6 +13,8 @@ import { WishlistFilters } from '../components/wishlists/WishlistFilters'
 import { userAPI } from '../services/user'
 import type { ApiError } from '../types/types'
 import { SimpleGridView } from '../components/wishlists/SimpleGridView'
+import { usePageMeta } from '../hooks/usePageMeta'
+import { API_URL } from '../services/api'
 
 interface Wishlist {
   id: string
@@ -238,6 +240,21 @@ function WishlistPage() {
       setLoading(false)
     }
   }
+
+  const metaImage = (() => {
+    if (!wishlist) return undefined
+    if (wishlist.thumbnail_type === 'image' && wishlist.thumbnail_image) {
+      return `${API_URL}${wishlist.thumbnail_image}`
+    }
+    // For icon type or fallback, use favicon
+    return '/favicon.png'
+  })()
+
+  usePageMeta({
+    title: wishlist?.title,
+    description: wishlist?.description,
+    image: metaImage,
+  })
 
   if (!id) {
     return <Navigate to="/" replace />

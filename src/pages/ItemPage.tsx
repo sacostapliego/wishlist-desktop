@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react'
 import { wishlistAPI } from '../services/wishlist'
 import { ConfirmDialog } from '../components/common/ConfirmDialog'
 import { useAuth } from '../context/AuthContext'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 function ItemPage() {
   const { id: wishlistId, itemId } = useParams<{ id: string; itemId: string }>()
@@ -131,6 +132,18 @@ function ItemPage() {
     onEdit: handleEditItem,
     onShare: handleShareItem,
     onDelete: () => setIsDeleteDialogOpen(true),
+  })
+
+  const metaImage = (() => {
+    if (!item) return undefined
+    if (item.image) return `${API_URL}${item.image}`
+    return '/favicon.png'
+  })()
+
+  usePageMeta({
+    title: item?.name,
+    description: item?.description || `View this item from ${wishlistInfo?.name}`,
+    image: metaImage,
   })
 
   if (!wishlistId || !itemId) {
