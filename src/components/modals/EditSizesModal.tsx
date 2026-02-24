@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { COLORS } from '../../styles/common'
 import { toaster } from '../ui/toaster'
 import userAPI from '../../services/user'
+import { createPortal } from 'react-dom'
 
 interface EditSizesModalProps {
   isOpen: boolean
@@ -66,7 +67,7 @@ export function EditSizesModal({ isOpen, onClose, userId, initialValues, onSucce
 
   if (!isOpen) return null
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       <Box
@@ -233,6 +234,7 @@ export function EditSizesModal({ isOpen, onClose, userId, initialValues, onSucce
           </VStack>
         </Box>
       </Box>
-    </>
+    </>,
+    document.body
   )
 }

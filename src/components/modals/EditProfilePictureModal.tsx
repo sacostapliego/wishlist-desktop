@@ -6,6 +6,7 @@ import { toaster } from '../ui/toaster'
 import userAPI from '../../services/user'
 import { ProfileImageCropper } from '../profile/ProfileImageCropper'
 import imageCompression from 'browser-image-compression'
+import { createPortal } from 'react-dom'
 
 interface EditProfilePictureModalProps {
   isOpen: boolean
@@ -114,7 +115,7 @@ export function EditProfilePictureModal({
 
   if (!isOpen) return null
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       <Box
@@ -232,6 +233,7 @@ export function EditProfilePictureModal({
           )}
         </Box>
       </Box>
-    </>
+    </>,
+    document.body
   )
 }
