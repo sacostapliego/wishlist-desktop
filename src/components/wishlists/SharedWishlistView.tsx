@@ -9,6 +9,7 @@ import { API_URL } from '../../services/api'
 import { WishlistMenu, getSharedMenuOptions } from './WishlistMenu'
 import { friendsAPI } from '../../services/friends'
 import { useAuth } from '../../context/AuthContext'
+import { toaster } from '../ui/toaster'
 import { WishlistThumbnail } from './WishlistThumbnail'
 
 interface SharedWishlistViewProps {
@@ -68,9 +69,9 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
     try {
       setLoading(true)
       
-      // Check friendship status
-      const friendsWishlists = await friendsAPI.getFriendsWishlists()
-      const isAlreadyFriend = friendsWishlists.some(w => w.owner_id === wishlist.owner_id)
+      // Check friendship status using friends list (more reliable than wishlists - friends with no wishlists would be missed)
+      const friendsList = await friendsAPI.getFriendsList()
+      const isAlreadyFriend = friendsList.some(f => f.id === wishlist.owner_id)
       setIsFriend(isAlreadyFriend)
 
       // Check if wishlist is saved
@@ -89,11 +90,69 @@ export function SharedWishlistView({ wishlist }: SharedWishlistViewProps) {
     }
   }
 
+  const handleAddFriend = async () => {
+    if (!wishlist.owner_id) return
+    try {
+      await friendsAPI.sendFriendRequest(wishlist.owner_id)
+      setIsFriend(true)
+      setIsMenuOpen(false)
+      toaster.create({
+        title: 'Success',
+        description: 'Friend request sent!',
+        type: 'success',
+      })
+    } catch (error) {
+      toaster.create({
+        title: 'Error',
+        description: 'Failed to send friend request',
+        type: 'error',
+      })
+    }
+  }
+
+  const handleSaveWishlist = async () => {
+    try {
+      await friendsAPI.saveWishlist(wishlist.id)
+      setIsSaved(true)
+      setIsMenuOpen(false)
+      toaster.create({
+        title: 'Success',
+        description: 'Wishlist saved!',
+        type: 'success',
+      })
+    } catch (error) {
+      toaster.create({
+        title: 'Error',
+        description: 'Failed to save wishlist',
+        type: 'error',
+      })
+    }
+  }
+
+  const handleRemoveSaved = async () => {
+    try {
+      await friendsAPI.unsaveWishlist(wishlist.id)
+      setIsSaved(false)
+      setIsMenuOpen(false)
+      toaster.create({
+        title: 'Success',
+        description: 'Wishlist removed from saved',
+        type: 'success',
+      })
+    } catch (error) {
+      toaster.create({
+        title: 'Error',
+        description: 'Failed to remove saved wishlist',
+        type: 'error',
+      })
+    }
+  }
+
   const menuOptions = isLoggedIn 
     ? getSharedMenuOptions({
-        onAddFriend: !isFriend ? () => console.log('Add friend') : undefined,
-        onSaveWishlist: !isSaved ? () => console.log('Save wishlist') : undefined,
-        onRemoveSaved: isSaved ? () => console.log('Remove saved wishlist') : undefined,
+        onAddFriend: !isFriend ? handleAddFriend : undefined,
+        onSaveWishlist: !isSaved ? handleSaveWishlist : undefined,
+        onRemoveSaved: isSaved ? handleRemoveSaved : undefined,
       })
     : getSharedMenuOptions({
         onCreateAccount: () => router.push('/auth/register'),
