@@ -36,6 +36,7 @@ export function FriendWishlistItem({
       borderRadius="sm"
       overflow="hidden"
       flexShrink={0}
+      bg={color || COLORS.cardGray}
     >
       <Image src={thumbnail.url} alt={title} w="100%" h="100%" objectFit="cover" />
     </Box>
